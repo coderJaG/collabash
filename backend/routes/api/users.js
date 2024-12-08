@@ -10,6 +10,15 @@ const router = express.Router();
 
 //validate singup inputs
 const validateSignupInputs = [
+    check('firstName')
+        .exists({ checkFalsy: true })
+        .withMessage('Please enter a first name'),
+    check('lastName')
+        .exists({ checkFalsy: true })
+        .withMessage('Please enter a last name'),
+    check('mobile')
+        .exists({ checkFalsy: true })
+        .withMessage('Please enter a mobile number'),
     check('email')
         .exists({ checkFalsy: true })
         .isEmail()
@@ -32,14 +41,18 @@ const validateSignupInputs = [
 
 
 router.post('/', validateSignupInputs, async (req, res) => {
-    const { email, username, password } = req.body;
+    const { firstName, lastName, mobile, email, username, password, role } = req.body;
     const hashedPassword = bcrypt.hashSync(password);
-    const user = await User.create({ email, username, hashedPassword });
+    const user = await User.create({ firstName, lastName, mobile, email, username, hashedPassword, role });
 
     const safeUser = {
         id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        mobile: user.mobile,
         email: user.email,
-        username: user.username
+        username: user.username,
+        role: user.role
     }
     await setTokenCookie(res, safeUser);
     return res.json({
