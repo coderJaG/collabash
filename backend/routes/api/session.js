@@ -28,8 +28,12 @@ router.get('/', (req, res) => {
     if (user) {
         const safeUser = {
             id: user.id,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            mobile: user.mobile,
             email: user.email,
-            username: user.username
+            username: user.username,
+            role: user.role
         };
         return res.json({
             user: safeUser
@@ -59,8 +63,12 @@ router.post('/', validateLogin, async (req, res, next) => {
 
     const safeUser = {
         id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        mobile: user.mobile,
         email: user.email,
-        username: user.username
+        username: user.username,
+        role: user.role
     };
 
     await setTokenCookie(res, safeUser);

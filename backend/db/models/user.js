@@ -1,5 +1,15 @@
 'use strict';
 const { Model, Validator } = require('sequelize');
+
+
+//valdate mobile helper
+const validateMobile = (num) => {
+  const isValid = /^\d{3}-\d{3}-\d{4}$/.test(num)
+  if (!isValid) {
+    throw new Error(`Invalid mobile number format ${num}. Must be in the format 999-999-9999`)
+  }
+}
+
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     /**
@@ -12,6 +22,14 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   User.init({
+    firstName: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    lastName: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
     username: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -34,12 +52,28 @@ module.exports = (sequelize, DataTypes) => {
         isEmail: true
       }
     },
+    mobile: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+      validate: {
+        len: [12, 12],
+        isMobile(value) {
+          validateMobile(value)
+        }
+      }
+    },
     hashedPassword: {
       type: DataTypes.STRING.BINARY,
       allowNull: false,
       validate: {
         len: [60, 60]
       }
+    },
+    role: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: 'standard'
     }
   }, {
     sequelize,
