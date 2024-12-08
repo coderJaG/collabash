@@ -8,7 +8,7 @@ const { User } = require('../../db/models');
 
 const router = express.Router();
 
-
+//login user  endpoint
 router.post('/', async (req, res, next) => {
     const { credential, password } = req.body;
     const user = await User.unscoped().findOne({
@@ -40,7 +40,11 @@ router.post('/', async (req, res, next) => {
     })
 });
 
-
+//logout user endpoint
+router.delete('/', (_req, res) => {
+    res.clearCookie('token');
+    res.json({ message: 'success' })
+});
 
 
 module.exports = router;
