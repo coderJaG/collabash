@@ -19,7 +19,7 @@ app.use(cookieParser());
 app.use(express.json());
 
 //Security middleware
-if(!isProduction){
+if (!isProduction) {
     app.use(cors());
 };
 
@@ -49,17 +49,17 @@ app.use(routes);
 app.use((_req, _res, next) => {
     const err = new Error('The requested resource could not be found');
     err.title = "Resource Not Found";
-    err.errors = { message: "The requested resource could not be found"};
+    err.errors = { message: "The requested resource could not be found" };
     err.status = 404;
     next(err);
 });
 
 
 //sequelize error handler
-app.use((err, _req, _res, next)=> {
-    if( err instanceof ValidationError){
+app.use((err, _req, _res, next) => {
+    if (err instanceof ValidationError) {
         let errors = {};
-        for (let error of err.errors){
+        for (let error of err.errors) {
             errors[error.path] = error.message;
         }
         err.title = 'Validation error';
@@ -80,4 +80,4 @@ app.use((err, _reg, res, _next) => {
     });
 });
 
-module.exports = app
+module.exports = app;
