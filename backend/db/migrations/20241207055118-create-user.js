@@ -34,7 +34,7 @@ module.exports = {
         unique: true
       },
       mobile: {
-        type: Sequelize.STRING(12),
+        type: Sequelize.STRING,
         allowNull: false,
         unique: true
       },

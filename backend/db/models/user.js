@@ -6,7 +6,7 @@ const { Model, Validator } = require('sequelize');
 const validateMobile = (num) => {
   const isValid = /^\d{3}-\d{3}-\d{4}$/.test(num)
   if (!isValid) {
-    throw new Error(`Invalid mobile number format ${num}. Must be in the format 999-999-9999`)
+    throw new Error(`Mobile number ${num} must be in the format 999-999-9999`)
   }
 }
 
@@ -57,7 +57,6 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       unique: true,
       validate: {
-        len: [12, 12],
         isMobile(value) {
           validateMobile(value)
         }

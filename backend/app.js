@@ -71,7 +71,6 @@ app.use((err, _req, _res, next) => {
 //format errors error handler
 app.use((err, _reg, res, _next) => {
     res.status(err.status || 500);
-    console.error(err);
     res.json({
         title: err.title || 'server error',
         message: err.message,
