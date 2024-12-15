@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
+
+import { useModal } from '../context/Modal';
 import * as sessionActions from '../../store/session'
 
 
@@ -9,7 +11,7 @@ const LoginFormModal = () => {
     const [credential, setCredential] = useState('');
     const [password, setPassword] = useState('');
     const [errors, setErrors] = useState({});
-
+    const { closeModal } = useModal();
 
 
 
@@ -18,7 +20,11 @@ const LoginFormModal = () => {
         setErrors({})
         try {
             const res = await dispatch(sessionActions.login({ credential, password }));
-            if (!res.ok) {
+
+            if (res.ok) {
+                closeModal()
+            }
+            else {
                 const data = await res.json();
                 if (data && data.errors) {
                     setErrors(data.errors);
