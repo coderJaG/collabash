@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
+import { useModal } from "../context/Modal";
 import * as sessionActions from "../../store/session"
 
 const SignUpFormModal = () => {
     const dispatch = useDispatch();
+    const { closeModal } = useModal();
     const [firstName, setFisrtName] = useState('');
     const [lastName, setLastName] = useState('');
     const [username, setUserName] = useState('');
@@ -30,22 +32,22 @@ const SignUpFormModal = () => {
         }
 
         if (password === confirmPassword) {
-            setErrors({})
-            try {
-                await dispatch(sessionActions.signUp(user));
-            } catch (res) {
-                const data = await res.json();
-                if (data && data.errors) {
-                    setErrors(prevErrors => ({ ...prevErrors, ...data.errors }));
-                }
+            e.preventDefault();
+            if (confirmPassword === password) {
+                setErrors({});
+                return dispatch(sessionActions.signUp(user))
+                    .then(closeModal)
+                    .catch(
+                        async (res) => {
+                            const data = await res.json();
+                            if (data?.errors) setErrors(data.errors);
+                        }
+                    );
             }
-        } else {  
-            setErrors(prevErrors => ({
-                ...prevErrors,
-                confirmPassword: 'Passwords do not match'
-            }));
+            return setErrors({
+                confirmPassword: "Passwords do not match"
+            });
         }
-
     }
 
     //helper to disable signup button if some creteria are not met
@@ -58,7 +60,7 @@ const SignUpFormModal = () => {
     })
 
     disableButton = disableButton || !(username.length >= 4 && password.length >= 6)
-    
+
     return (
         <>
             <h1>LOGIN PAGE</h1>
