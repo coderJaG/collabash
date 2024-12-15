@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { createBrowserRouter, RouterProvider, Outlet } from 'react-router-dom'
-import LoginFormModal from "./components/LoginFormModal";
-import SignUpFormModal from "./components/SignUpFormModal";
 import Navigation from "./components/Navigation";
 
 
@@ -33,14 +31,6 @@ const router = createBrowserRouter([
       {
         path: '/',
         element: <h1>Welcome to Collabash</h1>
-      },
-      {
-        path: '/login',
-        element: < LoginFormModal />
-      },
-      {
-        path: '/signup',
-        element: < SignUpFormModal />
       }
     ]
   }
