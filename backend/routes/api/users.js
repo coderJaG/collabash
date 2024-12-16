@@ -2,7 +2,7 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const { check } = require('express-validator');
 
-const { setTokenCookie } = require('../../utils/auth');
+const { setTokenCookie, requireAuth } = require('../../utils/auth');
 const { User } = require('../../db/models');
 const { handleValidationErrors } = require('../../utils/validation');
 
@@ -40,6 +40,33 @@ const validateSignupInputs = [
 
 
 
+//get all users endpoint
+router.get('/', requireAuth, async (req, res) => {
+    const userId = req.user.id
+    let getAllUsers;
+    const currUser = await User.findByPk(userId);
+
+    // only banker (admin) can view all users
+    if(currUser.role !== 'banker'){
+        return res.status(403).json({
+            "message": "Forbidden"
+        })
+    }
+    if (currUser && currUser.role === 'banker') {
+        getAllUsers = await User.findAll()
+    }
+
+    const usersData = getAllUsers.map(users => {
+        let data = users.toJSON()
+        return data
+    })
+    
+    return res.json({
+        "Users": usersData
+    })
+});
+
+//sign up a user endpoint
 router.post('/', validateSignupInputs, async (req, res) => {
     const { firstName, lastName, mobile, email, username, password, role } = req.body;
     const hashedPassword = bcrypt.hashSync(password);
@@ -58,7 +85,8 @@ router.post('/', validateSignupInputs, async (req, res) => {
     return res.json({
         user: safeUser
     })
-})
+});
+
 
 
 
