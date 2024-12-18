@@ -40,8 +40,41 @@ const validateSignupInputs = [
 
 
 
+//get user by id endpoint
+router.get('/:userId', requireAuth, async (req, res) => {
+    const { userId } = req.params
+    const currUserId = req.user.id
+    let getUserById;
+    const currUser = await User.findByPk(currUserId);
 
+    // only banker (admin) can view  user by id
+    if (currUser.role !== 'banker') {
+        return res.status(403).json({
+            "message": "Forbidden"
+        })
+    }
+    if (currUser && currUser.role === 'banker') {
+        getUserById = await User.findByPk(userId, {      
+            include: {
+                model: Pot,
+                attributes: ['id', 'name', 'amount'],
+                through: { attributes: [] }, // exclude contents from through table
+                as: 'PotsJoined'
+            }
+        })
+        
+        if (!getUserById) {
+            return res.status(404).json({
+                "message": "User couldn't be found"
+            });
+        }
+    }
+    const userData = getUserById.toJSON()
 
+    return res.json({
+        "User": userData
+    })
+});
 
 
 
