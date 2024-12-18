@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs');
 const { check } = require('express-validator');
 
 const { setTokenCookie, requireAuth } = require('../../utils/auth');
-const { User } = require('../../db/models');
+const { User, Pot, PotsUser } = require('../../db/models');
 const { handleValidationErrors } = require('../../utils/validation');
 
 const router = express.Router();
@@ -40,6 +40,11 @@ const validateSignupInputs = [
 
 
 
+
+
+
+
+
 //get all users endpoint
 router.get('/', requireAuth, async (req, res) => {
     const userId = req.user.id
@@ -47,7 +52,7 @@ router.get('/', requireAuth, async (req, res) => {
     const currUser = await User.findByPk(userId);
 
     // only banker (admin) can view all users
-    if(currUser.role !== 'banker'){
+    if (currUser.role !== 'banker') {
         return res.status(403).json({
             "message": "Forbidden"
         })
@@ -60,7 +65,7 @@ router.get('/', requireAuth, async (req, res) => {
         let data = users.toJSON()
         return data
     })
-    
+
     return res.json({
         "Users": usersData
     })
