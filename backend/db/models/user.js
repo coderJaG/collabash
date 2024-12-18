@@ -21,7 +21,8 @@ module.exports = (sequelize, DataTypes) => {
       User.belongsToMany(models.Pot, {
         through: models.PotsUser,
         foreignKey: 'userId',
-        otherKey: 'potId'
+        otherKey: 'potId',
+        as: 'PotsJoined'
       })
     }
   }
