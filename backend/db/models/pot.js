@@ -18,9 +18,21 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Pot.init({
-    ownerId: DataTypes.INTEGER,
-    name: DataTypes.STRING,
-    amount: DataTypes.DECIMAL
+    ownerId: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+      
+    },
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true
+    },
+    amount: {
+      type: DataTypes.DECIMAL,
+      allowNull: false,
+      defaultValue: 0
+    }
   }, {
     sequelize,
     modelName: 'Pot',
