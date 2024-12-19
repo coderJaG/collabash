@@ -2,7 +2,7 @@
 const {Pot} = require('../models')
 
 let options = {};
-if (process.env.NODE_ENV = 'prodution') {
+if (process.env.NODE_ENV === 'prodution') {
   options.schema = process.env.SCHEMA
 }
 
