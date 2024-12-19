@@ -5,8 +5,8 @@ const router = express.Router();
 const { requireAuth } = require('../../utils/auth');
 
 const { Pot, User } = require('../../db/models');
-const { Model } = require('sequelize');
-const { get } = require('./users');
+
+
 
 
 
@@ -17,7 +17,7 @@ router.get('/', requireAuth, async (req, res) => {
     const currUser = req.user;
 
     if (currUser.role !== 'banker') {
-        return res.json({ "message": "Forbidden, you must be a banker" });
+        return res.status(403).json({ "message": "Forbidden, you must be a banker" });
     };
 
 
@@ -67,6 +67,27 @@ router.get('/:potId', requireAuth, async (req, res) => {
     return res.json(getPotById);
 });
 
+
+//create a pot
+router.post('/', requireAuth, async (req, res) => {
+    const currUser = req.user;
+
+    if (currUser.role !== 'banker') {
+        return res.status(403).json({ "message": "Forbidden, you must be a banker" });
+    };
+
+    const { name, amount } = req.body
+    const ownerId = currUser.id
+    const createPot = await Pot.build({
+        ownerId,
+        name,
+        amount
+    });
+
+    await createPot.save();
+    return res.json(createPot);
+});
+
 //edit a pot by id
 router.put('/:potId', requireAuth, async (req, res) => {
 
@@ -93,7 +114,7 @@ router.put('/:potId', requireAuth, async (req, res) => {
 
     //check if current user owns pot
     if (currUser.id !== getPotById.ownerId) {
-        return res.json({ "message": "Forbidden, you must bepot owner" })
+        return res.status(403).json({ "message": "Forbidden, you must bepot owner" })
     } else {
         const { name, amount } = req.body
         getPotById.set({
@@ -107,25 +128,6 @@ router.put('/:potId', requireAuth, async (req, res) => {
 
 });
 
-//create a pot
-router.post('/', requireAuth, async (req, res) => {
-    const currUser = req.user;
-
-    if (currUser.role !== 'banker') {
-        return res.status(403).json({ "message": "Forbidden, you must be a banker" });
-    };
-
-    const { name, amount } = req.body
-    const ownerId = currUser.id
-    const createPot = await Pot.build({
-        ownerId,
-        name,
-        amount
-    });
-
-    await createPot.save();
-    return res.json(createPot);
-});
 
 
 //delete a pot by id
@@ -147,7 +149,7 @@ router.delete('/:potId', requireAuth, async (req, res) => {
     };
 
     if (currUser.id !== getPotById.ownerId) {
-        return res.json({ "message": "Forbidden, you must be pot owner" });
+        return res.status(403).json({ "message": "Forbidden, you must be pot owner" });
     } else {
 
         await getPotById.destroy();

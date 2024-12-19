@@ -14,8 +14,12 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   PotsUser.init({
-    potId: DataTypes.INTEGER,
-    userId: DataTypes.INTEGER
+    potId: {
+      type:DataTypes.INTEGER
+    },
+    userId: {
+      type:DataTypes.INTEGER
+    }
   }, {
     sequelize,
     modelName: 'PotsUser',
