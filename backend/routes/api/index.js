@@ -2,6 +2,7 @@ const router = require('express').Router();
 
 const sessionRouter = require('./session.js');
 const usersRouter = require('./users.js');
+const potsRouter = require('./pots.js')
 
 const { restoreUser } = require('../../utils/auth.js');
 
@@ -14,9 +15,7 @@ router.use('/session', sessionRouter);
 
 router.use('/users', usersRouter);
 
-//test route
-router.post('/test', function (req, res) {
-    res.json({ requestBody: req.body });
-  });
+router.use('/pots', potsRouter)
+
   
 module.exports = router;

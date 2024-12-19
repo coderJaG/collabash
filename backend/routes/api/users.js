@@ -43,9 +43,8 @@ const validateSignupInputs = [
 //get user by id endpoint
 router.get('/:userId', requireAuth, async (req, res) => {
     const { userId } = req.params
-    const currUserId = req.user.id
+    const currUser = req.user;
     let getUserById;
-    const currUser = await User.findByPk(currUserId);
 
     // only banker (admin) can view  user by id
     if (currUser.role !== 'banker') {
@@ -69,6 +68,7 @@ router.get('/:userId', requireAuth, async (req, res) => {
             });
         }
     }
+    console.log(getUserById)
     const userData = getUserById.toJSON()
 
     return res.json({

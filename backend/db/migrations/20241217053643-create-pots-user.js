@@ -2,8 +2,8 @@
 
 
 let options ={};
-if(process.env.NODE_ENV === 'production'){
-  options.schema = process.env.SCHEMA
+if (process.env.NODE_ENV === 'production') {
+  options.schema = process.env.SCHEMA;
 }
 
 /** @type {import('sequelize-cli').Migration} */
