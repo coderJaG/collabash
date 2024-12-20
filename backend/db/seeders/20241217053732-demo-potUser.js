@@ -19,7 +19,11 @@ module.exports = {
       },
       {
         potId: 3,
-        userId: 4
+        userId: 2
+      },
+      {
+        potId: 1,
+        userId: 3
       }
     ], options)
   },

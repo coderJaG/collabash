@@ -27,6 +27,19 @@ module.exports = {
       amount: {
         type: Sequelize.DECIMAL
       },
+      startDate: {
+        allowNull: true,
+        type: Sequelize.DATE
+      },
+      endDate: {
+        allowNull: true,
+        type: Sequelize.DATE
+      },
+      active: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE
