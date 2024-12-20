@@ -13,17 +13,26 @@ module.exports = {
       {
         ownerId: 1,
         name: 'Cash Pot',
-        amount: 10000.00
+        amount: 10000.00,
+        startDate: '12/01/2024',
+        endDate: '06/02/2025',
+        active: true
       },
       {
         ownerId: 1,
         name: 'Rainy Day',
-        amount: 15500.00
+        amount: 15500.00,
+        startDate: '11/10/2023',
+        endDate: '02/10/2024',
+        active: false
       },
       {
         ownerId: 1,
         name: 'Friends and Family',
-        amount: 5000.00
+        amount: 5000.00,
+        startDate: '11/10/2024',
+        endDate: '02/10/2025',
+        active: true
       }
     ], options);
 

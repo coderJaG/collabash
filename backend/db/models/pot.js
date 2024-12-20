@@ -32,6 +32,20 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.DECIMAL,
       allowNull: false,
       defaultValue: 0
+    },
+    startDate: {
+      type: DataTypes.DATE,
+      allowNull: true
+      
+    },
+    endDate: {
+      type: DataTypes.DATE,
+      allowNull: true
+    },
+    active: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false
     }
   }, {
     sequelize,
