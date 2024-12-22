@@ -7,6 +7,7 @@ import configureStore from './store';
 
 import { restoreCSRF, csrfFetch } from './store/csrf';
 import * as sessionActions from './store/session'
+import * as potsActions from './store/pots'
 
 import { Modal, ModalProvider } from './components/context/Modal';
 
@@ -18,6 +19,7 @@ if (import.meta.env.MODE !== 'production') {
   window.csrfFetch = csrfFetch;
   window.store = store;
   window.sessionActions = sessionActions
+  window.potsActions = potsActions
 }
 
 ReactDOM.createRoot(document.getElementById('root')).render(
