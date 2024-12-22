@@ -1,0 +1,37 @@
+
+.pot-form-container {
+    
+    width: 1024px;
+    margin: auto;
+
+}
+
+.pot-form-header {
+    background-color: #3498db;
+    border-radius: 10px;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.create-pot-form {
+    border: 1px solid black;
+    display: block;
+    margin:auto;
+    width: 255px;
+}
+
+.create-pot-form input{
+    border: 1px solid green;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    color: blue;
+}
+
+.create-pot-form div{
+    display: flex;
+    justify-content: space-between;
+}
+
+.create-pot-form-button {   
+   margin: auto;
+}

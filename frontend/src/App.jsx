@@ -3,6 +3,9 @@ import { useDispatch } from "react-redux";
 import { createBrowserRouter, RouterProvider, Outlet } from 'react-router-dom'
 import Navigation from "./components/Navigation";
 import LandingPage from "./components/LandingPage";
+import GetAllPotsPage from "./components/GetAllPotsPage";
+import CreatePotsPage from "./components/CreatePotsPage";
+import PotsLayout from "./components/PotsLayout";
 
 
 import * as sessionActions from './store/session'
@@ -32,6 +35,20 @@ const router = createBrowserRouter([
       {
         path: '/',
         element: <LandingPage />
+      },
+      {
+        path: '/pots',
+        element: <PotsLayout />,
+        children: [
+          {
+            index: true,
+            element: <GetAllPotsPage />
+          },
+          {
+            path: 'create',
+            element: <CreatePotsPage />
+          }
+        ]
       }
     ]
   }
