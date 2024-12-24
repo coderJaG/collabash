@@ -6,6 +6,7 @@ import LandingPage from "./components/LandingPage";
 import GetAllPotsPage from "./components/GetAllPotsPage";
 import CreatePotsPage from "./components/CreatePotsPage";
 import PotsLayout from "./components/PotsLayout";
+import PotDetailsPage from "./components/PotDetailspage";
 
 
 import * as sessionActions from './store/session'
@@ -49,6 +50,10 @@ const router = createBrowserRouter([
             element: <CreatePotsPage />
           }
         ]
+      },
+      {
+        path: '/pots/:potId',
+        element: <PotDetailsPage />
       }
     ]
   }
