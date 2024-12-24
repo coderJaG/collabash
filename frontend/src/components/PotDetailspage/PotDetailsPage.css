@@ -1,0 +1,32 @@
+.pot-container {
+    width: 350px;
+    margin: auto;
+    border: 1px solid black;
+    display: flex;
+    flex-direction: column;
+}
+
+.pot-container > div {
+    width: 100%;
+    background-color: #1abc9c;
+    border: 1px solid white;
+    display: flex;
+    justify-content: space-around;
+}
+.pot-header {
+    margin: auto;
+    text-align: center;
+    width: 1024px;
+    background-color: #3498db;
+    border-radius: 10px;
+}
+
+.error {
+    margin: 30px auto;
+    width: 400px;
+    border-radius: 5px;
+    background-color: #1abc9c;
+    text-align: center;
+    color: white;
+    font-weight: bold;
+}

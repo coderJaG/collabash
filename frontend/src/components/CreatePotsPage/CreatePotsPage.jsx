@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import * as potsAction from '../../store/pots';
+import * as potsActions from '../../store/pots';
 import './CreatePotsPage.css'
 
 const CreatePotsPage = () => {
@@ -27,8 +27,8 @@ const CreatePotsPage = () => {
             endDate,
             active
         }
-        return dispacth(potsAction.createNewPot(potData))
-            .then(res => { navigate(`/pots/${res.id}`) })
+        return dispacth(potsActions.createNewPot(potData))
+            .then(async res => { navigate(`/pots/${res.id}`) })
             .catch(
                 async (res) => {
                     const data = await res.json();

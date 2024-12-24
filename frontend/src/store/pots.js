@@ -44,7 +44,7 @@ export const getPots = () => async (dispatch) => {
     const res = await csrfFetch('/api/pots');
     const data = await res.json();
     dispatch(getAllPots(data));
-    return data;
+    return res;
 }
 
 //create new pot action thunk
@@ -78,16 +78,18 @@ export const updateAPot = (potdata, potId) => async (dispatch) => {
         })
     });
     const data = await res.json()
+
     dispatch(updatePot(data));
-    return data;
+    return res;
 };
 
 //get pot by id action thunk
-export const getAPotById = (spotId) => async (dispatch) => {
-    const res = await csrfFetch(`/api/pots/${spotId}`);
+export const getAPotById = (potId) => async (dispatch) => {
+    const res = await csrfFetch(`/api/pots/${potId}`);
     const data = await res.json();
     dispatch(getPotById(data));
-    return data;
+    return res;
+
 };
 
 export const deletePot = (spotId) => async (dispatch) => {
