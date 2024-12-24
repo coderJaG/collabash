@@ -7,25 +7,20 @@ const { requireAuth } = require('../../utils/auth');
 const { Pot, User } = require('../../db/models');
 
 
-
-
-
-
-
 //get all pots
 router.get('/', requireAuth, async (req, res) => {
     const currUser = req.user;
 
     if (currUser.role !== 'banker') {
-        return res.status(403).json({ "message": "Forbidden, you must be a banker" });
+        return res.status(403).json({ "message": "Forbidden, you must be a banker." });
     };
 
 
     const getAllPots = await Pot.findAll({
-        attributes: ['id', 'ownerId', 'name', 'amount', 'startDate', 'endDate', 'active'],
+        attributes: ['id', 'ownerId', 'ownerName', 'name', 'amount', 'startDate', 'endDate', 'active'],
         include: {
             model: User,
-            through: {attributes: []}
+            through: { attributes: [] }
         }
     });
     if (!getAllPots) {
@@ -48,27 +43,28 @@ router.get('/:potId', requireAuth, async (req, res) => {
     const currUser = req.user;
     const { potId } = req.params;
 
-    if (currUser.role !== 'banker') {
-        return res.status(403).json({ "message": "Forbidden, you must be a banker" });
-    };
-
     const getPotById = await Pot.findByPk(potId, {
-        attributes: ['id', 'ownerId', 'name', 'amount', 'startDate', 'endDate',  'active'],
+        attributes: ['id', 'ownerId', 'ownerName', 'name', 'amount', 'startDate', 'endDate', 'active'],
         include: {
             model: User,
             through: { attributes: [] }
         }
     });
 
-
     if (!getPotById) {
         return res.status(404).json({
-            message: "Pot not found!!"
+            "message": "Pot not found!!"
         });
     };
+    
+    const isAuthorized = currUser.role === 'banker' ||
+        (currUser.role === 'standard' && getPotById.Users.some(user => user.id === currUser.id))
 
-
-    return res.json(getPotById);
+    if (!isAuthorized) {
+        return res.status(403).json({ "message" : "Forbidden, you must be a banker or a member of the pot." });
+    };
+    
+    return res.json(getPotById);    
 });
 
 
@@ -77,13 +73,15 @@ router.post('/', requireAuth, async (req, res) => {
     const currUser = req.user;
 
     if (currUser.role !== 'banker') {
-        return res.status(403).json({ "message": "Forbidden, you must be a banker" });
+        return res.status(403).json({ "message": "Forbidden, you must be a banker." });
     };
 
     const { name, amount, startDate, endDate, active } = req.body
     const ownerId = currUser.id
+    const ownerName = `${currUser.firstName} ${currUser.lastname}`
     const createPot = await Pot.build({
         ownerId,
+        ownerName,
         name,
         amount,
         startDate,
@@ -100,13 +98,14 @@ router.put('/:potId', requireAuth, async (req, res) => {
 
     const currUser = req.user;
     const { potId } = req.params;
+    
 
     if (currUser.role !== 'banker') {
         return res.status(403).json({ "message": "Forbidden, you must be a banker" })
     };
 
     const getPotById = await Pot.findByPk(potId, {
-        attributes: ['id', 'ownerId', 'name', 'amount', 'startDate', 'endDate',  'active'],
+        attributes: ['id', 'ownerId', 'ownerName', 'name', 'amount', 'startDate', 'endDate', 'active'],
         include: {
             model: User,
             through: { attributes: [] }
@@ -123,7 +122,7 @@ router.put('/:potId', requireAuth, async (req, res) => {
     if (currUser.id !== getPotById.ownerId) {
         return res.status(403).json({ "message": "Forbidden, you must bepot owner" })
     } else {
-        const { name, amount, startDate, endDate, active  } = req.body
+        const { name, amount, startDate, endDate, active } = req.body
         getPotById.set({
             name,
             amount,
