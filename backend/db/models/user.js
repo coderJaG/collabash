@@ -23,7 +23,9 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'userId',
         otherKey: 'potId',
         as: 'PotsJoined'
-      })
+      });
+      User.hasMany(models.WeeklyPayment, { foreignKey: 'userId' });
+     
     }
   }
   User.init({
@@ -67,6 +69,9 @@ module.exports = (sequelize, DataTypes) => {
         }
       }
     },
+    drawDate: {
+      type: DataTypes.STRING
+    },
     hashedPassword: {
       type: DataTypes.STRING.BINARY,
       allowNull: false,
@@ -84,7 +89,7 @@ module.exports = (sequelize, DataTypes) => {
     modelName: 'User',
     defaultScope: {
       attributes: {
-        exclude: ['hashedPassword', 'email', 'createdAt', 'updatedAt'],
+        exclude: ['username', 'hashedPassword', 'email', 'createdAt', 'updatedAt'],
       },
     },
   });

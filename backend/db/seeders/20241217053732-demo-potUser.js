@@ -11,7 +11,7 @@ module.exports = {
     await PotsUser.bulkCreate([
       {
         potId: 1,
-        userId: 2
+        userId: 2,
       },
       {
         potId: 2,

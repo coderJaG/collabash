@@ -1,15 +1,13 @@
 'use strict';
 
-
-let options ={};
-if (process.env.NODE_ENV === 'production') {
-  options.schema = process.env.SCHEMA;
+let options = {};
+if(process.env.NODE_ENV === 'production'){
+  options.schema = process.env.SCHEMA
 }
-
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('PotsUsers', {
+    await queryInterface.createTable('WeeklyPayments', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -17,10 +15,23 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       potId: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        allowNull: false
       },
       userId: {
         type: Sequelize.INTEGER
+      },
+      weekNumber: {
+        type: Sequelize.INTEGER,
+        allowNull: false
+      },
+      paidHand: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false
+      },
+      gotDraw: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false
       },
       createdAt: {
         allowNull: false,
@@ -35,7 +46,7 @@ module.exports = {
     }, options);
   },
   async down(queryInterface, Sequelize) {
-    options.tableName = 'PotsUsers'
-    return queryInterface.dropTable('PotsUsers');
+    options.tableName = 'WeeklyPaments'
+    await queryInterface.dropTable('WeeklyPayments');
   }
 };

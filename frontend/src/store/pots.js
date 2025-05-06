@@ -6,6 +6,7 @@ const GET_POT_BY_ID = 'pots/getPotById';
 const ADD_NEW_POT = 'pots/addNewPot';
 const REMOVE_POT = 'pots/removePot';
 const UPDATE_POT = 'pots/updatePot';
+const UPDATE_WEEKLY_PAYMENT = 'pots/UPDATE_WEEKLY_PAYMENT'; 
 
 //get all pots thunk
 const getAllPots = (pot) => ({
@@ -39,6 +40,8 @@ const removePot = (potId) => ({
     payload: potId
 });
 
+
+
 //get all pots actionthunk
 export const getPots = () => async (dispatch) => {
     const res = await csrfFetch('/api/pots');
@@ -49,11 +52,12 @@ export const getPots = () => async (dispatch) => {
 
 //create new pot action thunk
 export const createNewPot = (potdata) => async (dispatch) => {
-    const { ownerId, name, amount, startDate, endDate, active } = potdata;
+    const { ownerId, hand, name, amount, startDate, endDate, active } = potdata;
     let res = await csrfFetch('/api/pots', {
         method: 'POST',
         body: JSON.stringify({
             ownerId,
+            hand,
             name,
             amount,
             startDate,
@@ -69,12 +73,17 @@ export const createNewPot = (potdata) => async (dispatch) => {
 
 //update a pot action thunk
 export const updateAPot = (potdata, potId) => async (dispatch) => {
-    const { name, amount } = potdata;
+    const { ownerId, name, hand, amount, startDate, endDate, active } = potdata;
     let res = await csrfFetch(`/api/pots/${potId}`, {
         method: 'PUT',
         body: JSON.stringify({
+            ownerId,
+            hand,
             name,
-            amount
+            amount,
+            startDate,
+            endDate,
+            active
         })
     });
     const data = await res.json()
@@ -99,6 +108,8 @@ export const deletePot = (spotId) => async (dispatch) => {
     dispatch(removePot(spotId));
     return res;
 };
+
+
 
 
 const initialState = {};
@@ -126,6 +137,22 @@ const potsReducer = (state = initialState, action) => {
             delete newState[action.payload]
             return newState
         }
+        case UPDATE_WEEKLY_PAYMENT: // Handle the new action
+            if (state.pot && state.pot.Users) {
+                const updatedUsers = state.pot.Users.map(user => {
+                    if (user.id === action.payload.userId) {
+                        const updatedUser = { ...user };
+                        //  Use action.payload to update.  The backend should return the updated transaction.
+                        updatedUser.paidHand = action.payload.paidHand;
+                        updatedUser.gotDraw = action.payload.gotDraw;
+
+                        return updatedUser;
+                    }
+                    return user;
+                });
+                return { ...state, pot: { ...state.pot, Users: updatedUsers } };
+            }
+            return state;
         default: {
             return state
         }

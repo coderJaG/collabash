@@ -9,6 +9,7 @@ const CreatePotsPage = () => {
     const navigate = useNavigate();
     const currUser = useSelector(state => state.session.user);
     const [name, setName] = useState('');
+    const [hand, setHand] = useState(0)
     const [amount, setAmount] = useState(0);
     const defaultDate = new Date().toISOString().split('T')[0] //set current date as default in yyyy-mm-dd format
     const [startDate, setStartDate] = useState(defaultDate);
@@ -51,6 +52,15 @@ const CreatePotsPage = () => {
                         placeholder="Enter name of pot"
                     />
                     {errors.name && <p>{errors.name}</p>}
+                </div>
+                <div className="hand-amount">
+                    <label>Amount per Hand</label>
+                    <input
+                    type="text"
+                    value={hand}
+                    onChange={e=> setHand(e.target.value)}
+                    placeholder="0"
+                    />
                 </div>
                 <div className="pot-amount">
                     <label>Pot Amount: </label>

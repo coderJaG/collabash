@@ -18,6 +18,7 @@ module.exports = {
         username: 'Demo-lition',
         email: 'demo@demo.io',
         mobile: '239-932-2392',
+        drawDate: '12/12/2025',
         hashedPassword: bcrypt.hashSync('password'),
         role: 'banker'
       },
@@ -27,6 +28,7 @@ module.exports = {
         username: 'TestUser1',
         email: 'user1@test.io',
         mobile: '999-999-9999',
+        drawDate: '11/12/2025',
         hashedPassword: bcrypt.hashSync('password2'),
         role: 'standard'
       },
@@ -36,6 +38,7 @@ module.exports = {
         username: 'TestUser2',
         email: 'user2@test.io',
         mobile: '111-111-1111',
+        drawDate: '08/12/2025',
         hashedPassword: bcrypt.hashSync('password3'),
         role: 'standard'
       }

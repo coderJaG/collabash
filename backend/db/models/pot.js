@@ -14,7 +14,8 @@ module.exports = (sequelize, DataTypes) => {
         through: models.PotsUser,
         foreignKey: 'potId',
         otherKey: 'userId'
-      })
+      });
+      Pot.hasMany(models.WeeklyPayment, { foreignKey: 'potId' });
     }
   }
   Pot.init({
@@ -31,6 +32,11 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
       unique: true
+    },
+    hand: {
+      type: DataTypes.DECIMAL,
+      allowNull: false,
+      defaultValue: 0
     },
     amount: {
       type: DataTypes.DECIMAL,

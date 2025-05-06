@@ -38,6 +38,9 @@ module.exports = {
         allowNull: false,
         unique: true
       },
+      drawDate: {
+        type: Sequelize.STRING
+      },
       hashedPassword: {
         type: Sequelize.STRING.BINARY,
         allowNull: false

@@ -1,17 +1,22 @@
 .pot-container {
+    background-color: #1abc9c;
+    border-radius: 10px;
     width: 350px;
     margin: auto;
     border: 1px solid black;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
+    padding: 5px;
 }
 
 .pot-container > div {
     width: 100%;
-    background-color: #1abc9c;
-    border: 1px solid white;
+    
+
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
+    text-align: left;
 }
 .pot-header {
     margin: auto;
@@ -30,3 +35,53 @@
     color: white;
     font-weight: bold;
 }
+
+
+.members-div {
+    border-radius: 10px;
+    /* border-top-left-radius: 10px;
+    border-top-right-radius: 10px; */
+    display: flex;
+    flex-direction: column;
+    background-color: #ec101050;
+    overflow: hidden;
+    padding-left: 1px;
+    padding-right: 1px;
+    padding-bottom: 5px;
+  }
+
+  .members {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+  }
+
+  .members > span {
+    text-align: center;
+    font-weight: bold;
+  }
+
+  .members > div {
+    display: flex;
+    justify-content: space-around;
+    
+  }
+
+  .members-list-div {
+    /* padding-left: 20px; */
+  }
+
+  .member-header {
+    display: flex; 
+    justify-content: space-around; 
+    /* background-color: #ddd;  */
+    font-weight: bold; 
+  }
+  
+  .members-list li {
+    border-radius: 5px;
+    display: flex; 
+    justify-content: space-around; 
+    background-color: white;
+    margin-bottom: 1px;
+  }

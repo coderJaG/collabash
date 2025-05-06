@@ -53,7 +53,7 @@ router.get('/:userId', requireAuth, async (req, res) => {
         })
     }
     if (currUser && currUser.role === 'banker') {
-        getUserById = await User.findByPk(userId, {      
+        getUserById = await User.findByPk(userId, {
             include: {
                 model: Pot,
                 attributes: ['id', 'name', 'amount'],
@@ -61,7 +61,7 @@ router.get('/:userId', requireAuth, async (req, res) => {
                 as: 'PotsJoined'
             }
         })
-        
+
         if (!getUserById) {
             return res.status(404).json({
                 "message": "User couldn't be found"
@@ -106,9 +106,9 @@ router.get('/', requireAuth, async (req, res) => {
 
 //sign up a user endpoint
 router.post('/', validateSignupInputs, async (req, res) => {
-    const { firstName, lastName, mobile, email, username, password, role } = req.body;
+    const { firstName, lastName, mobile, email, drawDate, username, password, role } = req.body;
     const hashedPassword = bcrypt.hashSync(password);
-    const user = await User.create({ firstName, lastName, mobile, email, username, hashedPassword, role });
+    const user = await User.create({ firstName, lastName, mobile, drawDate, email, username, hashedPassword, role });
 
     const safeUser = {
         id: user.id,
@@ -120,6 +120,43 @@ router.post('/', validateSignupInputs, async (req, res) => {
         role: user.role
     }
     await setTokenCookie(res, safeUser);
+    return res.json({
+        user: safeUser
+    })
+});
+
+//edit a user endpoint
+router.put('/:userId', validateSignupInputs, async (req, res) => {
+    const currUser = req.user
+    const { userId } = req.params
+
+    if (currUser.role !== 'banker'|| currUser.id !== userId) {
+        return res.status(403).json({ "message": "Forbidden, this must be your profile if you are not a banker" })
+    }
+    const { firstName, lastName, mobile, drawDate, email, username, password, role } = req.body;
+
+
+    const getUserById = await User.findByPk(userId)
+    if (!getUserById) {
+        return res.status(404).json({ "message": "User not found" })
+    }
+
+    const hashedPassword = bcrypt.hashSync(password);
+    const user = await getUserById.set({ firstName, lastName, mobile, drawDate, email, username, hashedPassword, role });
+    await getUserById.save()
+
+    const safeUser = {
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        mobile: user.mobile,
+        role: user.role
+    }
+
+    if(currUser.id === user.id){
+        await setTokenCookie(res, safeUser)
+    }
+
     return res.json({
         user: safeUser
     })

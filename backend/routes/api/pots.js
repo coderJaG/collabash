@@ -17,7 +17,7 @@ router.get('/', requireAuth, async (req, res) => {
 
 
     const getAllPots = await Pot.findAll({
-        attributes: ['id', 'ownerId', 'ownerName', 'name', 'amount', 'startDate', 'endDate', 'active'],
+        attributes: ['id', 'ownerId', 'ownerName', 'name', 'amount','startDate', 'endDate', 'active', ],
         include: {
             model: User,
             through: { attributes: [] }
@@ -44,7 +44,7 @@ router.get('/:potId', requireAuth, async (req, res) => {
     const { potId } = req.params;
 
     const getPotById = await Pot.findByPk(potId, {
-        attributes: ['id', 'ownerId', 'ownerName', 'name', 'amount', 'startDate', 'endDate', 'active'],
+        attributes: ['id', 'ownerId', 'ownerName', 'name', 'hand', 'amount', 'startDate', 'endDate', 'active'],
         include: {
             model: User,
             through: { attributes: [] }
@@ -76,13 +76,14 @@ router.post('/', requireAuth, async (req, res) => {
         return res.status(403).json({ "message": "Forbidden, you must be a banker." });
     };
 
-    const { name, amount, startDate, endDate, active } = req.body
+    const { name, hand, amount, startDate, endDate, active } = req.body
     const ownerId = currUser.id
     const ownerName = `${currUser.firstName} ${currUser.lastname}`
     const createPot = await Pot.build({
         ownerId,
         ownerName,
         name,
+        hand,
         amount,
         startDate,
         endDate,
@@ -105,7 +106,7 @@ router.put('/:potId', requireAuth, async (req, res) => {
     };
 
     const getPotById = await Pot.findByPk(potId, {
-        attributes: ['id', 'ownerId', 'ownerName', 'name', 'amount', 'startDate', 'endDate', 'active'],
+        attributes: ['id', 'ownerId', 'ownerName', 'name', 'hand', 'amount', 'startDate', 'endDate', 'active'],
         include: {
             model: User,
             through: { attributes: [] }
@@ -122,9 +123,10 @@ router.put('/:potId', requireAuth, async (req, res) => {
     if (currUser.id !== getPotById.ownerId) {
         return res.status(403).json({ "message": "Forbidden, you must bepot owner" })
     } else {
-        const { name, amount, startDate, endDate, active } = req.body
+        const { name, amount, hand, startDate, endDate, active } = req.body
         getPotById.set({
             name,
+            hand,
             amount,
             startDate,
             endDate,
