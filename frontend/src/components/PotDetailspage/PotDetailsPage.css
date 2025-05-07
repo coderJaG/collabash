@@ -1,112 +1,142 @@
 .pot-container {
-    background-color: #1abc9c;
-    border-radius: 10px;
-    width: 350px;
-    margin: auto;
-    border: 1px solid black;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    padding: 5px;
+  background-color: #1abc9c;
+  border-radius: 10px;
+  width: 350px;
+  margin: auto;
+  border: 1px solid black;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 5px;
 }
 
-.pot-container > div {
-    width: 100%;
-    
+.pot-container>div {
+  width: 100%;
 
-    display: flex;
-    justify-content: space-between;
-    text-align: left;
+
+  display: flex;
+  justify-content: space-between;
+  text-align: left;
 }
+
 .pot-header {
-    margin: auto;
-    text-align: center;
-    width: 1024px;
-    background-color: #3498db;
-    border-radius: 10px;
+  margin: auto auto 30px auto;
+  text-align: center;
+  width: 1024px;
+  background-color: #3498db;
+  border-radius: 10px;
 }
 
 .error {
-    margin: 30px auto;
-    width: 400px;
-    border-radius: 5px;
-    background-color: #1abc9c;
-    text-align: center;
-    color: white;
-    font-weight: bold;
+  margin: 30px auto;
+  width: 400px;
+  border-radius: 5px;
+  background-color: #1abc9c;
+  text-align: center;
+  color: white;
+  font-weight: bold;
 }
 
 
 .members-div {
-    border-radius: 10px;
-    /* border-top-left-radius: 10px;
+  border-radius: 10px;
+  /* border-top-left-radius: 10px;
     border-top-right-radius: 10px; */
-    display: flex;
-    flex-direction: column;
-    background-color: #ec101050;
-    overflow: hidden;
-    padding-left: 1px;
-    padding-right: 1px;
-    padding-bottom: 5px;
+  display: flex;
+  flex-direction: column;
+  background-color: #ec101050;
+  overflow: hidden;
+  padding-left: 1px;
+  padding-right: 1px;
+  padding-bottom: 5px;
+}
+
+.members {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
+
+.members>span {
+  text-align: center;
+  font-weight: bold;
+}
+
+.members>div {
+  display: flex;
+  justify-content: space-around;
+
+}
+
+.members-list-div {
+  /* padding-left: 20px; */
+}
+
+.member-header {
+  display: flex;
+  justify-content: space-around;
+  /* background-color: #ddd;  */
+  font-weight: bold;
+}
+
+.members-list li {
+  border-radius: 5px;
+  display: flex;
+  justify-content: space-around;
+  background-color: white;
+  margin-bottom: 1px;
+}
+
+
+/* buttons bar */
+.buttons-bar {
+  display: flex;
+  margin: auto auto 30px auto;
+  justify-content: space-between;
+  width: 1024px;
+}
+
+/* success-message for deleting a pot */
+.success-message {
+  text-align: center;
+}
+
+
+.hidden {
+  display: none ;
+}
+
+/* loading animation */
+.loading-spinner-container {
+  display: flex;
+  flex-direction: column;
+  /* Stack spinner and text */
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  color: #555;
+  /* Color for the text */
+}
+
+.loading-spinner {
+  border: 5px solid #f3f3f3;
+  /* Light grey */
+  border-top: 5px solid #588157;
+  /* Your theme green, or any color you like */
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 10px;
+  /* Space between spinner and text */
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
   }
 
-  .members {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
+  100% {
+    transform: rotate(360deg);
   }
-
-  .members > span {
-    text-align: center;
-    font-weight: bold;
-  }
-
-  .members > div {
-    display: flex;
-    justify-content: space-around;
-    
-  }
-
-  .members-list-div {
-    /* padding-left: 20px; */
-  }
-
-  .member-header {
-    display: flex; 
-    justify-content: space-around; 
-    /* background-color: #ddd;  */
-    font-weight: bold; 
-  }
-  
-  .members-list li {
-    border-radius: 5px;
-    display: flex; 
-    justify-content: space-around; 
-    background-color: white;
-    margin-bottom: 1px;
-  }
-
-  /* loading animation */
-  .loading-spinner-container {
-    display: flex;
-    flex-direction: column; /* Stack spinner and text */
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    color: #555; /* Color for the text */
-  }
-  
-  .loading-spinner {
-    border: 5px solid #f3f3f3; /* Light grey */
-    border-top: 5px solid #588157; /* Your theme green, or any color you like */
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    animation: spin 1s linear infinite;
-    margin-bottom: 10px; /* Space between spinner and text */
-  }
-  
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
+}

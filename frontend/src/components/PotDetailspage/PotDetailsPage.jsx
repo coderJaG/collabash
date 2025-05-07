@@ -4,13 +4,15 @@ import { MdPlusOne } from "react-icons/md";
 import { FaCheck, FaTimes } from 'react-icons/fa';
 import * as potsActions from '../../store/pots';
 import { fetchWeeklyStatus, updateWeeklyPayment } from '../../store/transactions';
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import './PotDetailsPage.css';
+
 
 const PotDetailsPage = () => {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const { potId } = useParams();
-    const numPotId = parseInt(potId, 10);
+    const numPotId = parseInt(potId, 10); //enure pot id is an int
 
     const [currentWeek, setCurrentWeek] = useState(1);
 
@@ -20,7 +22,9 @@ const PotDetailsPage = () => {
     const potDetails = useSelector(state => state.pots.currentPotDetails);
     const isLoading = useSelector(state => state.pots.isLoadingDetails);
     const error = useSelector(state => state.pots.errorDetails);
-    // const isLoadingPot = !potDetails; // Simple check if potDetails not loaded
+    const deletePotSuccess = useSelector(state => state.pots.deletePotSuccess);
+    const deletePotError = useSelector(state => state.pots.deletePotError);
+    const isDeleting = useSelector(state =>  state.pots.isDeleting);
 
     // Select weekly data, loading, and error state from the transactions slice
     const weeklyStatusMap = useSelector(state => state.transactions.weeklyStatusByPot[numPotId]?.[currentWeek] || {});
@@ -36,22 +40,37 @@ const PotDetailsPage = () => {
         if (numPotId) {
             dispatch(potsActions.getAPotById(numPotId));
         }
+        return () => {
+            dispatch(potsActions.resetDeletePotStatus()); // reset delete status if user navigates away before delete redirect completes.
+        }
     }, [dispatch, numPotId]);
 
 
-   
+
 
     // --- Effect to Fetch Weekly Payment Status ---
     useEffect(() => {
         // Fetch only if we have a valid potId and the pot details seem loaded
         if (numPotId && !isLoading && potDetails) {
-
             dispatch(fetchWeeklyStatus(numPotId, currentWeek));
         }
     }, [dispatch, numPotId, currentWeek, isLoading, potDetails]);
 
 
-    
+    //handle confirmation after pot delete
+    useEffect(() => {
+        let timerId;
+        if (deletePotSuccess) { // Use the flag from Redux store
+            timerId = setTimeout(() => {
+                navigate('/pots/');
+                dispatch(potsActions.resetDeletePotStatus()); // Reset Redux state after navigation
+            }, 3000); // Display success message for 3 seconds
+        }
+        return () => { // Cleanup function for the timer
+            clearTimeout(timerId);
+        };
+    }, [deletePotSuccess, navigate, dispatch]);
+
 
     //format date to MM/DD/YYYY
     const formatDate = (dateStr) => {
@@ -64,6 +83,7 @@ const PotDetailsPage = () => {
         return `${month.toString().padStart(2, '0')}/${day.toString().padStart(2, '0')}/${year}`;
     };
 
+    //handle paid and draw checkboxes
     const handlePaymentChange = (userId, week, paymentType, isPaid) => {
         const transactionData = {
             potId: numPotId,
@@ -75,13 +95,40 @@ const PotDetailsPage = () => {
         dispatch(updateWeeklyPayment(transactionData));
     };
 
+
+    //handle delete pot button
+    const handleDeletePot = async (potIdToDelete) => {
+        if (window.confirm("Are you sure you want to delete this pot? This action cannot be undone.")) {
+            dispatch(potsActions.deletePot(potIdToDelete));
+        }
+    };
+
+
     // --- Render Logic ---
-    if (isLoading) {
+
+    if (deletePotSuccess) {
         return (
+            <>
+                <h1 className="pot-header">Pot Details</h1>
+                {/* Minimal UI during redirect */}
+                <div className="buttons-bar" style={{ marginBottom: '20px' }}>
+                    <div className="get-all-pots-button">
+                        <button onClick={() => navigate('/pots/')} >All Pots</button>
+                    </div>
+                </div>
+                <div className="success-message">Pot successfully deleted! Redirecting...</div>
+            </>
+        );
+    }
+
+    if (isLoading) {
+        return (<>
+            <div className="pot-header">Pot Details</div>
             <div className="loading-spinner-container">
                 <div className="loading-spinner"></div>
                 <p>Loading Pot Details...</p>
             </div>
+        </>
         );
     }
 
@@ -89,32 +136,46 @@ const PotDetailsPage = () => {
         return <div className="error">Error: {error}</div>;
     }
 
-    if (!potDetails) { // After loading and no error, if potDetails is still null
-        return <div>Pot not found.</div>;
-    }
-    // if (isLoadingPot) { // Use pot loading state from Redux if available
-    //     return <div>Loading Pot Details...</div>;
-    // }
+    if (!potDetails && !isLoading) { // After loading and no error, if potDetails is still null
+        return (<>
+            <h1 className="pot-header">Pot Not Found Or An Error Occurred!!!</h1>
 
-    // Use pot error state from Redux if available
-    // if (potError || !potDetails) {
-    //  return <div className="error">Error loading pot: {potError || "Pot data is unavailable."}</div>;
-    // }
+            <div>Redirecting to </div>
+        </>
+        );
+    }
+
+    //just in case there is an off case where errors are not caught 
     if (!potDetails) {
-        return <div className="error">Error loading pot: Pot data is unavailable.</div>;
+        return null
     }
 
-
+    //user data
     const users = potDetails.Users || [];
+    // set hidden status for delete button if pot active state  = false
+    let hidePotDeleteButtonClassName;
+    hidePotDeleteButtonClassName  = potDetails.active ? 'hidden' : '';
+    console.log(potDetails.active)
 
     return (
         <>
             <h1 className="pot-header">Pot Details</h1>
-            {/* Display Pot-level Errors if available from pots slice */}
-            {/* {potError && <div className="error"><p>{potError}</p></div>} */}
+            {/* buttons bar */}
+            <div className="buttons-bar">
+                <div className="get-all-pots-button">
+                    <button onClick={() => navigate('/pots/')} >All Pots</button>
+                </div>
 
+                <div className="delete-button-container">
+                    <button className={hidePotDeleteButtonClassName} onClick={() => handleDeletePot(numPotId)} disabled={isDeleting}>{isDeleting ? 'Deleting...' : 'Delete Pot'}</button>
+                </div>
+            </div>
+            
+            {/* {potError && <div className="error"><p>{potError}</p></div>} */}
+            {/* {deletePotError && <div className="error">Error deleting pot: {deletePotError}</div>} */}
             {/* Display Weekly Load/Update Errors from transactions slice */}
             {weekError && <div className="error"><p>Weekly Data Error: {weekError}</p></div>}
+
 
             <div className="pot-container">
                 {/* ... (rest of the pot detail display: Banker, Name, Dates, Amounts, Active) ... */}

@@ -1,12 +1,6 @@
 
 import { csrfFetch } from "./csrf";
 
-// store/pots.js
-
-const ADD_NEW_POT = 'pots/addNewPot';
-const REMOVE_POT = 'pots/removePot';
-const UPDATE_POT = 'pots/updatePot';
-
 
 export const GET_ALL_POTS_START = 'pots/GET_ALL_POTS_START';
 export const GET_ALL_POTS_SUCCESS = 'pots/GET_ALL_POTS_SUCCESS';
@@ -16,18 +10,18 @@ export const GET_POT_BY_ID_START = 'pots/GET_POT_BY_ID_START';
 export const GET_POT_BY_ID_SUCCESS = 'pots/GET_POT_BY_ID_SUCCESS';
 export const GET_POT_BY_ID_FAILURE = 'pots/GET_POT_BY_ID_FAILURE';
 
-// You can add more for other operations like create, update, delete:
 export const CREATE_POT_START = 'pots/CREATE_POT_START';
-export const CREATE_POT_SUCCESS = 'pots/CREATE_POT_SUCCESS'; // Replaces ADD_NEW_POT
+export const CREATE_POT_SUCCESS = 'pots/CREATE_POT_SUCCESS'; 
 export const CREATE_POT_FAILURE = 'pots/CREATE_POT_FAILURE';
 
 export const UPDATE_POT_START = 'pots/UPDATE_POT_START';
-export const UPDATE_POT_SUCCESS = 'pots/UPDATE_POT_SUCCESS'; // Replaces UPDATE_POT
+export const UPDATE_POT_SUCCESS = 'pots/UPDATE_POT_SUCCESS';
 export const UPDATE_POT_FAILURE = 'pots/UPDATE_POT_FAILURE';
 
 export const DELETE_POT_START = 'pots/DELETE_POT_START';
-export const DELETE_POT_SUCCESS = 'pots/DELETE_POT_SUCCESS'; // Replaces REMOVE_POT
+export const DELETE_POT_SUCCESS = 'pots/DELETE_POT_SUCCESS'; 
 export const DELETE_POT_FAILURE = 'pots/DELETE_POT_FAILURE';
+export const RESET_DELETE_POT_STATUS = 'pots/RESET_DELETE_POT_STATUS'
 
 // --- Action Creators ---
 
@@ -55,6 +49,7 @@ const updatePotFailure = (error) => ({ type: UPDATE_POT_FAILURE, payload: error 
 const deletePotStart = () => ({ type: DELETE_POT_START });
 const deletePotSuccess = (potId) => ({ type: DELETE_POT_SUCCESS, payload: potId });
 const deletePotFailure = (error) => ({ type: DELETE_POT_FAILURE, payload: error });
+export const resetDeletePotStatus = () => ({ type: RESET_DELETE_POT_STATUS })
 
 
 
@@ -71,6 +66,7 @@ const initialState = {
     errorUpdate: null,        // Error for updating a pot
     isDeleting: false,        // For deleting a pot (can be per ID too)
     errorDelete: null,        // Error for deleting a pot
+    deletePotSuccess:  false  // Delete pot success
 };
 
 
@@ -164,7 +160,7 @@ export const deletePot = (potId) => async (dispatch) => {
             throw new Error(errorData.message || `Failed to delete pot ${potId}`);
         }
         dispatch(deletePotSuccess(potId)); // Pass potId to reducer to remove from state
-        // return res; // Or some success indicator
+        return res;
     } catch (error) {
         dispatch(deletePotFailure(error.message));
         // return Promise.reject(error);
@@ -240,6 +236,7 @@ const potsReducer = (state = initialState, action) => {
                 ...state,
                 isDeleting: false,
                 allById: { ...state.allById },
+                deletePotSuccess: true,
                 errorDelete: null
             };
             delete newState.allById[potIdToRemove];
@@ -249,6 +246,13 @@ const potsReducer = (state = initialState, action) => {
             return newState;
         case DELETE_POT_FAILURE:
             return { ...state, isDeleting: false, errorDelete: action.payload };
+        case RESET_DELETE_POT_STATUS:
+            return {
+                ...state,
+                deletePotSuccess: false,
+                errorDelete: null,
+                isDeleting: false
+            }
 
         default:
             return state;
