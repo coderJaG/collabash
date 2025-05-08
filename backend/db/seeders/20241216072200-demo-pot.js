@@ -18,7 +18,7 @@ module.exports = {
         amount: 10000.00,
         startDate: '12/01/2024',
         endDate: '06/02/2025',
-        active: true
+        Status: 'Not Started'
       },
       {
         ownerId: 1,
@@ -28,7 +28,7 @@ module.exports = {
         amount: 15500.00,
         startDate: '11/10/2023',
         endDate: '02/10/2024',
-        active: false
+        Status: 'Active'
       },
       {
         ownerId: 1,
@@ -38,7 +38,7 @@ module.exports = {
         amount: 5000.00,
         startDate: '11/10/2024',
         endDate: '02/10/2025',
-        active: true
+        Status: 'Ended'
       }
     ], options);
 

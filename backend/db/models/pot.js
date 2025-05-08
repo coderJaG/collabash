@@ -52,10 +52,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.DATE,
       allowNull: true
     },
-    active: {
-      type: DataTypes.BOOLEAN,
+    status: {
+      type: DataTypes.STRING,
       allowNull: false,
-      defaultValue: false
+      defaultValue: 'Not Started'
     }
   }, {
     sequelize,
