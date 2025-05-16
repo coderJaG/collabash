@@ -1,0 +1,121 @@
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6); /* Darker overlay */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000; /* Ensure it's on top */
+    padding: 15px;
+}
+
+.modal-content {
+    background: white;
+    padding: 25px;
+    border-radius: 12px; /* More rounded corners */
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 450px; /* Max width for the modal */
+    text-align: left;
+    animation: fadeInModal 0.3s ease-out;
+}
+
+@keyframes fadeInModal {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.modal-content h2 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 1.5em;
+    color: #333;
+}
+
+.modal-content p {
+    margin-bottom: 20px;
+    color: #555;
+    font-size: 1em;
+}
+
+.status-options {
+    margin-bottom: 25px;
+}
+
+.status-options label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #444;
+}
+
+.status-options select {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 1em;
+    box-sizing: border-box; /* Important for width 100% */
+    transition: border-color 0.2s ease-in-out;
+}
+
+.status-options select:focus {
+    border-color: #588157; /* Theme color for focus */
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(88, 129, 87, 0.2);
+}
+
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end; /* Align buttons to the right */
+    gap: 10px; /* Space between buttons */
+}
+
+.modal-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.modal-button.save {
+    background-color: #588157; /* Theme green */
+    color: white;
+}
+
+.modal-button.save:hover:not(:disabled) {
+    background-color: #4a6d4a; /* Darker green */
+}
+
+.modal-button.cancel {
+    background-color: #f0f0f0; /* Light grey */
+    color: #333;
+    border: 1px solid #ddd;
+}
+
+.modal-button.cancel:hover:not(:disabled) {
+    background-color: #e0e0e0;
+}
+
+.modal-button:disabled {
+    background-color: #ccc;
+    color: #888;
+    cursor: not-allowed;
+}
+
+.modal-button:active:not(:disabled) {
+    transform: translateY(1px);
+}
