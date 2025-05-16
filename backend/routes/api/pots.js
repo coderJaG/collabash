@@ -123,7 +123,16 @@ router.put('/:potId', requireAuth, async (req, res) => {
     if (currUser.id !== getPotById.ownerId) {
         return res.status(403).json({ "message": "Forbidden, you must bepot owner" })
     } else {
-        const { name, amount, hand, startDate, endDate, status } = req.body
+        const { name, amount, hand, startDate, endDate, status } = req.body;
+        
+        //for partial updates eg. status change
+        if(name !== undefined) getPotById.name = name;
+        if(amount !== undefined) getPotById.amount = amount;
+        if(hand !== undefined) getPotById.hand = hand;
+        if(startDate !== undefined) getPotById.startDate = startDate;
+        if(endDate !== undefined) getPotById.endDate = endDate;
+        if(status !== undefined) getPotById.status = status;
+
         getPotById.set({
             name,
             hand,
