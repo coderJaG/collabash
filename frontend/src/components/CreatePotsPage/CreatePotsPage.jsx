@@ -14,7 +14,7 @@ const CreatePotsPage = () => {
     const defaultDate = new Date().toISOString().split('T')[0] //set current date as default in yyyy-mm-dd format
     const [startDate, setStartDate] = useState(defaultDate);
     const [endDate, setEndDate] = useState(defaultDate);
-    const [active, setActive] = useState(false);
+    const [status, setStatus] = useState('');
     const [errors, setErrors] = useState({})
     const ownerId = currUser.id
 
@@ -26,7 +26,7 @@ const CreatePotsPage = () => {
             amount,
             startDate,
             endDate,
-            active
+            status
         }
         return dispacth(potsActions.createNewPot(potData))
             .then(async res => { navigate(`/pots/${res.id}`) })

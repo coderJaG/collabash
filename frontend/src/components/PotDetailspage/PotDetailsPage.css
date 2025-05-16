@@ -96,6 +96,12 @@
   width: 1024px;
 }
 
+
+.action-buttons-container {
+  display: flex;
+  justify-content: space-around;
+  width: 25%;
+}
 /* success-message for deleting a pot */
 .success-message {
   text-align: center;

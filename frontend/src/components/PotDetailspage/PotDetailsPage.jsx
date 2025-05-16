@@ -1,13 +1,15 @@
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { MdPlusOne } from "react-icons/md";
 import { FaCheck, FaTimes } from 'react-icons/fa';
 import * as potsActions from '../../store/pots';
 import { fetchWeeklyStatus, updateWeeklyPayment } from '../../store/transactions';
 import { useNavigate, useParams } from "react-router-dom";
+import OpenModalButton from "../OpenModalButton";
+import StatusUpdateModal from "../StatusUpdateModal";
 import './PotDetailsPage.css';
 
-
+const STABLE_EMPTY_OPJECT = Object.freeze({});
 const PotDetailsPage = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -15,6 +17,7 @@ const PotDetailsPage = () => {
     const numPotId = parseInt(potId, 10); //enure pot id is an int
 
     const [currentWeek, setCurrentWeek] = useState(1);
+  
 
     // const [errors, setErrors] = useState({}); // Keep for pot-level errors if needed, or get from pots slice
 
@@ -24,16 +27,18 @@ const PotDetailsPage = () => {
     const error = useSelector(state => state.pots.errorDetails);
     const deletePotSuccess = useSelector(state => state.pots.deletePotSuccess);
     const deletePotError = useSelector(state => state.pots.deletePotError);
-    const isDeleting = useSelector(state =>  state.pots.isDeleting);
+    const isDeleting = useSelector(state => state.pots.isDeleting);
+    const isUpdatingPot = useSelector(state => state.pots.isUpdating); // Loading for any pot update, including status
+    const potUpdateError = useSelector(state => state.pots.errorUpdate); // Error specifically for pot updates
+
 
     // Select weekly data, loading, and error state from the transactions slice
-    const weeklyStatusMap = useSelector(state => state.transactions.weeklyStatusByPot[numPotId]?.[currentWeek] || {});
+    const weeklyStatusMap = useSelector(state => state.transactions.weeklyStatusByPot[numPotId]?.[currentWeek] || STABLE_EMPTY_OPJECT);
     const weekLoadingKey = `${numPotId}_${currentWeek}`;
     const isLoadingWeek = useSelector(state => !!state.transactions.loadingWeeklyStatus[weekLoadingKey]); // Ensure boolean
     const weekError = useSelector(state => state.transactions.errorWeeklyStatus[weekLoadingKey]);
-
     const totalWeeks = potDetails?.Users?.length || 0;
-    const weeks = Array.from({ length: totalWeeks }, (_, i) => i + 1);
+    const weeks = useMemo(()=>Array.from({ length: totalWeeks }, (_, i) => i + 1),[totalWeeks]);
 
     // --- Effect to Fetch Pot Details ---
     useEffect(() => {
@@ -71,7 +76,6 @@ const PotDetailsPage = () => {
         };
     }, [deletePotSuccess, navigate, dispatch]);
 
-
     //format date to MM/DD/YYYY
     const formatDate = (dateStr) => {
         if (!dateStr) return 'N/A';
@@ -102,6 +106,30 @@ const PotDetailsPage = () => {
             dispatch(potsActions.deletePot(potIdToDelete));
         }
     };
+
+    //handle change status button 
+    const handleChangeStatus = async (newStatus) => {
+
+        if (!potDetails || !newStatus) {
+            console.warn('Cannot update status. Pot Details or new status us missing')
+            return
+        }
+
+        const potUpdateData = {
+            name: potDetails.name,
+            hand: potDetails.hand,
+            amount: potDetails.amount,
+            startDate: potDetails.startDate,
+            endDate: potDetails.endDate,
+            status: newStatus   
+        }
+
+        try {
+            dispatch(potsActions.updateAPot(potUpdateData, numPotId))
+        } catch(updateError) {
+            console.error("Failed to update pot status from PotDetailsPage:")
+        }
+    }
 
 
     // --- Render Logic ---
@@ -152,10 +180,13 @@ const PotDetailsPage = () => {
 
     //user data
     const users = potDetails.Users || [];
+
     // set hidden status for delete button if pot active state  = false
-    let hidePotDeleteButtonClassName;
-    hidePotDeleteButtonClassName  = potDetails.active ? 'hidden' : '';
-    console.log(potDetails.active)
+    const hidePotDeleteButtonClassName = (potDetails && potDetails.status !== 'Not Started') ? 'hidden' : '';
+
+    //available status for change status modal
+    const availableStatuses = ['Active', 'Not Started', 'Ended', 'Paused', 'Closed'];
+
 
     return (
         <>
@@ -165,12 +196,23 @@ const PotDetailsPage = () => {
                 <div className="get-all-pots-button">
                     <button onClick={() => navigate('/pots/')} >All Pots</button>
                 </div>
+                <div>
 
-                <div className="delete-button-container">
+                </div>
+                <div className="action-buttons-container">
+                    <OpenModalButton
+                        buttonText="Change Status"
+                        modalComponent={<StatusUpdateModal
+                            currentStatus={potDetails.status}                           
+                            onSave={handleChangeStatus}
+                            availableStatuses={availableStatuses}
+                            isSavingStatus={isUpdatingPot}
+                        />}
+                    />
                     <button className={hidePotDeleteButtonClassName} onClick={() => handleDeletePot(numPotId)} disabled={isDeleting}>{isDeleting ? 'Deleting...' : 'Delete Pot'}</button>
                 </div>
             </div>
-            
+
             {/* {potError && <div className="error"><p>{potError}</p></div>} */}
             {/* {deletePotError && <div className="error">Error deleting pot: {deletePotError}</div>} */}
             {/* Display Weekly Load/Update Errors from transactions slice */}
@@ -201,9 +243,9 @@ const PotDetailsPage = () => {
                         <span>Pot Amount:</span> <span>{`$${Number.parseFloat(potDetails.amount || 0).toFixed(2)}`}</span>
                     </div>
                 </div>
-                <div className="active-div">
-                    <div className="active">
-                        <span>Active:</span> <span>{potDetails.active ? 'Yes' : 'No'}</span>
+                <div className="status-div">
+                    <div className="status">
+                        <span>Status:</span> <span>{potDetails.status}</span>
                     </div>
                 </div>
 

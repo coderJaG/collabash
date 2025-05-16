@@ -67,7 +67,7 @@ const GetAllPotsPage = () => {
                         <th>Amount</th>
                         <th>Start Date</th>
                         <th>End Date</th>
-                        <th>Active</th>
+                        <th>Status</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -81,7 +81,7 @@ const GetAllPotsPage = () => {
                             <td>{pot.amount}</td>
                             <td>{formatDate(pot.startDate)}</td>
                             <td>{formatDate(pot.endDate)}</td>
-                            <td>{pot.active ? 'Yes' : 'No'}</td>
+                            <td>{pot.status}</td>
                         </tr>
                     ))}
                 </tbody>

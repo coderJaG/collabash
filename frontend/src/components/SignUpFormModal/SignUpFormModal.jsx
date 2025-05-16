@@ -14,7 +14,8 @@ const SignUpFormModal = () => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [role, setRole] = useState('standard');
-    const [errors, setErrors] = useState({})
+    const [errors, setErrors] = useState({});
+    
 
 
 

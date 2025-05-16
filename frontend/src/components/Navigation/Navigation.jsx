@@ -8,6 +8,7 @@ import SignUpFormModal from "../SignUpFormModal";
 
 
 
+
 const Navigation = ({ isLoaded }) => {
 
     const currUser = useSelector(state => state.session.user);
