@@ -17,7 +17,7 @@ const PotDetailsPage = () => {
     const numPotId = parseInt(potId, 10); //enure pot id is an int
 
     const [currentWeek, setCurrentWeek] = useState(1);
-  
+
 
     // const [errors, setErrors] = useState({}); // Keep for pot-level errors if needed, or get from pots slice
 
@@ -38,7 +38,7 @@ const PotDetailsPage = () => {
     const isLoadingWeek = useSelector(state => !!state.transactions.loadingWeeklyStatus[weekLoadingKey]); // Ensure boolean
     const weekError = useSelector(state => state.transactions.errorWeeklyStatus[weekLoadingKey]);
     const totalWeeks = potDetails?.Users?.length || 0;
-    const weeks = useMemo(()=>Array.from({ length: totalWeeks }, (_, i) => i + 1),[totalWeeks]);
+    const weeks = useMemo(() => Array.from({ length: totalWeeks }, (_, i) => i + 1), [totalWeeks]);
 
     // --- Effect to Fetch Pot Details ---
     useEffect(() => {
@@ -121,12 +121,12 @@ const PotDetailsPage = () => {
             amount: potDetails.amount,
             startDate: potDetails.startDate,
             endDate: potDetails.endDate,
-            status: newStatus   
+            status: newStatus
         }
 
         try {
             dispatch(potsActions.updateAPot(potUpdateData, numPotId))
-        } catch(updateError) {
+        } catch (updateError) {
             console.error("Failed to update pot status from PotDetailsPage:")
         }
     }
@@ -187,6 +187,8 @@ const PotDetailsPage = () => {
     //available status for change status modal
     const availableStatuses = ['Active', 'Not Started', 'Ended', 'Paused', 'Closed'];
 
+    //counter tracker used in calculating total members already paid and total amount already paid
+    let counter = 0;
 
     return (
         <>
@@ -203,7 +205,7 @@ const PotDetailsPage = () => {
                     <OpenModalButton
                         buttonText="Change Status"
                         modalComponent={<StatusUpdateModal
-                            currentStatus={potDetails.status}                           
+                            currentStatus={potDetails.status}
                             onSave={handleChangeStatus}
                             availableStatuses={availableStatuses}
                             isSavingStatus={isUpdatingPot}
@@ -256,6 +258,19 @@ const PotDetailsPage = () => {
                         <div>
                             <span>Total Members: {users.length}</span>
                             <button disabled> <MdPlusOne /></button>
+                        </div>
+                        <div>
+                            <span>Total members paid: {users.reduce((acc, user) => {
+                                let paidStatus = weeklyStatusMap[user.id] || { paidHand: false, gotDraw: false };
+                                if (paidStatus.paidHand) acc++
+                                counter = acc
+                                return acc
+                            }, 0)}</span>
+                            <span>Total paid: {`$${potDetails.hand*counter}`}</span>
+                        </div>
+                        <div>
+                            <span>Remaining members: {users.length - counter}</span>
+                            <span>Remaining: {`$${potDetails.amount - potDetails.hand * counter}`}</span>
                         </div>
                     </div>
                     {/* Disable selector while loading weekly data */}
