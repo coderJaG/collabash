@@ -68,12 +68,8 @@ router.get('/:userId', requireAuth, async (req, res) => {
             });
         }
     }
-    console.log(getUserById)
     const userData = getUserById.toJSON()
-
-    return res.json({
-        "User": userData
-    })
+    return res.json(userData)
 });
 
 
@@ -163,6 +159,25 @@ router.put('/:userId', validateSignupInputs, async (req, res) => {
 });
 
 
+//delete auser by id
 
+router.delete('/:userId', requireAuth, async (req, res) => {
+    const currUser = req.user
+    const {userId} =req.params
+
+
+    //only banker or owner user can delete user
+    if(currUser.role !== 'banker' && currUser.id !== userId){
+        return res.status(403).json({'message': 'Forbidden'})
+    }
+
+    const getUserById = await User.findByPk(userId);
+    if(!getUserById){
+        return res.status(404).json({'message': 'User not found!'})
+    }
+
+    await getUserById.destroy();
+    return res.json({'message': 'User Successfully Deleted'})
+});
 
 module.exports = router;

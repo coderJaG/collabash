@@ -174,6 +174,8 @@ const potsReducer = (state = initialState, action) => {
     let newState;
     let potIdToRemove;
 
+
+    
     switch (action.type) {
         // Get All Pots
         case GET_ALL_POTS_START:

@@ -3,6 +3,7 @@ import { useEffect, useState, useMemo } from "react";
 import { MdPlusOne } from "react-icons/md";
 import { FaCheck, FaTimes } from 'react-icons/fa';
 import * as potsActions from '../../store/pots';
+import * as usersActions from '../../store/users';
 import { fetchWeeklyStatus, updateWeeklyPayment } from '../../store/transactions';
 import { useNavigate, useParams } from "react-router-dom";
 import OpenModalButton from "../OpenModalButton";
@@ -49,8 +50,6 @@ const PotDetailsPage = () => {
             dispatch(potsActions.resetDeletePotStatus()); // reset delete status if user navigates away before delete redirect completes.
         }
     }, [dispatch, numPotId]);
-
-
 
 
     // --- Effect to Fetch Weekly Payment Status ---
@@ -266,7 +265,7 @@ const PotDetailsPage = () => {
                                 counter = acc
                                 return acc
                             }, 0)}</span>
-                            <span>Total paid: {`$${potDetails.hand*counter}`}</span>
+                            <span>Total paid: {`$${potDetails.hand * counter}`}</span>
                         </div>
                         <div>
                             <span>Remaining members: {users.length - counter}</span>
