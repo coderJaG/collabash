@@ -8,6 +8,7 @@ import { fetchWeeklyStatus, updateWeeklyPayment } from '../../store/transactions
 import { useNavigate, useParams } from "react-router-dom";
 import OpenModalButton from "../OpenModalButton";
 import StatusUpdateModal from "../StatusUpdateModal";
+import GetAllUsers from "../GetAllUsersPage";
 import './PotDetailsPage.css';
 
 const STABLE_EMPTY_OPJECT = Object.freeze({});
@@ -31,7 +32,7 @@ const PotDetailsPage = () => {
     const isDeleting = useSelector(state => state.pots.isDeleting);
     const isUpdatingPot = useSelector(state => state.pots.isUpdating); // Loading for any pot update, including status
     const potUpdateError = useSelector(state => state.pots.errorUpdate); // Error specifically for pot updates
-
+    const allUsers = useSelector(state => state.users.allUsers)
 
     // Select weekly data, loading, and error state from the transactions slice
     const weeklyStatusMap = useSelector(state => state.transactions.weeklyStatusByPot[numPotId]?.[currentWeek] || STABLE_EMPTY_OPJECT);
@@ -40,6 +41,16 @@ const PotDetailsPage = () => {
     const weekError = useSelector(state => state.transactions.errorWeeklyStatus[weekLoadingKey]);
     const totalWeeks = potDetails?.Users?.length || 0;
     const weeks = useMemo(() => Array.from({ length: totalWeeks }, (_, i) => i + 1), [totalWeeks]);
+
+
+
+
+    // --- fetch all users when component mounts ---
+    useEffect(() => {
+        dispatch(usersActions.getAllUsers());
+    }, [dispatch])
+
+
 
     // --- Effect to Fetch Pot Details ---
     useEffect(() => {
@@ -130,6 +141,24 @@ const PotDetailsPage = () => {
         }
     }
 
+    const handleAddUser = async (userId) => {
+        if (!potDetails || !userId) {
+            console.warn('Cannot add user. Pot Details or user ID is missing');
+            return;
+        }
+        const userData = {
+            userId,
+            potId: numPotId
+        };
+        try {
+            await dispatch(potsActions.addUserToPot(userData));
+            // Optionally, you can also fetch the updated pot details after adding a user
+            // dispatch(potsActions.getAPotById(numPotId));
+        } catch (error) {
+            console.error("Failed to add user to pot:", error);
+        }
+    };
+
 
     // --- Render Logic ---
 
@@ -189,6 +218,11 @@ const PotDetailsPage = () => {
     //counter tracker used in calculating total members already paid and total amount already paid
     let counter = 0;
 
+
+    //convert allUsers to an array
+    const availableUsers = Object.values(allUsers)
+    
+
     return (
         <>
             <h1 className="pot-header">Pot Details</h1>
@@ -203,7 +237,7 @@ const PotDetailsPage = () => {
                 <div className="action-buttons-container">
                     <OpenModalButton
                         buttonText="Change Status"
-                        modalComponent={<StatusUpdateModal
+                        modalComponent={<StatusUpdateModal // change status modal
                             currentStatus={potDetails.status}
                             onSave={handleChangeStatus}
                             availableStatuses={availableStatuses}
@@ -256,7 +290,16 @@ const PotDetailsPage = () => {
                         <span>Members</span>
                         <div>
                             <span>Total Members: {users.length}</span>
-                            <button disabled> <MdPlusOne /></button>
+                            <OpenModalButton
+                                buttonText="Add Users"
+                                modalComponent={<GetAllUsers // add user modal
+                                    currentPotUsers={users}
+                                    availableUsers={availableUsers}
+                                    onSave={handleAddUser}
+                                    isSavingUsers={isUpdatingPot}
+                                />}
+                            />
+                            {/* <button > <MdPlusOne /></button> */}
                         </div>
                         <div>
                             <span>Total members paid: {users.reduce((acc, user) => {

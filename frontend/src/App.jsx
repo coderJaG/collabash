@@ -7,6 +7,7 @@ import GetAllPotsPage from "./components/GetAllPotsPage";
 import CreatePotsPage from "./components/CreatePotsPage";
 import PotsLayout from "./components/PotsLayout";
 import PotDetailsPage from "./components/PotDetailspage";
+import GetAllUsers from "./components/GetAllUsersPage";
 
 
 import * as sessionActions from './store/session'
@@ -54,6 +55,10 @@ const router = createBrowserRouter([
       {
         path: '/pots/:potId',
         element: <PotDetailsPage />
+      },
+      {
+        path: '/users',
+        element: <GetAllUsers />
       }
     ]
   }

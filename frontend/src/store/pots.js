@@ -11,7 +11,7 @@ export const GET_POT_BY_ID_SUCCESS = 'pots/GET_POT_BY_ID_SUCCESS';
 export const GET_POT_BY_ID_FAILURE = 'pots/GET_POT_BY_ID_FAILURE';
 
 export const CREATE_POT_START = 'pots/CREATE_POT_START';
-export const CREATE_POT_SUCCESS = 'pots/CREATE_POT_SUCCESS'; 
+export const CREATE_POT_SUCCESS = 'pots/CREATE_POT_SUCCESS';
 export const CREATE_POT_FAILURE = 'pots/CREATE_POT_FAILURE';
 
 export const UPDATE_POT_START = 'pots/UPDATE_POT_START';
@@ -19,9 +19,18 @@ export const UPDATE_POT_SUCCESS = 'pots/UPDATE_POT_SUCCESS';
 export const UPDATE_POT_FAILURE = 'pots/UPDATE_POT_FAILURE';
 
 export const DELETE_POT_START = 'pots/DELETE_POT_START';
-export const DELETE_POT_SUCCESS = 'pots/DELETE_POT_SUCCESS'; 
+export const DELETE_POT_SUCCESS = 'pots/DELETE_POT_SUCCESS';
 export const DELETE_POT_FAILURE = 'pots/DELETE_POT_FAILURE';
 export const RESET_DELETE_POT_STATUS = 'pots/RESET_DELETE_POT_STATUS'
+
+
+const ADD_USER_TO_POT_START = 'pots/ADD_USER_TO_POT_START';
+const ADD_USER_TO_POT_SUCCESS = 'pots/ADD_USER_TO_POT_SUCCESS';
+const ADD_USER_TO_POT_FAILURE = 'pots/ADD_USER_TO_POT_FAILURE';
+
+const REMOVE_USER_FROM_POT_START = 'pots/REMOVE_USER_FROM_POT_START';
+const REMOVE_USER_FROM_POT_SUCCESS = 'pots/REMOVE_USER_FROM_POT_SUCCESS';
+const REMOVE_USER_FROM_POT_FAILURE = 'pots/REMOVE_USER_FROM_POT_FAILURE';
 
 // --- Action Creators ---
 
@@ -37,12 +46,12 @@ const getPotByIdFailure = (error) => ({ type: GET_POT_BY_ID_FAILURE, payload: er
 
 // Create New Pot
 const createPotStart = () => ({ type: CREATE_POT_START });
-const createPotSuccess = (pot) => ({ type: CREATE_POT_SUCCESS, payload: pot }); 
+const createPotSuccess = (pot) => ({ type: CREATE_POT_SUCCESS, payload: pot });
 const createPotFailure = (error) => ({ type: CREATE_POT_FAILURE, payload: error });
 
 // Update Pot
 const updatePotStart = () => ({ type: UPDATE_POT_START });
-const updatePotSuccess = (pot) => ({ type: UPDATE_POT_SUCCESS, payload: pot }); 
+const updatePotSuccess = (pot) => ({ type: UPDATE_POT_SUCCESS, payload: pot });
 const updatePotFailure = (error) => ({ type: UPDATE_POT_FAILURE, payload: error });
 
 // Delete Pot
@@ -51,7 +60,14 @@ const deletePotSuccess = (potId) => ({ type: DELETE_POT_SUCCESS, payload: potId 
 const deletePotFailure = (error) => ({ type: DELETE_POT_FAILURE, payload: error });
 export const resetDeletePotStatus = () => ({ type: RESET_DELETE_POT_STATUS })
 
-
+// Add User to Pot
+const addUserToPotStart = () => ({ type: ADD_USER_TO_POT_START });
+const addUserToPotSuccess = (potUserData) => ({ type: ADD_USER_TO_POT_SUCCESS, payload: potUserData });
+const addUserToPotFailure = (error) => ({ type: ADD_USER_TO_POT_FAILURE, payload: error });
+// Remove User from Pot
+const removeUserFromPotStart = () => ({ type: REMOVE_USER_FROM_POT_START });
+const removeUserFromPotSuccess = (potUserData) => ({ type: REMOVE_USER_FROM_POT_SUCCESS, payload: potUserData });
+const removeUserFromPotFailure = (error) => ({ type: REMOVE_USER_FROM_POT_FAILURE, payload: error });
 
 const initialState = {
     allById: {},              // For the list of all pots
@@ -66,7 +82,9 @@ const initialState = {
     errorUpdate: null,        // Error for updating a pot
     isDeleting: false,        // For deleting a pot (can be per ID too)
     errorDelete: null,        // Error for deleting a pot
-    deletePotSuccess:  false  // Delete pot success
+    deletePotSuccess: false,  // Delete pot success
+    addUserStatus: null         // For adding user to pot
+    // removeUserStatus: null,   // For removing user from pot
 };
 
 
@@ -82,7 +100,7 @@ export const getPots = () => async (dispatch) => {
             throw new Error(errorData.message || 'Failed to fetch pots');
         }
         const data = await res.json(); // data should be { Pots: [...] }
-        dispatch(getAllPotsSuccess(data)); 
+        dispatch(getAllPotsSuccess(data));
         // return data; // Optional: if components still need direct access, but usually not needed
     } catch (error) {
         dispatch(getAllPotsFailure(error.message));
@@ -98,11 +116,11 @@ export const getAPotById = (potId) => async (dispatch) => {
             const errorData = await res.json().catch(() => ({ message: res.statusText }));
             throw new Error(errorData.message || `Failed to fetch pot ${potId}`);
         }
-        const data = await res.json(); 
+        const data = await res.json();
         dispatch(getPotByIdSuccess(data));
     } catch (error) {
         dispatch(getPotByIdFailure(error.message));
-    
+
     }
 };
 
@@ -118,9 +136,9 @@ export const createNewPot = (potData) => async (dispatch) => {
             const errorData = await res.json().catch(() => ({ message: res.statusText }));
             throw new Error(errorData.message || 'Failed to create pot');
         }
-        const data = await res.json(); 
+        const data = await res.json();
         dispatch(createPotSuccess(data));
-        return data; 
+        return data;
     } catch (error) {
         dispatch(createPotFailure(error.message));
         throw error; // Re-throw for component to handle if needed (e.g., form errors)
@@ -168,6 +186,31 @@ export const deletePot = (potId) => async (dispatch) => {
 };
 
 
+// Add User to Pot
+export const addUserToPot = (userData) => async (dispatch) => {
+
+    const { potId, userId } = userData;
+    dispatch(addUserToPotStart());
+    try {
+        const res = await csrfFetch(`/api/pots/${potId}/addusers`, {
+            method: 'POST',
+            body: JSON.stringify({ userId }),
+        });
+
+        if (!res.ok) {
+            const errorData = await res.json().catch(() => ({ message: res.statusText }));
+            throw new Error(errorData.message || `Failed to add user ${userId} to pot ${potId}`);
+        }
+        const data = await res.json();
+        dispatch(addUserToPotSuccess({ message: 'User added successfully' }));
+        dispatch(getAPotById(potId)); // Refresh pot details after adding user
+        return data;
+    } catch (error) {
+        dispatch(addUserToPotFailure(error.message));
+        throw error;
+    }
+}
+
 // -- reducer --
 
 const potsReducer = (state = initialState, action) => {
@@ -175,7 +218,7 @@ const potsReducer = (state = initialState, action) => {
     let potIdToRemove;
 
 
-    
+
     switch (action.type) {
         // Get All Pots
         case GET_ALL_POTS_START:
@@ -228,7 +271,28 @@ const potsReducer = (state = initialState, action) => {
             };
         case UPDATE_POT_FAILURE:
             return { ...state, isUpdating: false, errorUpdate: action.payload };
-
+        // Add User to Pot
+        case ADD_USER_TO_POT_START:
+            return { ...state, isUpdating: true, errorUpdate: null, Status: null };
+        case ADD_USER_TO_POT_SUCCESS:
+            return {
+                ...state,
+                isUpdating: false,
+                addUserStatus: {
+                    success: true,
+                    message: action.payload.message,
+                    // userId: action.payload.userId,
+                    // potId: action.payload.potId
+                },
+                errorUpdate: null
+            };
+        case ADD_USER_TO_POT_FAILURE:
+            return {
+                ...state,
+                isUpdating: false,
+                errorUpdate: action.payload, // Store the error message for adding user
+                addUserStatus: { success: false, message: action.payload }
+            };
         // Delete Pot
         case DELETE_POT_START:
             return { ...state, isDeleting: true, errorDelete: null };
@@ -255,6 +319,9 @@ const potsReducer = (state = initialState, action) => {
                 errorDelete: null,
                 isDeleting: false
             }
+
+
+        // Remove User from Pot     
 
         default:
             return state;
