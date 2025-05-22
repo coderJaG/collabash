@@ -72,12 +72,9 @@ const GetAllPotsPage = () => {
                 </thead>
                 <tbody>
                     {allPotsArray.map(pot => (
-                        <tr key={pot.id}>
-                            <td>
-                                <NavLink className='pot-link' to={`/pots/${pot.id}`} >
-                                    {pot.name}
-                                </NavLink>
-                            </td>
+                        <tr className= 'finger-pointer' key={pot.id} onClick={() => navigate(`/pots/${pot.id}`)}>
+                            
+                            <td>{pot.name}</td>
                             <td>{pot.amount}</td>
                             <td>{formatDate(pot.startDate)}</td>
                             <td>{formatDate(pot.endDate)}</td>

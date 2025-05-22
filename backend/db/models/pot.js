@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
         through: models.PotsUser,
         foreignKey: 'potId',
         otherKey: 'userId'
-      });
+      }); 
       Pot.hasMany(models.WeeklyPayment, { foreignKey: 'potId' });
     }
   }

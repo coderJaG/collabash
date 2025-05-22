@@ -1,6 +1,7 @@
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState, useMemo } from "react";
 import { MdPlusOne } from "react-icons/md";
+import { MdDelete } from "react-icons/md";
 import { FaCheck, FaTimes } from 'react-icons/fa';
 import * as potsActions from '../../store/pots';
 import * as usersActions from '../../store/users';
@@ -158,6 +159,25 @@ const PotDetailsPage = () => {
             console.error("Failed to add user to pot:", error);
         }
     };
+    const handleRemoveUserFromPot = async (userId) => {
+        if (!potDetails || !userId) {
+            console.warn('Cannot delete user. Pot Details or user ID is missing');
+            return;
+        }
+        const userData = {
+            userId,
+            potId: numPotId
+        };
+        try {
+
+            if (window.confirm("Are you sure you want to remove this user from the pot? This action cannot be undone.")) {
+                await dispatch(potsActions.removeUserFromPot(userData));
+            }
+        } catch (error) {
+            console.error("Failed to delete user from pot:", error);
+        }
+    };
+
 
 
     // --- Render Logic ---
@@ -221,7 +241,7 @@ const PotDetailsPage = () => {
 
     //convert allUsers to an array
     const availableUsers = Object.values(allUsers)
-    
+
 
     return (
         <>
@@ -244,7 +264,10 @@ const PotDetailsPage = () => {
                             isSavingStatus={isUpdatingPot}
                         />}
                     />
-                    <button className={hidePotDeleteButtonClassName} onClick={() => handleDeletePot(numPotId)} disabled={isDeleting}>{isDeleting ? 'Deleting...' : 'Delete Pot'}</button>
+                    <button className={`${hidePotDeleteButtonClassName} finger-button-pointer`} // delete a pot button
+                        onClick={() => handleDeletePot(numPotId)}
+                        disabled={isDeleting}>{isDeleting ? 'Deleting...' : 'Delete Pot'}
+                    </button>
                 </div>
             </div>
 
@@ -334,6 +357,7 @@ const PotDetailsPage = () => {
                                     <span>Name</span>
                                     <span>Paid Hand</span>
                                     <span>Got Draw</span>
+                                    <span>Actions</span>
                                 </li>
                                 {/* Map over users from potDetails */}
                                 {users.map(user => {
@@ -369,6 +393,8 @@ const PotDetailsPage = () => {
                                                 />
                                                 {gotDrawStatus ? <FaCheck style={{ color: "green", marginLeft: '5px' }} /> : <FaTimes style={{ color: "red", marginLeft: '5px' }} />}
                                             </span>
+                                            <span><MdDelete className="finger-button-pointer" onClick={() => handleRemoveUserFromPot(user.id)} /></span> {/* delete user icon */}
+                                            {/* <button onClick={() => handleDeleteUser(user.id)}>Delete</button> */}
                                         </li>
                                     );
                                 })}

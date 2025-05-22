@@ -107,7 +107,44 @@ router.put('/', requireAuth, async (req, res) => {
     }
 });
 
-// Using PUT route handler for now
+// ---delete transaction by userId and potId;
+
+router.delete('/', requireAuth, async (req, res) => {   
+    const currUser = req.user;
+    if (currUser.role !== 'banker') {
+        return res.status(403).json({ message: "Forbidden: Only bankers can delete payments." });
+    }
+    const { potId, userId} = req.body;
+
+    // --- Validation ---
+    if (potId == null || userId == null) {
+        return res.status(400).json({ message: "Missing required fields (potId, userId)" });
+    }
+    const numPotId = parseInt(potId, 10);
+    const numUserId = parseInt(userId, 10);
+
+
+    if (isNaN(numPotId) || isNaN(numUserId)) {
+        return res.status(400).json({ message: "Invalid ID provided." });
+    }
+    // --- End Validation ---
+
+    try {
+        const numTransactionDel = await WeeklyPayment.destroy({
+            where: { potId: numPotId, userId: numUserId},
+        });
+
+        if (numTransactionDel === 0) {
+            return res.status(404).json({ message: "No matching Transaction(s) found to delete." });
+        }
+        
+        res.json({ message: `${numTransactionDel} Transaction deleted successfully.` });
+    } catch (error) {
+        res.status(500).json(error.message || {  message: "Failed to delete transaction." });
+    }
+});
+
+// Using PUT route handler for now to handle both creation and update of transactions
 // POST /api/transactions
 // router.post('/', requireAuth, async (req, res) => {
    

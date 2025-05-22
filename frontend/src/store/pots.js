@@ -1,5 +1,6 @@
 
 import { csrfFetch } from "./csrf";
+import { removeTransaction } from "./transactions";
 
 
 export const GET_ALL_POTS_START = 'pots/GET_ALL_POTS_START';
@@ -83,8 +84,8 @@ const initialState = {
     isDeleting: false,        // For deleting a pot (can be per ID too)
     errorDelete: null,        // Error for deleting a pot
     deletePotSuccess: false,  // Delete pot success
-    addUserStatus: null         // For adding user to pot
-    // removeUserStatus: null,   // For removing user from pot
+    addUserStatus: null,      // For adding user to pot
+    removeUserStatus: null    // For removing user from pot
 };
 
 
@@ -210,7 +211,32 @@ export const addUserToPot = (userData) => async (dispatch) => {
         throw error;
     }
 }
+// Remove User from Pot
+export const removeUserFromPot = (userData) => async (dispatch) => {
 
+    const { potId, userId } = userData;
+    dispatch(removeUserFromPotStart());
+    try {
+        const res = await csrfFetch(`/api/pots/${potId}/removeusers`, {
+            method: 'DELETE',
+            body: JSON.stringify({ userId }),
+        });
+
+        if (!res.ok) {
+            const errorData = await res.json().catch(() => ({ message: res.statusText }));
+            throw new Error(errorData.message || `Failed to remove user ${userId} from pot ${potId}`);
+        }
+        const data = await res.json();
+
+        dispatch(removeUserFromPotSuccess({ message: 'User removed successfully' }));
+        dispatch(removeTransaction(potId, userId)); // Remove transaction if exists
+        dispatch(getAPotById(potId)); // Refresh pot details after adding user
+        return data;
+    } catch (error) {
+        dispatch(removeUserFromPotFailure(error.message));
+        throw error;
+    }
+}
 // -- reducer --
 
 const potsReducer = (state = initialState, action) => {
@@ -293,6 +319,28 @@ const potsReducer = (state = initialState, action) => {
                 errorUpdate: action.payload, // Store the error message for adding user
                 addUserStatus: { success: false, message: action.payload }
             };
+        // Remove User from Pot
+        case REMOVE_USER_FROM_POT_START:
+            return { ...state, isUpdating: true, errorUpdate: null, Status: null };
+        case REMOVE_USER_FROM_POT_SUCCESS:      
+            return {
+                ...state,
+                isUpdating: false,
+                removeUserStatus: {
+                    success: true,
+                    message: action.payload.message,
+                    // userId: action.payload.userId,
+                    // potId: action.payload.potId
+                },
+                errorUpdate: null
+            };
+        case REMOVE_USER_FROM_POT_FAILURE:
+            return {
+                ...state,
+                isUpdating: false,
+                errorUpdate: action.payload, // Store the error message for adding user
+                removeUserStatus: { success: false, message: action.payload }
+            };;
         // Delete Pot
         case DELETE_POT_START:
             return { ...state, isDeleting: true, errorDelete: null };

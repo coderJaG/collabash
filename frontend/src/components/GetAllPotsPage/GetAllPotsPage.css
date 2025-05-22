@@ -66,3 +66,10 @@ a:visited {
 .pots-container th:nth-child(5) {
     border-top-right-radius: 10px;
 }
+.finger-pointer {
+    cursor: pointer;
+}
+
+.finger-pointer:hover {
+  color: #3498db;
+}

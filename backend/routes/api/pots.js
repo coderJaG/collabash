@@ -205,7 +205,7 @@ router.post('/:potId/addusers', requireAuth, async (req, res) => {
     if (!findUser) {
         return res.status(404).json({ 'message': 'User not found' })
     }
-    
+
     //check if user already exist in pot to prevent duplicates
     const findUserInPot = await PotsUser.findOne({
         where: {
@@ -232,14 +232,17 @@ router.post('/:potId/addusers', requireAuth, async (req, res) => {
 //remove users from a pot
 router.delete('/:potId/removeusers', requireAuth, async (req, res) => {
     const currUser = req.user;
-
+console.log('tis block got hit)')
     if (currUser.role !== 'banker') {
         return res.status(403).json({ 'message': 'Forbidden. only banker can remove users' })
     }
 
     const { potId } = req.params;
     const { userId } = req.body;
-
+    //check if potId is a number    
+    if (isNaN(potId)) {
+        return res.status(400).json({ 'message': 'Invalid potId' })
+    }
     //check if pot exist
     const findPot = await Pot.findByPk(potId);
     if (!findPot) {
@@ -264,7 +267,7 @@ router.delete('/:potId/removeusers', requireAuth, async (req, res) => {
         return res.status(404).json({ 'message': 'User does not exist in pot' })
     };
 
-    await findUser.destroy();
+    await findUserInPot.destroy();
 
     return res.json({ message: "success" });
 });

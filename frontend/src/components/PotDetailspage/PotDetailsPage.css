@@ -137,6 +137,10 @@
   /* Space between spinner and text */
 }
 
+.finger-button-pointer {
+  cursor: pointer;
+}
+
 @keyframes spin {
   0% {
     transform: rotate(0deg);
