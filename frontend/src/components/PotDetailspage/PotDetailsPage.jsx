@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState, useMemo } from "react";
-import { MdPlusOne } from "react-icons/md";
+// import { MdPlusOne } from "react-icons/md";
 import { MdDelete } from "react-icons/md";
 import { FaCheck, FaTimes } from 'react-icons/fa';
 import * as potsActions from '../../store/pots';
@@ -16,6 +16,7 @@ const STABLE_EMPTY_OPJECT = Object.freeze({});
 const PotDetailsPage = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const currUser = useSelector(state => state.session.user);
     const { potId } = useParams();
     const numPotId = parseInt(potId, 10); //enure pot id is an int
 
@@ -86,6 +87,20 @@ const PotDetailsPage = () => {
             clearTimeout(timerId);
         };
     }, [deletePotSuccess, navigate, dispatch]);
+
+    // --- Handle redirection on error ---
+useEffect(() => {
+    let timerId;
+    if (error) { 
+        timerId = setTimeout(() => {
+            navigate('/pots/'); // Redirect to the all pots page
+            dispatch(potsActions.clearPotDetailsError()); // Clear the error in Redux store
+        }, 3000); // 3000 milliseconds = 3 seconds
+    }
+    return () => { // Cleanup function for the timer
+        clearTimeout(timerId);
+    };
+}, [error, navigate]);
 
     //format date to MM/DD/YYYY
     const formatDate = (dateStr) => {
@@ -174,7 +189,7 @@ const PotDetailsPage = () => {
                 await dispatch(potsActions.removeUserFromPot(userData));
             }
         } catch (error) {
-            console.error("Failed to delete user from pot:", error);
+            console.error("Failed to delete user from pot:", error.message);
         }
     };
 
@@ -209,14 +224,26 @@ const PotDetailsPage = () => {
     }
 
     if (error) {
-        return <div className="error">Error: {error}</div>;
+        let timerId;
+        return (
+            <>
+                <h1 className="pot-header">Error Loading Pot!!!</h1>
+                <div className="error">
+                    <p> {error.message || "An unexpected error occured!!!"} {error.status && `${error.status}`}</p>
+                    <p>Redirecting to All Pots Page...</p>
+                </div>;
+            </>
+        )
     }
 
     if (!potDetails && !isLoading) { // After loading and no error, if potDetails is still null
         return (<>
             <h1 className="pot-header">Pot Not Found Or An Error Occurred!!!</h1>
 
-            <div>Redirecting to </div>
+            <div>Redirecting... </div>
+            {/* {navigate('/pots/')} */}
+            {/* Optionally, you can add a button to navigate back to pots */}
+
         </>
         );
     }
@@ -231,7 +258,6 @@ const PotDetailsPage = () => {
 
     // set hidden status for delete button if pot active state  = false
     const hidePotDeleteButtonClassName = (potDetails && potDetails.status !== 'Not Started') ? 'hidden' : '';
-
     //available status for change status modal
     const availableStatuses = ['Active', 'Not Started', 'Ended', 'Paused', 'Closed'];
 
@@ -255,7 +281,7 @@ const PotDetailsPage = () => {
 
                 </div>
                 <div className="action-buttons-container">
-                    <OpenModalButton
+                    {currUser.role === 'banker' && <OpenModalButton
                         buttonText="Change Status"
                         modalComponent={<StatusUpdateModal // change status modal
                             currentStatus={potDetails.status}
@@ -263,7 +289,7 @@ const PotDetailsPage = () => {
                             availableStatuses={availableStatuses}
                             isSavingStatus={isUpdatingPot}
                         />}
-                    />
+                    />}
                     <button className={`${hidePotDeleteButtonClassName} finger-button-pointer`} // delete a pot button
                         onClick={() => handleDeletePot(numPotId)}
                         disabled={isDeleting}>{isDeleting ? 'Deleting...' : 'Delete Pot'}
@@ -298,7 +324,7 @@ const PotDetailsPage = () => {
                         <span>Amt/Hand:</span> <span>{`$${Number.parseFloat(potDetails.hand || 0).toFixed(2)}`}</span>
                     </div>
                     <div className="pot-amount">
-                        <span>Pot Amount:</span> <span>{`$${Number.parseFloat(potDetails.amount || 0).toFixed(2)}`}</span>
+                        <span>Pot Amount:</span> <span>{`$${Number.parseFloat(potDetails.hand * weeks.length || 0).toFixed(2)}`}</span>
                     </div>
                 </div>
                 <div className="status-div">
@@ -313,7 +339,7 @@ const PotDetailsPage = () => {
                         <span>Members</span>
                         <div>
                             <span>Total Members: {users.length}</span>
-                            <OpenModalButton
+                            {currUser.role === 'banker' && <OpenModalButton
                                 buttonText="Add Users"
                                 modalComponent={<GetAllUsers // add user modal
                                     currentPotUsers={users}
@@ -321,7 +347,7 @@ const PotDetailsPage = () => {
                                     onSave={handleAddUser}
                                     isSavingUsers={isUpdatingPot}
                                 />}
-                            />
+                            />}
                             {/* <button > <MdPlusOne /></button> */}
                         </div>
                         <div>
@@ -357,6 +383,7 @@ const PotDetailsPage = () => {
                                     <span>Name</span>
                                     <span>Paid Hand</span>
                                     <span>Got Draw</span>
+                                    <span> Draw Date</span>
                                     <span>Actions</span>
                                 </li>
                                 {/* Map over users from potDetails */}
@@ -376,24 +403,35 @@ const PotDetailsPage = () => {
                                                     checked={paidHandStatus}
                                                     // Dispatch action on change
                                                     onChange={(e) => handlePaymentChange(user.id, currentWeek, "paidHand", e.target.checked)}
-                                                // aria-label={`Paid Hand for ${user.firstName} ${user.lastName}`}
-                                                // Optional: Disable input while an update for THIS user is pending
-                                                // disabled={isUpdatingThisUser}
+                                                    // aria-label={`Paid Hand for ${user.firstName} ${user.lastName}`}
+                                                    // Optional: Disable input while an update for THIS user is pending
+                                                    disabled={currUser.role !== 'banker'}
                                                 />
                                                 {paidHandStatus ? <FaCheck style={{ color: "green", marginLeft: '5px' }} /> : <FaTimes style={{ color: "red", marginLeft: '5px' }} />}
+
                                             </span>
                                             <span>
                                                 <input
                                                     type="checkbox"
                                                     checked={gotDrawStatus}
                                                     onChange={(e) => handlePaymentChange(user.id, currentWeek, "gotDraw", e.target.checked)}
-                                                // aria-label={`Got Draw for ${user.firstName} ${user.lastName}`}
-                                                // Optional: Disable input while an update for THIS user is pending
-                                                // disabled={isUpdatingThisUser}
+                                                    // aria-label={`Got Draw for ${user.firstName} ${user.lastName}`}
+                                                    // Optional: Disable input while an update for THIS user is pending
+                                                    disabled={currUser.role !== 'banker'}
                                                 />
                                                 {gotDrawStatus ? <FaCheck style={{ color: "green", marginLeft: '5px' }} /> : <FaTimes style={{ color: "red", marginLeft: '5px' }} />}
                                             </span>
-                                            <span><MdDelete className="finger-button-pointer" onClick={() => handleRemoveUserFromPot(user.id)} /></span> {/* delete user icon */}
+                                            <span>{user.drawDate}</span>
+                                            <span>
+                                                <button
+                                                    className="finger-button-pointer"
+                                                    onClick={() => handleRemoveUserFromPot(user.id)}
+                                                    disabled={currUser.role !== 'banker'}
+                                                    style={{ background: 'none', border: 'none', cursor: currUser.role === 'banker' ? 'pointer' : 'not-allowed' }}
+                                                >
+                                                    <MdDelete />
+                                                </button>
+                                            </span> {/* delete user icon */}
                                             {/* <button onClick={() => handleDeleteUser(user.id)}>Delete</button> */}
                                         </li>
                                     );

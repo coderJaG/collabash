@@ -4,10 +4,16 @@ a:visited {
     color: inherit;
 }
 
-.all-pots-container {
+.all-pots-page-container {
     margin: auto;
     max-width: 1024px
 }
+
+.all-pots-page-header-container {
+    /* margin: auto;
+    max-width: 1024px
+    */
+} 
 
 .pots-container {
     /* border: 1px solid #27ae60; */

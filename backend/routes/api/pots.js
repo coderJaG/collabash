@@ -5,37 +5,70 @@ const router = express.Router();
 const { requireAuth } = require('../../utils/auth');
 
 const { Pot, User, PotsUser } = require('../../db/models');
-const { where } = require('sequelize');
 
 
 //get all pots
 router.get('/', requireAuth, async (req, res) => {
     const currUser = req.user;
+    let potsToReturn = [];
 
-    if (currUser.role !== 'banker') {
-        return res.status(403).json({ "message": "Forbidden, you must be a banker." });
-    };
+    try {
+        if (currUser.role === 'banker') {
+            // Bankers see all pots
+            const allPots = await Pot.findAll({
+                attributes: ['id', 'ownerId', 'ownerName', 'name', 'amount', 'startDate', 'endDate', 'status'],
+                include: [{
+                    model: User,
+                    as: 'Users', // Explicitly using the default alias 'Users'
+                    attributes: ['id', 'firstName', 'lastName', 'username', 'email', 'mobile'], // Specify attributes you need
+                    through: { attributes: [] }
+                }]
+            });
+            potsToReturn = allPots;
 
-    console.log('got to here')
-    const getAllPots = await Pot.findAll({
-        attributes: ['id', 'ownerId', 'ownerName', 'name', 'amount', 'startDate', 'endDate', 'status',],
-        include: {
-            model: User,
-            through: { attributes: [] }
+        } else if (currUser.role === 'standard') {
+            // Standard users see pots they are members of
+            const userWithPots = await User.findByPk(currUser.id, {
+                include: [{
+                    model: Pot,
+                    as: 'PotsJoined', // Using the alias defined in User model for its association with Pot
+                    attributes: ['id', 'ownerId', 'ownerName', 'name', 'amount', 'startDate', 'endDate', 'status'],
+                    through: { attributes: [] },
+                    include: [{ // Nested include to get users for each of these pots
+                        model: User,
+                        as: 'Users', // Explicitly using the default alias 'Users'
+                        attributes: ['id', 'firstName', 'lastName', 'username', 'email', 'mobile'], // Specify attributes
+                        through: { attributes: [] }
+                    }]
+                }]
+            });
+            if (userWithPots && userWithPots.PotsJoined) { // Check using the alias
+                potsToReturn = userWithPots.PotsJoined;
+            } else {
+                potsToReturn = [];
+            }
+        } else {
+            return res.status(403).json({ "message": "Forbidden: Role not authorized to view pots." });
         }
-    });
-    if (!getAllPots) {
-        return res.json({
-            message: "No Pots found!!"
+
+        if (!potsToReturn || potsToReturn.length === 0) {
+            return res.json({ Pots: [] }); // Send an empty array consistently
+        }
+
+        const potsData = potsToReturn.map(pot => {
+            const data = pot.toJSON(); // Correctly declare 'data'
+            return data;
         });
-    };
 
-    const potsData = getAllPots.map(pot => {
-        data = pot.toJSON();
-        return data;
-    });
+        return res.json({ Pots: potsData });
 
-    return res.json({ Pots: potsData });
+    } catch (error) {
+        console.error("Error fetching pots:", error);
+        // Send a more structured error
+        const statusCode = error.status || 500;
+        const errorMessage = error.message || "Internal server error while fetching pots.";
+        return res.status(statusCode).json({ message: errorMessage, errors: error.errors });
+    }
 });
 
 
