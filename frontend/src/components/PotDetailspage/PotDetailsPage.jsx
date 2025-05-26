@@ -290,10 +290,10 @@ useEffect(() => {
                             isSavingStatus={isUpdatingPot}
                         />}
                     />}
-                    <button className={`${hidePotDeleteButtonClassName} finger-button-pointer`} // delete a pot button
+                    {currUser.role === 'banker' && <button className={`${hidePotDeleteButtonClassName} finger-button-pointer`} // delete a pot button
                         onClick={() => handleDeletePot(numPotId)}
                         disabled={isDeleting}>{isDeleting ? 'Deleting...' : 'Delete Pot'}
-                    </button>
+                    </button>}
                 </div>
             </div>
 

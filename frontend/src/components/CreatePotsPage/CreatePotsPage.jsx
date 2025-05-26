@@ -45,29 +45,32 @@ const CreatePotsPage = () => {
             <div className="pot-form-header"><h1 >Create Pot Page</h1></div>
             <form className="create-pot-form" onSubmit={handlSubmit}>
                 <div className="pot-name">
-                <label>Pot Name: </label>
+                <label>Pot Name:* </label>
                     <input type="text"
                         value={name}
                         onChange={e => setName(e.target.value)}
+                        required
                         placeholder="Enter name of pot"
                     />
                     {errors.name && <p>{errors.name}</p>}
                 </div>
                 <div className="hand-amount">
-                    <label>Amount per Hand</label>
+                    <label>Amount per Hand:* </label>
                     <input
                     type="text"
                     value={hand}
                     onChange={e=> setHand(e.target.value)}
+                    required
                     placeholder="0"
                     />
                 </div>
                 <div className="pot-amount">
-                    <label>Pot Amount: </label>
+                    <label>Pot Amount:*  </label>
                     <input
                         type="text"
                         value={amount}
                         onChange={e => setAmount(e.target.value)}
+                        required
                         placeholder="0"
                     />
                     {errors.amount && <p>{errors.amount}</p>}

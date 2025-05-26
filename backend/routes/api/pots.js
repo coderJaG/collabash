@@ -77,28 +77,40 @@ router.get('/:potId', requireAuth, async (req, res) => {
     const currUser = req.user;
     const { potId } = req.params;
 
-    const getPotById = await Pot.findByPk(potId, {
-        attributes: ['id', 'ownerId', 'ownerName', 'name', 'hand', 'amount', 'startDate', 'endDate', 'status'],
-        include: {
-            model: User,
-            through: { attributes: [] }
-        }
-    });
-
-    if (!getPotById) {
-        return res.status(404).json({
-            "message": "Pot not found!!"
+    try {
+        const getPotById = await Pot.findByPk(potId, {
+            attributes: ['id', 'ownerId', 'ownerName', 'name', 'hand', 'amount', 'startDate', 'endDate', 'status'],
+            include: {
+                model: User,
+                as: 'Users', // Explicitly using the default alias 'Users'
+                attributes: ['id', 'firstName', 'lastName', 'username', 'email', 'mobile'], // Specify needed attributes
+                through: { attributes: [] }
+            }
         });
-    };
 
-    const isAuthorized = currUser.role === 'banker' ||
-        (currUser.role === 'standard' && getPotById.Users.some(user => user.id === currUser.id))
+        if (!getPotById) {
+            return res.status(404).json({
+                "message": "Pot not found!!"
+            });
+        };
 
-    if (!isAuthorized) {
-        return res.status(403).json({ "message": "Forbidden, you must be a banker or a member of the pot." });
-    };
+        // Check if the found pot has Users property and if it's an array
+        const potUsers = getPotById.Users || [];
+        const isMember = potUsers.some(user => user.id === currUser.id);
 
-    return res.json(getPotById);
+        const isAuthorized = currUser.role === 'banker' || (currUser.role === 'standard' && isMember);
+
+        if (!isAuthorized) {
+            return res.status(403).json({ "message": "Forbidden, you must be a banker or a member of the pot." });
+        };
+
+        return res.json(getPotById);
+    } catch (error) {
+        console.error(`Error fetching pot by id ${potId}:`, error);
+        const statusCode = error.status || 500;
+        const errorMessage = error.message || "Internal server error while fetching pot details.";
+        return res.status(statusCode).json({ message: errorMessage, errors: error.errors });
+    }
 });
 
 
@@ -110,83 +122,91 @@ router.post('/', requireAuth, async (req, res) => {
         return res.status(403).json({ "message": "Forbidden, you must be a banker." });
     };
 
-    const { name, hand, amount, startDate, endDate, status } = req.body
-    const ownerId = currUser.id
-    const ownerName = `${currUser.firstName} ${currUser.lastname}`
-    const createPot = await Pot.build({
-        ownerId,
-        ownerName,
-        name,
-        hand,
-        amount,
-        startDate,
-        endDate,
-        status
-    });
+    try {
+        const { name, hand, amount, startDate, endDate, status } = req.body;
+       
+        const ownerName = `${currUser.firstName} ${currUser.lastName}`; 
 
-    await createPot.save();
-    return res.json(createPot);
-});
-
-//edit a pot by id
-router.put('/:potId', requireAuth, async (req, res) => {
-
-    const currUser = req.user;
-    const { potId } = req.params;
-
-
-    if (currUser.role !== 'banker') {
-        return res.status(403).json({ "message": "Forbidden, you must be a banker" })
-    };
-
-    const getPotById = await Pot.findByPk(potId, {
-        attributes: ['id', 'ownerId', 'ownerName', 'name', 'hand', 'amount', 'startDate', 'endDate', 'status'],
-        include: {
-            model: User,
-            through: { attributes: [] }
-        }
-    });
-
-    if (!getPotById) {
-        return res.status(404).json({
-            message: "Pot not found!!"
-        });
-    };
-
-    //check if current user owns pot
-    if (currUser.id !== getPotById.ownerId) {
-        return res.status(403).json({ "message": "Forbidden, you must bepot owner" })
-    } else {
-        const { name, amount, hand, startDate, endDate, status } = req.body;
-
-        //for partial updates eg. status change
-        if (name !== undefined) getPotById.name = name;
-        if (amount !== undefined) getPotById.amount = amount;
-        if (hand !== undefined) getPotById.hand = hand;
-        if (startDate !== undefined) getPotById.startDate = startDate;
-        if (endDate !== undefined) getPotById.endDate = endDate;
-        if (status !== undefined) getPotById.status = status;
-
-        getPotById.set({
+        const createPot = await Pot.create({ // Changed build + save to create
+            ownerId: currUser.id,
+            ownerName,
             name,
             hand,
             amount,
             startDate,
             endDate,
-            status
+            status: status || 'Not Started' 
         });
 
-        await getPotById.save();
-        return res.json(getPotById);
+        return res.status(201).json(createPot); 
+    } catch (error) {
+        console.error("Error creating pot:", error);
+        if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
+            const errors = error.errors.map(e => e.message);
+            return res.status(400).json({ message: "Validation error", errors });
+        }
+        return res.status(500).json({ message: error.message || "Internal server error while creating pot." });
+    }
+});
+
+//edit a pot by id
+router.put('/:potId', requireAuth, async (req, res) => {
+    const currUser = req.user;
+    const { potId } = req.params;
+
+    if (currUser.role !== 'banker') {
+        return res.status(403).json({ "message": "Forbidden, you must be a banker" })
     };
 
+    try {
+        const potToUpdate = await Pot.findByPk(potId); 
+
+        if (!potToUpdate) {
+            return res.status(404).json({
+                message: "Pot not found!!"
+            });
+        };
+
+        if (currUser.id !== potToUpdate.ownerId) {
+            return res.status(403).json({ "message": "Forbidden, you must be pot owner" })
+        }
+
+        const { name, amount, hand, startDate, endDate, status } = req.body;
+
+        // Update fields if they are provided in the request body
+        if (name !== undefined) potToUpdate.name = name;
+        if (amount !== undefined) potToUpdate.amount = amount;
+        if (hand !== undefined) potToUpdate.hand = hand;
+        if (startDate !== undefined) potToUpdate.startDate = startDate;
+        if (endDate !== undefined) potToUpdate.endDate = endDate;
+        if (status !== undefined) potToUpdate.status = status;
+        
+
+        await potToUpdate.save();
+        // Fetch the updated pot with its associations to return it
+        const updatedPotWithAssociations = await Pot.findByPk(potId, {
+            include: {
+                model: User,
+                as: 'Users',
+                attributes: ['id', 'firstName', 'lastName', 'username', 'email', 'mobile'],
+                through: { attributes: [] }
+            }
+        });
+        return res.json(updatedPotWithAssociations);
+    } catch (error) {
+        console.error(`Error updating pot ${potId}:`, error);
+        if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
+            const errors = error.errors.map(e => e.message);
+            return res.status(400).json({ message: "Validation error", errors });
+        }
+        return res.status(500).json({ message: error.message || `Internal server error while updating pot ${potId}.` });
+    }
 });
 
 
 
 //delete a pot by id
 router.delete('/:potId', requireAuth, async (req, res) => {
-
     const currUser = req.user;
     const { potId } = req.params;
 
@@ -194,115 +214,120 @@ router.delete('/:potId', requireAuth, async (req, res) => {
         return res.status(403).json({ "message": "Forbidden, you must be a banker" });
     };
 
-    const getPotById = await Pot.findByPk(potId);
+    try {
+        const potToDelete = await Pot.findByPk(potId); 
 
-    if (!getPotById) {
-        return res.status(404).json({
-            message: "Pot not found!!"
-        });
-    };
+        if (!potToDelete) {
+            return res.status(404).json({
+                message: "Pot not found!!"
+            });
+        };
 
-    if (currUser.id !== getPotById.ownerId) {
-        return res.status(403).json({ "message": "Forbidden, you must be pot owner" });
-    } else {
+        if (currUser.id !== potToDelete.ownerId) {
+            return res.status(403).json({ "message": "Fo    rbidden, you must be pot owner" });
+        }
 
-        await getPotById.destroy();
-
-        return res.json({ message: "success" });
-    };
+        await potToDelete.destroy();
+        return res.json({ message: "Successfully deleted" });
+    } catch (error) {
+        console.error(`Error deleting pot ${potId}:`, error);
+        return res.status(500).json({ message: error.message || `Internal server error while deleting pot ${potId}.` });
+    }
 });
 
 //add users to a pot
 router.post('/:potId/addusers', requireAuth, async (req, res) => {
     const currUser = req.user;
-    //check if user is banker
-    console.log('tis block got hit)')
+
     if (currUser.role !== 'banker') {
         return res.status(403).json({ 'message': 'Forbidden. only banker can add users' })
     }
 
-    console.log('tis block got hit here)')
     const { potId } = req.params;
     const { userId } = req.body;
-    //check if potId is a number    
-    if (isNaN(potId)) {
-        return res.status(400).json({ 'message': 'Invalid potId' })
+
+    if (isNaN(parseInt(potId))) { 
+        return res.status(400).json({ 'message': 'Invalid potId parameter' })
     }
-    //check if pot exist
-    const findPot = await Pot.findByPk(potId);
-    if (!findPot) {
-        return res.status(404).json({ 'message': 'Pot not found' })
-    }
-    //check if user exist
-    const findUser = await User.findByPk(userId);
-    if (!findUser) {
-        return res.status(404).json({ 'message': 'User not found' })
+    if (userId === undefined || isNaN(parseInt(userId))) { 
+        return res.status(400).json({ 'message': 'Invalid or missing userId in request body' })
     }
 
-    //check if user already exist in pot to prevent duplicates
-    const findUserInPot = await PotsUser.findOne({
-        where: {
-            potId: Number(potId),
-            userId
+    const numPotId = parseInt(potId);
+    const numUserId = parseInt(userId);
+
+    try {
+        const findPot = await Pot.findByPk(numPotId);
+        if (!findPot) {
+            return res.status(404).json({ 'message': 'Pot not found' })
         }
-    });
-    if (findUserInPot) {
-        return res.status(403).json({ 'message': 'User already exists, add a new user' })
+
+        const findUser = await User.findByPk(numUserId);
+        if (!findUser) {
+            return res.status(404).json({ 'message': 'User not found' })
+        }
+
+        const findUserInPot = await PotsUser.findOne({
+            where: { potId: numPotId, userId: numUserId }
+        });
+        if (findUserInPot) {
+            return res.status(400).json({ 'message': 'User already exists in this pot' })
+        }
+
+        const addPotUser = await PotsUser.create({ 
+            potId: numPotId,
+            userId: numUserId
+        });
+
+        return res.status(201).json(addPotUser); 
+    } catch (error) {
+        console.error(`Error adding user ${userId} to pot ${potId}:`, error);
+        return res.status(500).json({ message: error.message || `Internal server error while adding user to pot.` });
     }
-
-
-    const addPotUser = await PotsUser.build({
-        potId: Number(potId),
-        userId
-    });
-
-    await addPotUser.save();
-
-    return res.json(addPotUser)
 });
 
 
 //remove users from a pot
 router.delete('/:potId/removeusers', requireAuth, async (req, res) => {
     const currUser = req.user;
-console.log('tis block got hit)')
+
     if (currUser.role !== 'banker') {
         return res.status(403).json({ 'message': 'Forbidden. only banker can remove users' })
     }
 
     const { potId } = req.params;
     const { userId } = req.body;
-    //check if potId is a number    
-    if (isNaN(potId)) {
+
+    if (isNaN(parseInt(potId))) {
         return res.status(400).json({ 'message': 'Invalid potId' })
     }
-    //check if pot exist
-    const findPot = await Pot.findByPk(potId);
-    if (!findPot) {
-        return res.status(404).json({ 'message': 'Pot not found' })
+     if (userId === undefined || isNaN(parseInt(userId))) {
+        return res.status(400).json({ 'message': 'Invalid or missing userId' })
     }
 
-    //check if user exist
-    const findUser = await User.findByPk(userId);
-    if (!findUser) {
-        return res.status(404).json({ 'message': 'User not found' })
-    }
+    const numPotId = parseInt(potId);
+    const numUserId = parseInt(userId);
 
-    //check if user exist in pot 
-    const findUserInPot = await PotsUser.findOne({
-        where: {
-            potId: Number(potId),
-            userId
+    try {
+        const findPot = await Pot.findByPk(numPotId); 
+        if (!findPot) {
+            return res.status(404).json({ 'message': 'Pot not found' })
         }
-    });
 
-    if (!findUserInPot) {
-        return res.status(404).json({ 'message': 'User does not exist in pot' })
-    };
+        const findUserInPot = await PotsUser.findOne({
+            where: { potId: numPotId, userId: numUserId }
+        });
 
-    await findUserInPot.destroy();
+        if (!findUserInPot) {
+            return res.status(404).json({ 'message': 'User does not exist in this pot' })
+        };
 
-    return res.json({ message: "success" });
+        await findUserInPot.destroy();
+        return res.json({ message: "User removed successfully from pot" });
+    } catch (error) {
+        console.error(`Error removing user ${userId} from pot ${potId}:`, error);
+        return res.status(500).json({ message: error.message || `Internal server error while removing user from pot.` });
+    }
 });
 
 
@@ -311,48 +336,35 @@ router.get('/:potId/users', requireAuth, async (req, res) => {
     const currUser = req.user;
     const { potId } = req.params;
 
-    if (currUser.role !== 'banker') {
-        return res.status(403).json({ "message": "Forbidden, you must be a banker." });
-    };
-
-    const getAllUsersInPot = await PotsUser.findAll({
-        where: {
-            potId
-        }
+    // Allow banker or a member of the pot to see users of that pot
+    const targetPot = await Pot.findByPk(potId, {
+        include: [{ model: User, as: 'Users', through: { attributes: [] } }]
     });
 
-    if (!getAllUsersInPot) {
-        return res.status(404).json({
-            message: "Pot not found!!"
-        });
+    if (!targetPot) {
+        return res.status(404).json({ message: "Pot not found!!" });
+    }
+
+    const isMember = targetPot.Users.some(user => user.id === currUser.id);
+    if (currUser.role !== 'banker' && !isMember) {
+        return res.status(403).json({ "message": "Forbidden, you must be a banker or a member of this pot." });
     };
 
-    return res.json(getAllUsersInPot);
+    // Re-fetch just the users for the pot to return,
+    // To be consistent and only return user data as per PotsUser join:
+    const usersInPot = await User.findAll({
+        include: [{
+            model: Pot,
+            as: 'PotsJoined',
+            where: { id: potId },
+            attributes: [], 
+            through: { attributes: [] }
+        }],
+        attributes: ['id', 'firstName', 'lastName', 'username', 'email', 'mobile'] 
+    });
+
+    return res.json(usersInPot);
 });
-//get all pots by user id
-// router.get('/user/:userId', requireAuth, async (req, res) => {
-//     const currUser = req.user;
-//     const { userId } = req.params;
-
-//     if (currUser.role !== 'banker') {
-//         return res.status(403).json({ "message": "Forbidden, you must be a banker." });
-//     };
-
-//     const getAllPotsByUserId = await User.findByPk(userId, {
-//         include: {
-//             model: Pot,
-//             through: { attributes: [] }
-//         }
-//     });
-
-//     if (!getAllPotsByUserId) {
-//         return res.status(404).json({
-//             message: "User not found!!"
-//         });
-//     };
-
-//     return res.json(getAllPotsByUserId);
-// });
 
 
 
