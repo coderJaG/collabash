@@ -20,7 +20,7 @@ router.get('/', requireAuth, async (req, res) => {
                 include: [{
                     model: User,
                     as: 'Users', // Explicitly using the default alias 'Users'
-                    attributes: ['id', 'firstName', 'lastName', 'username', 'email', 'mobile'], // Specify attributes you need
+                    attributes: ['id', 'firstName', 'lastName', 'username', 'email', 'mobile'], 
                     through: { attributes: [] }
                 }]
             });
@@ -37,7 +37,7 @@ router.get('/', requireAuth, async (req, res) => {
                     include: [{ // Nested include to get users for each of these pots
                         model: User,
                         as: 'Users', // Explicitly using the default alias 'Users'
-                        attributes: ['id', 'firstName', 'lastName', 'username', 'email', 'mobile'], // Specify attributes
+                        attributes: ['id', 'firstName', 'lastName', 'username', 'email', 'mobile'],
                         through: { attributes: [] }
                     }]
                 }]
@@ -52,11 +52,11 @@ router.get('/', requireAuth, async (req, res) => {
         }
 
         if (!potsToReturn || potsToReturn.length === 0) {
-            return res.json({ Pots: [] }); // Send an empty array consistently
+            return res.json({ Pots: [] }); 
         }
 
         const potsData = potsToReturn.map(pot => {
-            const data = pot.toJSON(); // Correctly declare 'data'
+            const data = pot.toJSON();
             return data;
         });
 
