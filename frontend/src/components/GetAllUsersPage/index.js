@@ -1,5 +1,5 @@
-import GetAllUsers from "./GetAllUsersPage";
+import GetAllUsersPage from "./GetAllUsersPage";
 
 
 
-export default GetAllUsers;
+export default GetAllUsersPage;

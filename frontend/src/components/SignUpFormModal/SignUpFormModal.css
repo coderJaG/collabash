@@ -1,0 +1,181 @@
+/* SignUpFormModal.css */
+.signup-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Spacing between form elements */
+    padding: 25px;
+    background-color: #f4f7f6; /* Changed background color */
+    border-radius: 8px;
+    width: 90%; /* Use percentage for responsiveness within modal */
+    max-width: 420px; /* Set a max-width */
+    margin: 20px auto; /* For centering if used outside a modal context, modal may override */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    max-height: 85vh; /* Prevent form from being taller than viewport height */
+    overflow-y: auto; /* Allow scrolling if content overflows */
+    box-sizing: border-box; /* Ensure padding and border are included in width/height */
+}
+
+.signup-form h1, .signup-form-header {
+    color: #ffffff; /* Main color for h1 */
+    background-color: #3498db;
+    border-top-right-radius: 8px;
+    border-top-left-radius: 8px;
+    text-align: center;
+    margin-top: 0; /* Remove default top margin if h1 is first child */
+    margin-bottom: 25px;
+    font-size: 1.8em;
+    font-weight: 600;
+    padding-bottom: 5px;
+}
+
+.signup-form label {
+    font-weight: 600; /* Slightly bolder labels */
+    color: #495057; /* Darker grey for better readability */
+    margin-bottom: -8px; /* Pull label closer to input */
+    font-size: 0.9em;
+}
+
+.signup-form input[type="text"],
+.signup-form input[type="email"],
+.signup-form input[type="tel"],
+.signup-form input[type="password"] {
+    padding: 12px 15px;
+    border: 1px solid #ced4da; /* Lighter border */
+    border-radius: 4px;
+    font-size: 1em;
+    width: 100%; /* Make input take full width of its container */
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.signup-form input[type="text"]:focus,
+.signup-form input[type="email"]:focus,
+.signup-form input[type="tel"]:focus,
+.signup-form input[type="password"]:focus {
+    border-color: #3498db; /* Highlight focus with main color */
+    box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25); /* Bootstrap-like focus shadow */
+    outline: none;
+}
+
+.signup-form-button {
+    background-color: #1abc9c; /* Table header color for button */
+    color: white;
+    padding: 12px 15px;
+    border: none;
+    border-radius: 4px;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    margin-top: 15px; /* More space above the button */
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.signup-form-button:hover:not(:disabled) {
+    background-color: #16a085; /* Darker shade on hover */
+    transform: translateY(-1px); /* Slight lift on hover */
+}
+
+.signup-form-button:active:not(:disabled) {
+    transform: translateY(0px); /* Press down effect */
+}
+
+
+.signup-form-button:disabled {
+    background-color: #bdc3c7;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.error-message {
+    color: #e74c3c; /* Standard red for error messages */
+    font-size: 0.85em;
+    margin-top: -5px; /* Pull error message closer to input */
+    margin-bottom: 5px;
+    /* text-align: left; */ /* Ensure it aligns with labels if needed */
+}
+
+.error-message.general-error {
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 15px;
+    padding: 10px;
+    background-color: #f8d7da; /* Lighter red background for general error box */
+    border: 1px solid #f5c6cb; /* Lighter red border */
+    color: #721c24; /* Darker red text for contrast */
+    border-radius: 4px;
+}
+
+.role-selection-container {
+    margin-top: 10px;
+    margin-bottom: 15px;
+    padding: 15px;
+    border: 1px solid #e9ecef; /* Lighter border */
+    border-radius: 4px;
+    background-color: #f8f9fa; /* Very light grey background */
+}
+
+.role-selection-container .role-label { /* Targets the <label>Role: </label> */
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 600;
+    color: #495057;
+}
+
+.radio-option {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    padding-left: 5px; /* Indent radio options slightly */
+}
+
+.radio-option input[type="radio"] {
+    margin-right: 10px;
+    cursor: pointer;
+    /* Custom radio button appearance (optional, browser support varies) */
+    appearance: none;
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #adb5bd;
+    border-radius: 50%;
+    outline: none;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+    position: relative; /* For the inner dot */
+}
+
+.radio-option input[type="radio"]:checked {
+    border-color: #1abc9c; /* Use accent color for checked border */
+    background-color: #1abc9c; /* Fill with accent color */
+}
+
+/* Inner dot for custom radio */
+.radio-option input[type="radio"]:checked::before {
+    content: '';
+    display: block;
+    width: 8px;
+    height: 8px;
+    background-color: white;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+
+.radio-option label { /* Style for radio labels "Standard", "Banker" */
+    font-weight: normal;
+    color: #343a40; /* Slightly darker text for options */
+    cursor: pointer;
+    margin-bottom: 0;
+    font-size: 0.95em;
+}
+
+/* Adding an asterisk to required labels */
+.signup-form label:after {
+     content: " *";  
+     color: #e74c3c; 
+     font-weight: normal; 
+}

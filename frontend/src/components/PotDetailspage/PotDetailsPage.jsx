@@ -9,7 +9,8 @@ import { fetchWeeklyStatus, updateWeeklyPayment } from '../../store/transactions
 import { useNavigate, useParams } from "react-router-dom";
 import OpenModalButton from "../OpenModalButton";
 import StatusUpdateModal from "../StatusUpdateModal";
-import GetAllUsers from "../GetAllUsersPage";
+import AddUsersToPot from "../AddUserToPot";
+import LoadingSpinner from "../LoadingSpinner";
 import './PotDetailsPage.css';
 
 const STABLE_EMPTY_OPJECT = Object.freeze({});
@@ -89,18 +90,18 @@ const PotDetailsPage = () => {
     }, [deletePotSuccess, navigate, dispatch]);
 
     // --- Handle redirection on error ---
-useEffect(() => {
-    let timerId;
-    if (error) { 
-        timerId = setTimeout(() => {
-            navigate('/pots/'); // Redirect to the all pots page
-            dispatch(potsActions.clearPotDetailsError()); // Clear the error in Redux store
-        }, 3000); // 3000 milliseconds = 3 seconds
-    }
-    return () => { // Cleanup function for the timer
-        clearTimeout(timerId);
-    };
-}, [error, navigate]);
+    useEffect(() => {
+        let timerId;
+        if (error) {
+            timerId = setTimeout(() => {
+                navigate('/pots/'); // Redirect to the all pots page
+                dispatch(potsActions.clearPotDetailsError()); // Clear the error in Redux store
+            }, 3000); // 3000 milliseconds = 3 seconds
+        }
+        return () => { // Cleanup function for the timer
+            clearTimeout(timerId);
+        };
+    }, [error, navigate]);
 
     //format date to MM/DD/YYYY
     const formatDate = (dateStr) => {
@@ -213,13 +214,7 @@ useEffect(() => {
     }
 
     if (isLoading) {
-        return (<>
-            <div className="pot-header">Pot Details</div>
-            <div className="loading-spinner-container">
-                <div className="loading-spinner"></div>
-                <p>Loading Pot Details...</p>
-            </div>
-        </>
+        return (<LoadingSpinner /> // Use the LoadingSpinner component
         );
     }
 
@@ -241,7 +236,7 @@ useEffect(() => {
             <h1 className="pot-header">Pot Not Found Or An Error Occurred!!!</h1>
 
             <div>Redirecting... </div>
-            {/* {navigate('/pots/')} */}
+            {navigate('/pots/')}
             {/* Optionally, you can add a button to navigate back to pots */}
 
         </>
@@ -341,7 +336,7 @@ useEffect(() => {
                             <span>Total Members: {users.length}</span>
                             {currUser.role === 'banker' && <OpenModalButton
                                 buttonText="Add Users"
-                                modalComponent={<GetAllUsers // add user modal
+                                modalComponent={<AddUsersToPot // add user modal
                                     currentPotUsers={users}
                                     availableUsers={availableUsers}
                                     onSave={handleAddUser}

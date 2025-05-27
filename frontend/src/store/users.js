@@ -1,7 +1,5 @@
 import { csrfFetch } from "./csrf";
 
-
-
 export const GET_ALL_USERS_START = 'users/GET_ALL_USERS_START';
 export const GET_ALL_USERS_SUCCESS = 'users/GET_ALL_USERS_SUCCESS';
 export const GET_ALL_USERS_FAILURE = 'users/GET_ALL_USERS_FAILURE';
@@ -14,9 +12,6 @@ const DELETE_USER_BY_ID_START = 'users/DELETE_USER_BY_ID_START';
 const DELETE_USER_BY_ID_SUCCESS = 'users/DELETE_USER_BY_ID_SUCCESS';
 const DELETE_USER_BY_ID_FAILURE = 'users/DELETE_USER_BY_ID_FAILURE';
 
-// const REMOVE_USER_FROM_POT_BY_ID = 'users/REMOVE_USER_FROM_POT_BY_ID';
-
-
 //--action creators--
 
 //get all users
@@ -26,8 +21,7 @@ const getAllUsersFailure = (error) => ({type: GET_ALL_USERS_FAILURE, payload: er
 
 
 //get user by id
-
-const getUserByIdStart = (userId) => ({type: GET_USER_BY_Id_START, payload: userId});
+const getUserByIdStart = (userId) => ({type: GET_USER_BY_Id_START, payload: userId}); // Not typically used this way, but keeping if intended
 const getUserByIdSuccess = (userData) => ({type: GET_USER_BY_Id_SUCCESS, payload: userData});
 const getUserByIdFailure = (error) => ({type: GET_USER_BY_Id_FAILURE, payload: error}) ;
 
@@ -37,113 +31,162 @@ const deleteUserByIdSuccess = (userId) => ({type: DELETE_USER_BY_ID_SUCCESS, pay
 const deleteUserByIdFailure = (error) => ({type: DELETE_USER_BY_ID_FAILURE, payload: error});
 
 
-
 //--thunks--
+
+// Helper to process error responses (similar to pots store)
+const processUserErrorResponse = async (response, defaultMessage) => {
+    let errorData = {
+        status: response.status,
+        message: defaultMessage,
+        errors: []
+    };
+    try {
+        const backendError = await response.json();
+        errorData = { ...errorData, ...backendError };
+        if (typeof errorData.message === 'object' && errorData.message !== null) {
+            errorData.message = errorData.message.detail || errorData.message.error || JSON.stringify(errorData.message);
+        } else if (!errorData.message) {
+            errorData.message = response.statusText || defaultMessage;
+        }
+    } catch (e) {
+        errorData.message = response.statusText || defaultMessage;
+    }
+    if (typeof errorData.message !== 'string') {
+        errorData.message = String(errorData.message || defaultMessage);
+    }
+    return errorData;
+};
+
 
 //get all users
 export const getAllUsers = ()=> async (dispatch) => {
     dispatch(getAllUsersStart());
     try{
-        const res = await csrfFetch('/api/users');
+        const res = await csrfFetch('/api/users'); // Backend provides { Users: [...] }
         if(!res.ok){
-            const errorData = await res.json().catch(()=>({message: res.statusText}));
-            throw new Error(errorData.message || 'Could not get users');
+            throw await processUserErrorResponse(res, 'Could not get users');
         }
-        
         const userData =  await res.json();
-        dispatch(getAllUsersSuccess(userData));
-    }catch(error){
-        dispatch(getAllUsersFailure(error.message));
+        dispatch(getAllUsersSuccess(userData)); // Pass the whole { Users: [...] } object
+    }catch(caughtError){
+        let errorToDispatch;
+        if (caughtError instanceof Response) {
+            errorToDispatch = await processUserErrorResponse(caughtError, 'Could not get users (processed in catch)');
+        } else {
+            errorToDispatch = {
+                message: caughtError.message || String(caughtError) || 'An unknown error occurred while fetching users.',
+                status: caughtError.status,
+                ...(typeof caughtError === 'object' && caughtError !== null ? caughtError : {})
+            };
+        }
+        dispatch(getAllUsersFailure(errorToDispatch));
     }
 };
 
 //get user by id
 export const getUserById = (userId)=> async (dispatch)=> {
-    dispatch(getUserByIdStart(userId));
+    dispatch(getUserByIdStart(userId)); // Pass userId to indicate which user is being fetched
     try {
         const res = await csrfFetch(`/api/users/${userId}`);
         if(!res.ok){
-            const errorData = await res.json().catch(()=> ({message: res.statusText}));
-            throw new Error(errorData.message || 'Could not get user');
+            throw await processUserErrorResponse(res, 'Could not get user');
         };
         const userData = await res.json();
         dispatch(getUserByIdSuccess(userData));
-    }catch(error){
-        dispatch(getUserByIdFailure(error.message));
+    }catch(caughtError){
+        let errorToDispatch;
+        if (caughtError instanceof Response) {
+            errorToDispatch = await processUserErrorResponse(caughtError, 'Could not get user (processed in catch)');
+        } else {
+            errorToDispatch = {
+                message: caughtError.message || String(caughtError) || 'An unknown error occurred while fetching user details.',
+                status: caughtError.status,
+                ...(typeof caughtError === 'object' && caughtError !== null ? caughtError : {})
+            };
+        }
+        dispatch(getUserByIdFailure(errorToDispatch));
     };
 };
 
 //delete user by id
-
 export const deleteUserById = (userId) => async (dispatch) => {
     dispatch(deleteUserByIdStart(userId));
-
     try {
         const res = await csrfFetch(`/api/users/${userId}`, {
             method: 'DELETE'
         });
-        
         if(!res.ok){
-            const errorData = await res.json().catch(()=> ({message: res.statusText}));
-            throw new Error(errorData.message || 'Could not delete user');
+            throw await processUserErrorResponse(res, 'Could not delete user');
         }
-        const data = await res.json();
-        dispatch(deleteUserByIdSuccess(userId));
-    }catch(error){
-        dispatch(deleteUserByIdFailure(error.message));
+        // const data = await res.json(); // DELETE often returns no body or just a success message
+        dispatch(deleteUserByIdSuccess(userId)); // Dispatch userId to remove from state
+    }catch(caughtError){
+        let errorToDispatch;
+        if (caughtError instanceof Response) {
+            errorToDispatch = await processUserErrorResponse(caughtError, 'Could not delete user (processed in catch)');
+        } else {
+            errorToDispatch = {
+                message: caughtError.message || String(caughtError) || 'An unknown error occurred while deleting user.',
+                status: caughtError.status,
+                ...(typeof caughtError === 'object' && caughtError !== null ? caughtError : {})
+            };
+        }
+        dispatch(deleteUserByIdFailure(errorToDispatch));
     };
 };
 
 const initialState = {
-    allUsers: {},
-    userById: {}
+    allUsers: {}, // Normalized: { userId1: user1, userId2: user2 }
+    userById: {}, // For single user details if needed separately
+    isLoadingAllUsers: false,
+    errorAllUsers: null,
+    isLoadingUserDetails: false, // For fetching single user
+    errorUserDetails: null,    // For fetching single user
+    isDeletingUser: false,
+    errorDeletingUser: null
 };
 
 const usersReducer = (state = initialState, action) => {
         switch(action.type){
             case GET_ALL_USERS_START: {
-                return {...state};
+                return {...state, isLoadingAllUsers: true, errorAllUsers: null };
             }
             case GET_ALL_USERS_SUCCESS: {
-                const newAllUsers = {}
-                if (action.payload && action.payload.Users ) {
+                const newAllUsers = {};
+                // Backend returns { Users: [...] }, action.payload is this object
+                if (action.payload && Array.isArray(action.payload.Users) ) {
                     action.payload.Users.forEach(user => {
-                        newAllUsers[user.id] = user
+                        newAllUsers[user.id] = user;
                     });
                 };
-                return {...state, allUsers: newAllUsers};
+                return {...state, isLoadingAllUsers: false, allUsers: newAllUsers, errorAllUsers: null };
             }
             case GET_ALL_USERS_FAILURE: {
-                console.error('Error fetching users:', action.payload);
-                return {...state};
+                return {...state, isLoadingAllUsers: false, errorAllUsers: action.payload };
             }
             case GET_USER_BY_Id_START : {
-                return {...state};
+                return {...state, isLoadingUserDetails: true, errorUserDetails: null, userById: {} }; // Clear previous
             }
             case GET_USER_BY_Id_SUCCESS : {
-                return {...state, userById: action.payload};    
+                return {...state, isLoadingUserDetails: false, userById: action.payload, errorUserDetails: null };
             }
             case GET_USER_BY_Id_FAILURE : {
-                console.error('Error fetching user by ID:', action.payload);
-                return {...state};
+                return {...state, isLoadingUserDetails: false, errorUserDetails: action.payload };
             }
             case DELETE_USER_BY_ID_START: {
-                return {...state};
+                return {...state, isDeletingUser: true, errorDeletingUser: null };
             }
             case DELETE_USER_BY_ID_SUCCESS: {
-                const newState = {...state};
+                const newState = {...state, isDeletingUser: false };
                 const updatedAllUsers = {...newState.allUsers};
-                delete updatedAllUsers[action.payload];
+                delete updatedAllUsers[action.payload]; // action.payload is userId
                 return {...newState, allUsers: updatedAllUsers};
             }
             case DELETE_USER_BY_ID_FAILURE:
-                console.error('Error deleting user by id', action.payload);
-                return {...state};
+                return {...state, isDeletingUser: false, errorDeletingUser: action.payload };
             default:
                 return state;
         };
 };
-
-
 
 export default usersReducer;

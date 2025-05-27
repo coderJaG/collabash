@@ -1,117 +1,88 @@
-//GetAllUsersPage.jsx
-import { useState } from "react";
-import { useModal } from '../context/Modal';
+// src/components/GetAllUsersPage/GetAllUsersPage.jsx
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+// import { NavLink } from 'react-router-dom';
+import * as usersActions from '../../store/users';
+import LoadingSpinner from '../LoadingSpinner';
+import OpenModalButton from '../OpenModalButton';
+import SignUpFormModal from '../SignUpFormModal';
+import './GetAllUsersPage.css'; 
 
 
-import './GetAllUsersPage.css'
+
+const GetAllUsersPage = () => { 
+    const dispatch = useDispatch();
+    const allUsersObject = useSelector(state => state.users.allUsers); // This is the object { id1: user1, ... }
+    const isLoading = useSelector(state => state.users.isLoadingAllUsers);
+    const error = useSelector(state => state.users.errorAllUsers);
+    const currUser = useSelector(state => state.session.user);
+
+    useEffect(() => {
+        dispatch(usersActions.getAllUsers());
+    }, [dispatch]);
+
+    // Convert the object of users into an array for mapping
+    // The backend already filters by role, so this list is what the current user is allowed to see.
+    const usersArray = allUsersObject ? Object.values(allUsersObject) : [];
 
 
-const GetAllUsers = ({
-    currentPotUsers,
-    onSave,
-    availableUsers,
-    isSavingUsers
-}) => {
-
-
-    const [selectedUserById, setSelectedUserById] = useState('');
-    const [error, setError] = useState(null);
-
-    const { closeModal } = useModal();
-
-    const handleSelectChange = async (e) => {
-        e.preventDefault();
-        setSelectedUserById(e.target.value);
-        setError(null); // Reset error when a new user is selected
-    };
-
-    //handle saving user change
-    const handleSaveChanges = async () => {
-        if (!selectedUserById) {
-            setError('Please select a user')
-            return;
-        }
-
-        const alreadyInPot = currentPotUsers.some(user => user.id.toString() === selectedUserById);
-
-        if (!alreadyInPot) {
-            try {
-                await onSave(selectedUserById);
-                closeModal()
-            } catch (saveError) {
-                console.error("Error saving user from modal:", saveError);
-                setError("Failed to add user. Please try again.");
-            }
-        } else {
-            setError('User already exists');
-        }
-    };
-
-
-    const handleCancel = () => {
-        closeModal();
-        setError(null); //reset error when modal is closed
-        setSelectedUserById(''); //reset selected user when modal is closed
-    };
-
-    //convert allUsers to an array
-    // users to display in dropdown
-    const usersToDisplay = Array.isArray(availableUsers)
-        ? availableUsers.filter(newUser => {
-            return !currentPotUsers.some(potUser => potUser.id === newUser.id)
-        }) : [];
-    //logic to disable the save button
-    const isSelectedUserAlreadyInPot = selectedUserById
-        ? currentPotUsers.some(user => user.id.toString() === selectedUserById) : false;
-    return (
-
-        <>
-            <h1>ALL USERS</h1>
-            <div className="modal-overlay">
-
-                <div className="modal-content">
-                    <label htmlFor='user-select'>Add New User: </label>
-                    <select
-                        id='user-select'
-                        value={selectedUserById}
-                        onChange={handleSelectChange}
-                    >
-                        <option value=''>Select New User</option>
-                        {
-                            usersToDisplay.length > 0 ? (usersToDisplay.map(user => (
-                                <option key={user.id} value={user.id}>
-                                    {user.firstName} {user.lastName} -- {user.mobile}
-                                </option>
-                            ))
-                            ) : (
-                                <option value='' disabled>No User Available For Selection</option>
-                            )}
-                    </select>
-                </div>
-
-
-                {error && <p className="error-message">{error}</p>}
-                <div className="modal-actions">
-
-                    <button
-                        onClick={handleSaveChanges}
-                        className="modal-button save"
-                        disabled={isSavingUsers || !selectedUserById || isSelectedUserAlreadyInPot || usersToDisplay.length === 0}
-                    >
-                        {isSavingUsers ? 'Saving...' : 'Save User'}
-                    </button>
-                    <button
-                        onClick={handleCancel}
-                        className="modal-button cancel"
-                        disabled={isSavingUsers}
-                    >
-                        Cancel
-                    </button>
-                </div>
+    if (isLoading) {
+        return (
+            <div className="user-list-page-container"> 
+                <h1>All Users</h1>
+                <LoadingSpinner />
             </div>
-        </>
-    )
-}
+        );
+    }
 
+    if (error) {
+        return (
+            <div className="user-list-page-container error-container">  
+                <h1>All Users</h1>
+                <p>Error fetching users: {error.message || String(error)}</p>
+            </div>
+        );
+    }
 
-export default GetAllUsers;
+    if (!usersArray.length && !isLoading) { // Check usersArray.length
+        return (
+            <div className="user-list-page-container"> {/* Use a consistent class name */}
+                <h1>All Users</h1>
+                <p>No users found or you may not have permission to view them.</p>
+            </div>
+        );
+    }
+
+    return (
+        <div className="user-list-page-container"> {/* Use a consistent class name */}
+            <h1>All Users</h1>
+            {currUser?.role === 'banker' && (
+                //  <NavLink to="/users/create" className="create-user-button">Create New User</NavLink>
+                <OpenModalButton
+                buttonText="Create New User"
+                modalComponent={<SignUpFormModal createdByBanker={true} />}
+                />
+            )}
+            <table className="users-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Mobile</th>
+                        <th>Role</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {usersArray.map(user => ( // Map over usersArray
+                        <tr key={user.id}>
+                            <td>{user.firstName} {user.lastName}</td>
+                            <td>{user.mobile}</td>
+                            <td>{user.role}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
+    );
+};
+
+export default GetAllUsersPage;
