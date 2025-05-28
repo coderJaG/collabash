@@ -1,128 +1,351 @@
-.pot-container {
-  background-color: #1abc9c;
-  border-radius: 10px;
-  width: 350px;
-  margin: auto;
-  border: 1px solid black;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  padding: 5px;
-}
+/* PotDetailsPage.css */
 
-.pot-container>div {
-  width: 100%;
-
-
-  display: flex;
-  justify-content: space-between;
-  text-align: left;
+/* Overall Page Container */
+.pot-details-page-wrapper {
+  padding: 20px 30px;
+  max-width: 1000px;
+  margin: 30px auto;
+  background-color: #e8f8f5; /* Light mint/aqua */
+  border-radius: 8px;
+  /* box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08); */
+  text-align: center;
 }
 
 .pot-header {
-  margin: auto auto 30px auto;
   text-align: center;
-  width: 1024px;
-  background-color: #3498db;
-  border-radius: 10px;
+  color: #1abc9c; /* Green */
+  margin-bottom: 25px;
+  font-size: 2em;
+  background-color: white;
+  padding: 0px 10px 0px 10px;
+  border-radius: 30px;
+  display: inline-block;
+  width: auto;
+  box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.2),
+              inset -2px -2px 5px rgba(255, 255, 255, 0.65);
+  position: relative;
 }
 
-.error {
-  margin: 30px auto;
-  width: 400px;
-  border-radius: 5px;
-  background-color: #1abc9c;
-  text-align: center;
+/* Buttons Bar */
+.buttons-bar {
+  display: flex;
+  margin: 0 auto 30px auto;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 800px;
+  padding: 0;
+  text-align: left;
+}
+
+.get-all-pots-button button,
+.action-buttons-container button {
+  padding: 10px 18px;
   color: white;
+  text-decoration: none;
+  border-radius: 5px;
   font-weight: bold;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  font-size: 0.95em;
+  margin-left: 5px;
+}
+
+.get-all-pots-button button {
+  background-color: #1abc9c; 
+}
+.get-all-pots-button button:hover {
+  background-color: #16a085; 
+}
+
+.action-buttons-container button {
+  background-color: #5cb85c; /* Secondary green for actions */
+}
+.action-buttons-container button:hover {
+  background-color: #4cae4c;
+}
+.action-buttons-container button.hidden {
+  display: none !important;
 }
 
 
-.members-div {
-  border-radius: 10px;
-  /* border-top-left-radius: 10px;
-    border-top-right-radius: 10px; */
+/* Pot Container - Main details box */
+.pot-container {
+  background-color: #1abc9c;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 700px; 
+  margin: 20px auto;
+  border: 1px solid #d0e0e3;
   display: flex;
   flex-direction: column;
-  background-color: #ec101050;
   overflow: hidden;
-  padding-left: 1px;
-  padding-right: 1px;
-  padding-bottom: 5px;
+  padding: 20px;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.07);
+  text-align: left;
+}
+
+.pot-container > div {
+  width: 50%; 
+  display: flex;
+  justify-content: space-between;
+  align-items: center; 
+  padding: 10px;
+  border-bottom: 1px solid #e8f8f5;
+  font-size: 1em; 
+  background-color: #fff; 
+  border-radius: 20px;
+  box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.2),
+              inset -2px -2px 5px rgba(255, 255, 255, 0.65);
+  margin-bottom: 10px; 
+  transition: background-color 0.2s ease;
+}
+
+/* Alternating alignment for general divs within pot-container */
+.pot-container > div:not(.pot-name-div):nth-child(odd) {
+  margin-left: 0;
+  margin-right: auto; /* Pushes to the left */
+}
+.pot-container > div:not(.pot-name-div):nth-child(even) {
+  margin-left: auto; /* Pushes to the right */
+  margin-right: 0;
+}
+
+
+.pot-container > div:last-child:not(.pot-name-div) { /* Ensure last-child rule doesn't apply to pot-name-div if it's last */
+  border-bottom: none;
+}
+
+.pot-container > div span:first-child {
+  font-weight: 600;
+  color: #2c3e50; 
+  margin-right: 15px; 
+}
+.pot-container > div span:last-child {
+  color: #1abc9c; 
+  font-weight: bold;
+  text-align: right;
+}
+
+.pot-name-div {
+  justify-content: center !important; 
+  background-color: transparent !important; 
+  box-shadow: none !important; 
+  border-bottom: none !important; 
+  padding: 0 !important; 
+  margin-bottom: 15px !important; 
+  width: auto !important; /* Override 25% width */
+  margin-left: auto !important; /* Center the div */
+  margin-right: auto !important; /* Center the div */
+}
+
+.pot-name-div .pot-name { 
+  color: white; 
+  font-weight: bold;
+  font-size: 1.6em; 
+  text-align: center;
+  background-color: transparent; 
+  padding: 5px 0; 
+  margin: 0; 
+  width: auto; 
+  display: inline-block; 
+}
+
+
+.banker-div span:last-child {
+  color: #2c3e50;
+  font-weight: bold; 
+}
+
+
+/* Members Section */
+.members-div {
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  background-color: #f0fff0;
+  overflow: hidden;
+  padding: 20px; 
+  margin-top: 30px; 
+  border: 1px solid #d1f2eb;
+  max-width: 800px; 
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .members {
   display: flex;
   flex-direction: column;
-  justify-content: space-around;
+  gap: 12px;
+  margin-bottom: 20px;
 }
 
-.members>span {
+.members > span:first-child {
   text-align: center;
   font-weight: bold;
+  font-size: 1.3em; 
+  color: #1abc9c;
+  margin-bottom: 10px;
 }
 
-.members>div {
+.members > div {
   display: flex;
-  justify-content: space-around;
-
-}
-
-.members-list-div {
-  /* padding-left: 20px; */
-}
-
-.member-header {
-  display: flex;
-  justify-content: space-around;
-  /* background-color: #ddd;  */
-  font-weight: bold;
-}
-
-.members-list li {
-  border-radius: 5px;
-  display: flex;
-  justify-content: space-around;
-  background-color: white;
-  margin-bottom: 1px;
-}
-
-
-/* buttons bar */
-.buttons-bar {
-  display: flex;
-  margin: auto auto 30px auto;
   justify-content: space-between;
-  width: 1024px;
+  align-items: center;
+  font-size: 0.95em;
+}
+.members > div span {
+  color: #333;
+}
+.members > div span:last-child {
+  font-weight: 500;
 }
 
+.members-div select {
+  padding: 10px 14px; 
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1em; 
+  margin-bottom: 20px;
+  background-color: white;
+  cursor: pointer;
+}
+.members-div select:focus {
+  border-color: #1abc9c;
+  box-shadow: 0 0 0 2px rgba(26, 188, 156, 0.2);
+  outline: none;
+}
 
-.action-buttons-container {
+/* Members Table Container */
+.members-table-container {
+  width: 100%;
+  overflow-x: auto; 
+}
+
+.members-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px; 
+  background-color: #ffffff; 
+  border-radius: 6px; 
+  overflow: hidden; 
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+
+.members-table th,
+.members-table td {
+  border: 1px solid #e0f2f1; 
+  padding: 12px 15px;
+  text-align: left;
+  vertical-align: middle;
+  font-size: 0.9em;
+}
+
+.members-table th {
+  background-color: #1abc9c; 
+  color: white;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.members-table tbody tr {
+  background-color: #e0f2f1;
+}
+
+.members-table tbody tr:hover {
+  background-color: #e8f8f5; 
+}
+
+.members-table td span { 
   display: flex;
-  justify-content: space-around;
-  width: 25%;
+  align-items: center;
+  justify-content: center; 
 }
-/* success-message for deleting a pot */
+.members-table td input[type="checkbox"] {
+  margin-right: 8px; 
+  cursor: pointer;
+  transform: scale(1.1); 
+}
+.members-table td button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  color: #e74c3c;
+  font-size: 1.3em; 
+  display: flex; 
+  align-items: center;
+  justify-content: center;
+}
+.members-table td button:hover {
+  color: #c0392b;
+}
+.members-table td button:disabled {
+  color: #bdc3c7;
+  cursor: not-allowed;
+}
+
+
+/* Error and Success Messages */
+.error,
 .success-message {
+  margin: 20px auto;
+  width: 100%;
+  max-width: 600px;
+  border-radius: 5px;
+  padding: 15px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+.error p { margin: 0; }
+
+.success-message {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+/* Loading Spinner Container */
+.loading-spinner-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
   text-align: center;
 }
+.loading-spinner-container p {
+  margin-top: 15px;
+  color: #555;
+  font-size: 1.1em;
+}
+.loading-spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #1abc9c; 
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
 
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
 
+/* Utility Classes */
 .hidden {
   display: none !important;
 }
 
-
 .finger-button-pointer {
   cursor: pointer;
-}
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-
-  100% {
-    transform: rotate(360deg);
-  }
 }

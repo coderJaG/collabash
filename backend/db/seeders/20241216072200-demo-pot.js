@@ -12,7 +12,7 @@ module.exports = {
     await Pot.bulkCreate([
       {
         ownerId: 1,
-        ownerName: 'Demo-lition',
+        ownerName: 'Demo Lition',
         name: 'Cash Pot',
         hand: 20.00,
         amount: 10000.00,
@@ -22,7 +22,7 @@ module.exports = {
       },
       {
         ownerId: 1,
-        ownerName: 'Demo-lition',
+        ownerName: 'Demo Lition',
         name: 'Rainy Day',
         hand: 100.00,
         amount: 15500.00,
@@ -32,7 +32,7 @@ module.exports = {
       },
       {
         ownerId: 1,
-        ownerName: 'Demo-lition',
+        ownerName: 'Demo Lition',
         name: 'Friends and Family',
         hand: 150.00,
         amount: 5000.00,
