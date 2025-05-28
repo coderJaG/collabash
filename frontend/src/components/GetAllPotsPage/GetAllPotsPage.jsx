@@ -67,13 +67,13 @@ const GetAllPotsPage = () => {
 
     if (error) {
         return (
-            <>
+            <div className="error-container">
                 <h1 className="pot-header">Error Loading Pots!!!</h1>
                 <div className="error">
                     <p> {error.message || String(error)} {error.status && `${error.status}`}</p>
 
-                </div>;
-            </> 
+                </div>
+            </div>
         );
     }
 

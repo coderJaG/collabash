@@ -1,17 +1,93 @@
-ul {
-    list-style-type: none;
-    padding: 0;
+/* ProfileButton.css */
+
+.profile-button-container { /* Add this wrapper in ProfileButton.jsx for positioning */
+    position: relative; /* For absolute positioning of the dropdown */
+    display: inline-block;
 }
 
-.profile-button-icon { 
-    color: orange;
-    background-color: white;
-    font-size: 30px;
-    border: 1px solid orange;
+.profile-button-icon {
+    background-color: transparent; /* Make background transparent to blend with nav */
+    color: white; /* Icon color to match nav text */
+    font-size: 2.2em; /* Adjust icon size */
+    border: none; /* Remove border */
     border-radius: 50%;
-    box-shadow: 5px 3px 5px;
+    cursor: pointer;
+    padding: 5px; /* Add some padding around the icon */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
 }
 
+.profile-button-icon:hover {
+    background-color: rgba(255, 255, 255, 0.15); /* Subtle highlight on hover */
+}
+
+.profile-dropdown { /* This will now be a div containing other divs */
+    position: absolute;
+    top: calc(100% + 10px); /* Position below the button with some gap */
+    right: 0;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1001; /* Above navbar if navbar is sticky */
+    width: 220px; /* Adjust width as needed */
+    padding: 10px 0; /* Vertical padding for the dropdown container */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out, visibility 0.2s ease-in-out;
+    /* Removed list-style-type and margin as it's no longer a ul */
+}
+
+.profile-dropdown.visible { /* New class to control visibility with transition */
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* Styles for direct div children acting as menu items */
+.profile-dropdown > div {
+    display: block; 
+    width: 100%;   
+    box-sizing: border-box; 
+    padding: 12px 20px;
+    color: #333; 
+    font-size: 0.95em;
+    border-bottom: 1px solid #f0f0f0; 
+    text-align: center; 
+}
+
+.profile-dropdown > div:last-child { 
+    border-bottom: none; 
+    padding: 10px; /* Adjusted padding for the div containing the button */
+}
+
+.profile-dropdown > div:first-child { 
+    font-weight: 600;
+    color: #1abc9c; 
+}
+
+.profile-dropdown > div button { /* Logout button, assuming it's a direct child of one of the divs */
+    background-color: #1abc9c; 
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 500;
+    width: 100%; 
+    text-align: center; 
+    transition: background-color 0.2s ease;
+    font-size: 0.9em;
+    box-sizing: border-box; 
+}
+
+.profile-dropdown > div button:hover {
+    background-color: #16a085; 
+}
+
+/* Hidden class to hide the dropdown (used by JS) */
 .hidden {
-    display:none;
+    display: none !important; 
 }

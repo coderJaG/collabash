@@ -1,47 +1,53 @@
+// Navigation.jsx
 import { NavLink } from "react-router-dom";
 import { useSelector } from "react-redux";
-
 import ProfileButton from "../ProfileButton";
 import OpenModalButton from "../OpenModalButton";
 import LoginFormModal from "../LoginFormModal";
 import SignUpFormModal from "../SignUpFormModal";
-
-
-
+import './Navigation.css'; // Import the CSS
 
 const Navigation = ({ isLoaded }) => {
-
     const currUser = useSelector(state => state.session.user);
 
     const sessionNavLinks = currUser ? (
         <>
+            {/* ProfileButton will be wrapped in its own container for positioning */}
             <li><ProfileButton user={currUser} /></li>
-
         </>
     ) : (
         <>
-            <li className="login"><OpenModalButton
-                buttonText="Log In"
-                modalComponent={<LoginFormModal />}
-            /></li>
-            <li><OpenModalButton
-                buttonText="Sign Up"
-                modalComponent={<SignUpFormModal />}
-            /></li>
+            <li className="login">
+                <OpenModalButton
+                    buttonText="Log In"
+                    modalComponent={<LoginFormModal />}
+                />
+            </li>
+            <li className="signup">
+                <OpenModalButton
+                    buttonText="Sign Up"
+                    modalComponent={<SignUpFormModal />}
+                />
+            </li>
         </>
-    )
-
+    );
 
     return (
-        <>
-            <h1>NAVIGATION</h1>
-            <ul>
-                <li><NavLink to={'/'}>Home</NavLink></li>
-                {isLoaded && sessionNavLinks}
-            </ul>
-        </>
-    )
+        <nav className="main-nav-bar">
+            <div className="nav-left">
+                <h1>COLLABASH</h1> 
+                <ul>
+                    <li><NavLink to={'/'}>Home</NavLink></li>
+                    {/* Add other left-aligned links here if any */}
+                </ul>
+            </div>
+            <div className="nav-right">
+                <ul>
+                    {isLoaded && sessionNavLinks}
+                </ul>
+            </div>
+        </nav>
+    );
 };
-
 
 export default Navigation;

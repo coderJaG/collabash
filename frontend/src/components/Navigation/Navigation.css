@@ -1,0 +1,94 @@
+/* Navigation.css */
+
+/* Main navigation bar container */
+.main-nav-bar {
+    background-color: #1abc9c; /* Main theme color */
+    padding: 0 30px; /* Horizontal padding */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 70px; /* Standard height for a nav bar */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    position: sticky; /* Make it sticky to the top */
+    top: 0;
+    z-index: 1000; /* Ensure it's above other content */
+}
+
+.main-nav-bar h1 { /* Assuming the "NAVIGATION" h1 is part of the bar or a logo placeholder */
+    color: white;
+    font-size: 1.8em;
+    margin: 0; /* Reset margin */
+    font-weight: 600;
+    letter-spacing: 1px;
+    /* If you have a logo image, style it here */
+}
+
+.main-nav-bar ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    gap: 15px; /* Spacing between nav items */
+}
+
+/* Styling for NavLink items */
+.main-nav-bar ul li a,
+.main-nav-bar ul li .nav-link-button { /* Class for button-like NavLinks if needed */
+    color: white;
+    text-decoration: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    font-weight: 500;
+    font-size: 1em;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    display: inline-block; /* For padding and border-radius to apply correctly */
+}
+
+.main-nav-bar ul li a:hover,
+.main-nav-bar ul li a.active, /* Style for active NavLink */
+.main-nav-bar ul li .nav-link-button:hover {
+    background-color: rgba(255, 255, 255, 0.15); /* Subtle highlight */
+    color: #f1f1f1; /* Slightly lighter text on hover/active */
+}
+
+/* Specifically for OpenModalButton rendered buttons if they don't inherit well */
+.main-nav-bar .login button, /* Target button inside .login li */
+.main-nav-bar .signup button,
+.main-nav-bar ul li > div > button { /* More generic for OpenModalButton's button */
+    background-color: transparent;
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    padding: 8px 15px;
+    border-radius: 5px;
+    font-weight: 500;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.main-nav-bar .login button:hover,
+.main-nav-bar .signup button:hover,
+.main-nav-bar ul li > div > button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: white;
+}
+
+/* Ensure ProfileButton list item aligns well */
+.main-nav-bar ul li:has(.profile-button-icon) { /* Targets li containing ProfileButton */
+    display: flex; /* Helps with alignment if ProfileButton itself is complex */
+    align-items: center;
+}
+
+/* Separating left and right sections of the navbar */
+.nav-left {
+    display: flex;
+    align-items: center;
+    gap: 20px; /* Space between logo/title and home link */
+}
+
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* Space between profile/login/signup */
+}
