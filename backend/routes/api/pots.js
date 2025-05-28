@@ -83,7 +83,7 @@ router.get('/:potId', requireAuth, async (req, res) => {
             include: {
                 model: User,
                 as: 'Users', // Explicitly using the default alias 'Users'
-                attributes: ['id', 'firstName', 'lastName', 'drawDate'], // Specify needed attributes
+                attributes: ['id', 'firstName', 'lastName', 'drawDate'], 
                 through: { attributes: [] }
             }
         });
@@ -127,7 +127,7 @@ router.post('/', requireAuth, async (req, res) => {
        
         const ownerName = `${currUser.firstName} ${currUser.lastName}`; 
 
-        const createPot = await Pot.create({ // Changed build + save to create
+        const createPot = await Pot.create({ 
             ownerId: currUser.id,
             ownerName,
             name,
