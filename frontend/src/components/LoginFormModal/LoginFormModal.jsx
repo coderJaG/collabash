@@ -1,105 +1,85 @@
+// LoginFormModal.jsx
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
-
 import { useModal } from '../context/Modal';
-import * as sessionActions from '../../store/session'
-
+import * as sessionActions from '../../store/session';
+import './LoginFormModal.css'; // Import the CSS
 
 const LoginFormModal = () => {
     const dispatch = useDispatch();
-
     const [credential, setCredential] = useState('');
     const [password, setPassword] = useState('');
     const [errors, setErrors] = useState({});
     const { closeModal } = useModal();
 
-
-
     const handleSubmit = async (e) => {
-        e.preventDefault()
-        setErrors({})
-        try {
-            const res = await dispatch(sessionActions.login({ credential, password }));
-
-            if (res.ok) {
-                closeModal()
-            }
-            else {
-                const data = await res.json();
-                if (data && data.errors) {
-                    setErrors(data.errors);
-                } else if (data && data.message) {
-                    setErrors({ credential: data.message });
-                } else {
-                    setErrors({ credential: 'The provided credentials were invalid.' });
-                }
-            }
-        } catch (error) {
-            console.error('Error during login:', error);
-            setErrors({ credential: 'The provided credentials were invalid.' });
-        }
-    }
-
-    //demo user login
-    // ---Start of demo user login---
-    //delete after testing
-    const demoUser1 = async (e) => {
         e.preventDefault();
         setErrors({});
         try {
-            const res = await dispatch(sessionActions.login({ credential: 'Demo-lition', password: 'password' }));
-            if (res.ok) {
-                closeModal();
+            // The login thunk now throws a structured error on failure
+            await dispatch(sessionActions.login({ credential, password }));
+            closeModal(); // Only closes if login was successful (no error thrown)
+        } catch (caughtError) {
+            // caughtError should be the object thrown by the login thunk
+            console.error('Login modal caught error:', caughtError);
+            const newErrors = {};
+            if (caughtError && caughtError.errors && Object.keys(caughtError.errors).length > 0) {
+                Object.assign(newErrors, caughtError.errors);
             }
-        } catch (error) {
-            console.error('Error during demo user login:', error);
-            setErrors({ credential: 'The provided credentials were invalid.' });
+            // Use top-level message for general error, or a fallback.
+            // Backend validation for login often returns a single 'credential' error.
+            newErrors.credential = caughtError.message || 'The provided credentials were invalid.';
+            setErrors(newErrors);
         }
     };
-    const demoUser2 = async (e) => {
 
-        e.preventDefault();
+    const demoUserLogin = async (demoCredential, demoPassword) => {
         setErrors({});
         try {
-            const res = await dispatch(sessionActions.login({ credential: 'TestUser1', password: 'password2' }));
-            if (res.ok) {
-                closeModal();
-            }
-        } catch (error) {
-            console.error('Error during demo user login:', error);
-            setErrors({ credential: 'The provided credentials were invalid.' });
+            await dispatch(sessionActions.login({ credential: demoCredential, password: demoPassword }));
+            closeModal();
+        } catch (caughtError) {
+            console.error('Error during demo user login:', caughtError);
+            setErrors({ credential: caughtError.message || 'Demo login failed.' });
         }
     };
-// ---End of demo user login---
 
-
-    const disableButton = (credential.length >= 4 && password.length >= 6) ? false : true
+    const disableButton = !(credential.length >= 4 && password.length >= 6);
 
     return (
-        <>
+        <div className="login-modal-content"> {/* Wrapper div */}
             <h2>LOG IN</h2>
-            <button onClick={demoUser1}>Demo User1</button>
-            <button onClick={demoUser2}>Demo User2</button>
-            <form onSubmit={handleSubmit}>
+            <div className="demo-buttons-container">
+                <button className="demo-button" onClick={() => demoUserLogin('Demo-lition', 'password')}>Demo User 1</button>
+                <button className="demo-button" onClick={() => demoUserLogin('TestUser1', 'password2')}>Demo User 2</button>
+            </div>
+            <form onSubmit={handleSubmit} className="login-form">
+                {errors.credential && <p className="error-message">{errors.credential}</p>}
+                {/* If you have other specific error fields from backend, add them here */}
+                {/* {errors.password && <p className="error-message">{errors.password}</p>} */}
 
-                {errors.credential && <p>{errors.credential}</p>}
-                <label>Email or Username: </label>
+                <label htmlFor="login-credential">Email or Username: </label>
                 <input
+                    id="login-credential"
                     type='text'
                     value={credential}
                     onChange={e => setCredential(e.target.value)}
                     placeholder='Enter email or username'
+                    required
                 />
-                <label>Password: </label>
+                <label htmlFor="login-password">Password: </label>
                 <input
-                    type='text'
+                    id="login-password"
+                    type='password' // Changed to password type
                     value={password}
                     onChange={e => setPassword(e.target.value)}
+                    placeholder='Enter password'
+                    required
                 />
-                <button type='submit' disabled={disableButton}>Log In</button>
+                <button type='submit' disabled={disableButton} className="login-submit-button">Log In</button>
             </form>
-        </>
-    )
+        </div>
+    );
 };
 
 export default LoginFormModal;
