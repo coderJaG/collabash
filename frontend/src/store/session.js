@@ -98,7 +98,7 @@ export const restoreUser = () => async (dispatch) => {
 };
 
 export const signUp = (userData, createdByBanker = false) => async (dispatch) => {
-    const { firstName, lastName, username, email, mobile, password, role } = userData; // Removed unused fields for this thunk
+    const { firstName, lastName, username, email, mobile, password, role } = userData; 
     try {
         const res = await csrfFetch('/api/users', {
             method: 'POST',
@@ -109,7 +109,7 @@ export const signUp = (userData, createdByBanker = false) => async (dispatch) =>
             })
         });
 
-        const data = await res.json(); // Always try to parse JSON
+        const data = await res.json(); 
 
         if (res.ok && data.user) {
             if (!createdByBanker) {
