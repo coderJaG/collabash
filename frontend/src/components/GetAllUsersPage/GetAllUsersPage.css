@@ -160,9 +160,9 @@
 }
 
 .pagination-controls .page-number.active {
-    background-color: #3498db; 
+    background-color: #1abc9c; 
     color: white;
-    border-color: #3498db;
+    border-color: #1abc9c;
     font-weight: bold;
 }
 
