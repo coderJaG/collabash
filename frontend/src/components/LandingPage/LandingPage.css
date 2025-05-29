@@ -1,0 +1,164 @@
+/* LandingPage.css */
+
+.landing-page-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh; 
+    width: 100vw; 
+    background-image: url('/images/landing-splash.png'); 
+    background-size: cover; 
+    background-position: center center; 
+    background-repeat: no-repeat;
+    position: relative; 
+    padding: 20px;
+    box-sizing: border-box;
+    color: white; 
+    text-align: center;
+}
+
+
+.landing-page-wrapper::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5); 
+    z-index: 1; 
+}
+
+.landing-page-header {
+    position: relative; /* To ensure it's above the overlay */
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    max-width: 800px; /* Limit width of the header content */
+}
+
+.landing-page-header h1 {
+    font-size: 3.5em; 
+    font-weight: 700;
+    color: white;
+    margin-bottom: 30px;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7); 
+    line-height: 1.2;
+}
+
+
+.get-started-button {
+    margin-top: 20px; 
+}
+
+.get-started-button a, 
+.get-started-button button { 
+    display: inline-block;
+    background-color: #1abc9c; 
+    color: white;
+    padding: 15px 35px;
+    font-size: 1.2em;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 50px; 
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.get-started-button a:hover,
+.get-started-button button:hover {
+    background-color: #16a085; 
+    transform: translateY(-2px); 
+}
+
+.landing-page-wrapper > p { 
+    position: relative;
+    z-index: 2;
+    font-size: 1.2em;
+    margin-top: 40px;
+    max-width: 600px;
+    line-height: 1.6;
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.6);
+}
+
+
+/* .webm backgorund animation */
+/* In your LandingPage.css */
+.landing-page-wrapper {
+    position: relative; /* For positioning video and content */
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden; /* To contain the video */
+    display: flex; /* To center content on top */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.landing-page-video-bg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    /* object-fit: cover; */
+    transform: translate(-50%, -50%);
+    z-index: 0; /* Behind the content */
+}
+
+.landing-page-content { 
+    position: relative;
+    z-index: 2; 
+    color: white; 
+    
+}
+
+/* Optional: overlay for text legibility if the video is bright */
+.landing-page-wrapper::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5); 
+    z-index: 1; /* Between video and content */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .landing-page-header h1 {
+        font-size: 2.8em;
+    }
+
+    .get-started-button a,
+    .get-started-button button {
+        font-size: 1.1em;
+        padding: 12px 30px;
+    }
+
+    .landing-page-wrapper > p {
+        font-size: 1.1em;
+    }
+}
+
+@media (max-width: 480px) {
+    .landing-page-header h1 {
+        font-size: 2.2em;
+    }
+
+    .get-started-button a,
+    .get-started-button button {
+        font-size: 1em;
+        padding: 10px 25px;
+    }
+    .landing-page-wrapper > p {
+        font-size: 1em;
+    }
+}

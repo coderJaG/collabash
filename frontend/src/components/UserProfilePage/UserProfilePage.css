@@ -1,0 +1,135 @@
+/* BankerPage.css */
+
+/* Overall Page Container */
+.user-page-wrapper {
+    padding: 20px 30px;
+    max-width: 1000px;
+    margin: 30px auto;
+    background-color: #e8f8f5; 
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    text-align: center; 
+}
+
+/* Page Header */
+.user-page-header h1,
+.user-pots-list h2 {
+    text-align: center;
+    color: #1abc9c; /* Main theme color */
+    margin-bottom: 30px; 
+    font-size: 2em;
+    background-color: white;
+    padding: 0px 10px 0px 10px;
+    border-radius: 30px;
+    display: inline-block;
+    width: auto;
+    box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.2),
+                inset -2px -2px 5px rgba(255, 255, 255, 0.65);
+    position: relative;
+}
+
+/* User Details Section */
+.user-info-card { 
+    background-color: #ffffff;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.07);
+    margin: 0 auto 30px auto; 
+    max-width: 600px;
+    text-align: left;
+}
+
+.user-name-div p,
+.user-username-div p,
+.user-email-div p,
+.user-mobile-div p {
+    font-size: 1.1em;
+    color: #333;
+    margin: 10px 0;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+.user-info-card div:last-of-type p { 
+    border-bottom: none;
+}
+
+.user-info-card p strong { 
+    color: #1abc9c;
+    margin-right: 8px;
+}
+
+
+/* Banker's Pots List Section */
+.user-pots-list {
+    margin-top: 30px;
+    background-color: #ffffff; 
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.07);
+}
+
+.user-pots-list h2 {
+    color: #1abc9c; 
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 1.6em;
+}
+
+.user-pots-list .pot-item table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.user-pots-list .pot-item th {
+    background-color: #1abc9c; 
+    color: white;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.9em;
+    letter-spacing: 0.5px;
+    height: 40px;
+}
+
+.user-pots-list .pot-item th,
+.user-pots-list .pot-item td {
+    text-align: left;
+    padding: 12px 15px;
+    border-bottom: 1px solid #e0f2f1;
+    border-left: 1px solid #e0f2f1;
+}
+
+.user-pots-list .pot-item th:first-child,
+.user-pots-list .pot-item td:first-child {
+    padding-left: 20px;
+    border-left: none;
+}
+.user-pots-list .pot-item th:last-child,
+.user-pots-list .pot-item td:last-child {
+    padding-right: 20px;
+    border-right: none;
+}
+
+.user-pots-list .pot-item tbody tr:nth-child(even) {
+    background-color: #f8f9fa; 
+}
+
+.user-pots-list .pot-item tbody tr:nth-child(odd) {
+    background-color: #ffffff; 
+}
+
+.user-pots-list .pot-item tbody tr:hover {
+    background-color: #e8f8f5; 
+}
+
+/* "You have no pots" message */
+.no-pots-message {
+    text-align: center;
+    color:  #721c24;
+    font-size: 1.1em;
+    padding: 20px;
+    background-color: #f0fff0; /* Light mint/aqua */
+    border-radius: 5px;
+    margin-top: 10px;
+}

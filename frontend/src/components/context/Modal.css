@@ -1,3 +1,5 @@
+ /* Modal.css */
+
 #modal {
     position: fixed;
     top: 0;
@@ -7,6 +9,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    z-index: 1000; 
   }
   
   #modal-background {
@@ -15,11 +18,18 @@
     right: 0;
     left: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.7);
+    background-color: rgba(0, 0, 0, 0.7); 
   }
   
   #modal-content {
-    background-color: white;
-    border-radius: 10px;
-    position: absolute;
-  }
+    background-color: white; 
+    border-radius: 8px; 
+    position: relative; 
+    z-index: 1001; 
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.25); 
+    padding: 0; 
+     /* max-width: 90%; // Optional: prevent modal from being too wide */
+    /* max-height: 90vh; // Optional: prevent modal from being too tall */
+    /* overflow-y: auto; // Optional: allow scrolling for tall content */
+}
+

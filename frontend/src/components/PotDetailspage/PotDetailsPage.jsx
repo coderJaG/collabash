@@ -204,9 +204,9 @@ const PotDetailsPage = () => {
         <div className="pot-details-page-wrapper">
             <h1 className="pot-header">POT DETAILS</h1>
             <div className="buttons-bar">
-                <div className="get-all-pots-button">
+                {/* <div className="get-all-pots-button">
                     <button onClick={() => navigate('/pots/')} >All Pots</button>
-                </div>
+                </div> */}
                 <div className="action-buttons-container">
                     {currUser?.role === 'banker' && <OpenModalButton
                         buttonText="Change Status"
@@ -259,6 +259,7 @@ const PotDetailsPage = () => {
                     <span><h3>MEMBERS</h3></span>
                     <div>
                         <span>Total Members: {users.length}</span>
+                        <span className="add-users-button">
                         {currUser?.role === 'banker' && <OpenModalButton
                             buttonText="Add Users"
                             modalComponent={<AddUsersToPot
@@ -268,6 +269,7 @@ const PotDetailsPage = () => {
                                 isSavingUsers={isUpdatingPot} 
                             />}
                         />}
+                        </span>
                     </div>
                     <div>
                         <span>Total members paid: {users.reduce((acc, user) => {

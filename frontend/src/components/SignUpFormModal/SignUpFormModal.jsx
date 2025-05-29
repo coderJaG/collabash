@@ -94,7 +94,7 @@ const SignUpFormModal = ({createdByBanker = false}) => {
 
     return (
         <>
-            <h1 className="signup-form-header">{createdByBanker ? "Create New User Account" : "Sign Up"}</h1>
+            <h1 className="signup-form-header">{createdByBanker ? "CREATE NEW USER" : "SIGN UP"}</h1>
             <form className="signup-form" onSubmit={handleSubmit}>
                 {errors.general && <p className="error-message">{errors.general}</p>}
                 <label>First Name: </label>

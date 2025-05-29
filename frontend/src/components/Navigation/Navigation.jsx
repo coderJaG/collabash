@@ -38,7 +38,8 @@ const Navigation = ({ isLoaded }) => {
                 <h1>COLLABASH</h1> 
                 <ul>
                     <li><NavLink to={'/'}>Home</NavLink></li>
-                    {/* Add other left-aligned links here if any */}
+                    <li><NavLink to={'/pots'}>Pots</NavLink></li>
+                    <li><NavLink to={'/users'}>Users</NavLink></li>
                 </ul>
             </div>
             <div className="nav-right">
