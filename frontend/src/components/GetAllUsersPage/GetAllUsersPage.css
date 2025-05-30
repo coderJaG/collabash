@@ -104,6 +104,16 @@
     background-color: #d1f2eb; 
 }
 
+.users-table td.has-tooltip { /* Targets td with the 'has-tooltip' class */
+    cursor: help; /* Changes cursor to a help icon (question mark) */
+}
+.users-table td.has-tooltip span.more-indicator { /* Style for the (+N more) text */
+    font-style: italic;
+    color: #555;
+    margin-left: 4px;
+    font-size: 0.9em;
+}
+
 .error-container p {
     color: #e74c3c; 
     font-weight: bold;

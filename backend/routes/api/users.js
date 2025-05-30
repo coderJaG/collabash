@@ -1,6 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const { check } = require('express-validator');
+const Sequelize = require('sequelize');
 
 const { setTokenCookie, requireAuth } = require('../../utils/auth');
 const { User, Pot, PotsUser } = require('../../db/models');
@@ -50,7 +51,7 @@ router.get('/', requireAuth, async (req, res) => {
             usersToReturn = await User.findAll({
                 // Bankers see all users, defaultScope will apply (excluding sensitive fields)
                 // If you need PotsJoined for each user for bankers:
-                // include: [{ model: Pot, as: 'PotsJoined', attributes: ['id', 'name'], through: { attributes: [] } }]
+                include: [{ model: Pot, as: 'PotsJoined', attributes: ['id', 'name'], through: { attributes: [] } }]
             });
         } else if (currUser.role === 'standard') {
             // 1. Find all pot IDs the current user is part of.
@@ -59,7 +60,6 @@ router.get('/', requireAuth, async (req, res) => {
                 attributes: ['potId']
             });
             const potIds = userPots.map(up => up.potId);
-
             if (potIds.length > 0) {
                 // 2. Find all user IDs that are part of these pots.
                 const potUserEntries = await PotsUser.findAll({
@@ -70,13 +70,15 @@ router.get('/', requireAuth, async (req, res) => {
                     ]
                 });
                 const sharedUserIds = potUserEntries.map(pu => pu.userId);
-
+    
                 // 3. Fetch these users 
                 // Ensure current user is included even if they have no pots yet but are trying to see "all" users
                 if (!sharedUserIds.includes(currUser.id)) {
                     sharedUserIds.push(currUser.id);
                 }
-                usersToReturn = await User.findAll({ where: { id: sharedUserIds } });
+                usersToReturn = await User.findAll({ where: { id: sharedUserIds },
+                    include: [{ model: Pot, as: 'PotsJoined', attributes: ['id', 'name'], through: { attributes: [] } }]
+                 });
 
             } else {
                 // If standard user is in no pots, they only see themselves

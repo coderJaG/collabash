@@ -42,7 +42,7 @@ const GetAllUsersPage = () => {
             (user.firstName?.toLowerCase().includes(lowerSearchTerm)) ||
             (user.lastName?.toLowerCase().includes(lowerSearchTerm)) ||
             (user.username?.toLowerCase().includes(lowerSearchTerm)) ||
-            (user.email?.toLowerCase().includes(lowerSearchTerm)) ||    
+            (user.email?.toLowerCase().includes(lowerSearchTerm)) ||
             (user.mobile?.toLowerCase().includes(lowerSearchTerm)) ||
             (user.role?.toLowerCase().includes(lowerSearchTerm))
         );
@@ -93,7 +93,7 @@ const GetAllUsersPage = () => {
                     <OpenModalButton
                         buttonText="Create New User"
                         modalComponent={<SignUpFormModal createdByBanker={true} />}
-                        className="create-user-button-getallusers" 
+                        className="create-user-button-getallusers"
                     />
                 )}
                 <input
@@ -102,7 +102,7 @@ const GetAllUsersPage = () => {
                     value={searchTerm}
                     onChange={(e) => {
                         setSearchTerm(e.target.value);
-                        setCurrentPage(1); 
+                        setCurrentPage(1);
                     }}
                     className="users-search-input"
                 />
@@ -112,27 +112,44 @@ const GetAllUsersPage = () => {
                 <table className="users-table">
                     <thead>
                         <tr>
-                            <th>Name</th>
-                            <th>Mobile</th>
-                            <th>Role</th>
+                            <th>NAME</th>
+                            <th>MOBILE</th>
+                            <th>ROLE</th>
+                            <th>POTS JOINED</th>
                             {/* <th>Username</th> */}
                             {/* <th>Email</th> */}
                         </tr>
                     </thead>
                     <tbody>
-                        {currentUsersOnPage.map(user => (
-                            <tr key={user.id}>
-                                <td>{user.firstName} {user.lastName}</td>
-                                <td>{user.mobile}</td>
-                                <td>{user.role}</td>
-                                {/* <td>{user.username}</td> */}
-                                {/* <td>{user.email}</td> */}
-                            </tr>
-                        ))}
+                    {currentUsersOnPage.map(user => {
+                            const potsJoined = user.PotsJoined || [];
+                            const numPotsJoined = potsJoined.length;
+                            let displayPotsText = "None";
+                            let hoverTitlePots = "No pots joined";
+
+                            if (numPotsJoined > 0) {
+                                displayPotsText = potsJoined[0].name;
+                                if (numPotsJoined > 1) {
+                                    displayPotsText += ` (+${numPotsJoined - 1} more)`;
+                                }
+                                hoverTitlePots = potsJoined.map(pot => pot.name).join(', ');
+                            }
+
+                            return (
+                                <tr key={user.id}>
+                                    <td>{user.firstName} {user.lastName}</td>
+                                    <td>{user.mobile}</td>
+                                    <td>{user.role}</td>
+                                    <td title={hoverTitlePots} className={numPotsJoined > 0 ? "has-tooltip" : ""}>
+                                        {displayPotsText}
+                                    </td>
+                                </tr>
+                            );
+                        })}
                     </tbody>
                 </table>
             ) : (
-                 <p>{searchTerm ? "No users match your search." : "No users found or you may not have permission to view them."}</p>
+                <p>{searchTerm ? "No users match your search." : "No users found or you may not have permission to view them."}</p>
             )}
 
             {totalPages > 1 && (
@@ -156,15 +173,15 @@ const GetAllUsersPage = () => {
                             return false;
                         })
                         .map((pageNumber, index, arr) => (
-                           pageNumber === 'ellipsis' ?
-                           <span key={`ellipsis-${index}`} className="page-ellipsis">...</span> :
-                           <button
-                                key={pageNumber}
-                                onClick={() => paginate(pageNumber)}
-                                className={`page-number ${currentPage === pageNumber ? 'active' : ''}`}
-                           >
-                               {pageNumber}
-                           </button>
+                            pageNumber === 'ellipsis' ?
+                                <span key={`ellipsis-${index}`} className="page-ellipsis">...</span> :
+                                <button
+                                    key={pageNumber}
+                                    onClick={() => paginate(pageNumber)}
+                                    className={`page-number ${currentPage === pageNumber ? 'active' : ''}`}
+                                >
+                                    {pageNumber}
+                                </button>
                         ))
                     }
                     <button onClick={goToNextPage} disabled={currentPage === totalPages}>

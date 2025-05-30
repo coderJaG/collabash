@@ -52,6 +52,7 @@ const ProfileButton = ({ user }) => {
         <div className={dropdownClassName} ref={dropdownContainerRef}> 
             <div>{user.username}</div>
             <div>{user.firstName} {user.lastName}</div>
+            <div>Role: {user.role}</div>
             <div><button onClick={logOut}>Log Out</button></div>
         </div>
     </div>
