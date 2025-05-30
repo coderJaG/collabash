@@ -123,7 +123,7 @@ router.post('/', requireAuth, async (req, res) => {
     };
 
     try {
-        const { name, hand, amount, startDate, endDate, status } = req.body;
+        const { name, hand, amount, startDate, endDate} = req.body;
        
         const ownerName = `${currUser.firstName} ${currUser.lastName}`; 
 
@@ -135,7 +135,7 @@ router.post('/', requireAuth, async (req, res) => {
             amount,
             startDate,
             endDate,
-            status: status || 'Not Started' 
+            status: 'Not Started' 
         });
 
         return res.status(201).json(createPot); 
