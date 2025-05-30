@@ -18,33 +18,38 @@ a:visited {
     text-align: center; 
 }
 
-/* Header container for H1 and Create button */
-.all-pots-header-container {
-    display: flex;
-    justify-content: center; 
-    align-items: center;
-    position: relative; 
-    margin-bottom: 25px;
-   
-}
 
-.all-pots-header-container h1 {
+.all-pots-page-container > h1 {
+    text-align: center;
     color: #1abc9c; 
+    margin-bottom: 25px;
     font-size: 2em;
     background-color: white;
-    padding: 0px 10px 0px 10px;
-    border-radius: 30px;
-    display: inline-block;
-    width: auto;
-    box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.2),
-                inset -2px -2px 5px rgba(255, 255, 255, 0.65);
-    margin: 0; /* Reset margin to avoid spacing issues */   
+    padding: 0px 10px 0px 10px; 
+    border-radius: 30px; 
+    display: inline-block; 
+    width: auto; 
+    box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.25), 
+                inset -2px -2px 5px rgba(255, 255, 255, 0.7);
+    position: relative; 
 }
 
+
+.list-controls {
+    display: flex;
+    justify-content: flex-end; 
+    align-items: center;
+    margin-bottom: 25px;
+    gap: 20px; 
+    flex-wrap: wrap; 
+    text-align: left;
+}
+
+
 .create-pot-button {
-    background-color: #5cb85c; /* Consistent green for create actions */
+    background-color: #5cb85c; 
     color: white;
-    padding: 10px 15px;
+    padding: 10px 18px; 
     border: none;
     border-radius: 5px;
     font-weight: bold;
@@ -53,17 +58,25 @@ a:visited {
     font-size: 0.95em;
     display: flex; 
     align-items: center;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
-    /* Position button to the far right of its relative parent */
-    position: absolute;
-    right: 0; 
-    top: 50%; 
-    transform: translateY(-50%); 
-    margin-left: 0;
 }
 
 .create-pot-button:hover {
     background-color: #4cae4c;
+}
+
+/* Search input styling */
+.list-search-input { 
+    padding: 10px 14px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1em;
+    min-width: 280px; 
+}
+
+.list-search-input:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+    outline: none;
 }
 
 /* Container for the table */
@@ -73,8 +86,8 @@ a:visited {
     margin: 20px auto; 
     max-width: 1024px; 
     overflow: hidden; 
-    border-radius: 8px; 
-    box-shadow: 0 1px 5px rgba(0,0,0,0.07);
+    /* border-radius: 8px;  */
+    /* box-shadow: 0 1px 5px rgba(0,0,0,0.07);  */
 }
 
 .pots-container table {
@@ -82,6 +95,7 @@ a:visited {
     width: 100%;
     table-layout: fixed; 
     background-color: #ffffff; 
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05); 
 }
 
 .pots-container th {
@@ -90,50 +104,53 @@ a:visited {
     height: 40px; 
     font-weight: 600;
     text-transform: uppercase;
-    font-size: 0.9em; 
+    font-size: 0.85em; /* Matched to users table */
     letter-spacing: 0.5px;
 }
 
 .pots-container th,
 .pots-container td {
     text-align: left;
+    vertical-align: middle; 
     padding: 12px 15px; 
-    border-bottom: 1px solid #e0f2f1;
-    border-left: 1px solid #e0f2f1; 
+    border: 1px solid #d0e0e3; 
 }
+
+
 .pots-container th:first-child,
 .pots-container td:first-child {
-    padding-left: 20px; 
-    border-left: none; /* No left border for the first cell in a row */
+    /* padding-left: 20px; */ 
+    /* border-left: none; */ 
 }
 .pots-container th:last-child,
 .pots-container td:last-child {
-    padding-right: 20px;
-     border-right: none; /* No right border for the last cell */
+    /* padding-right: 20px; */
+    /* border-right: none; */
 }
 
-
+/* Row striping matched to users table */
 .pots-container tbody tr:nth-child(even) {
-    background-color: #f8f9fa; /* Very light grey for even rows */
+    background-color: #f0fff0; 
 }
 
 .pots-container tbody tr:nth-child(odd) {
-    background-color: #ffffff; /* White for odd rows */
+    background-color: #e8f8f5; 
 }
 
-.pots-container th:first-child {
-    border-top-left-radius: 6px; /* Rounded corner for table header */
-}
+/* Optional: Rounded corners for table - users table doesn't have these */
 
-.pots-container th:last-child { /* Target the actual last th element */
-    border-top-right-radius: 6px; /* Rounded corner for table header */
+/* .pots-container th:first-child {
+    border-top-left-radius: 6px; 
+}
+.pots-container th:last-child { 
+    border-top-right-radius: 6px; 
 }
 .pots-container tbody tr:last-child td:first-child {
     border-bottom-left-radius: 6px;
 }
 .pots-container tbody tr:last-child td:last-child {
     border-bottom-right-radius: 6px;
-}
+} */
 
 
 .finger-pointer {
@@ -141,15 +158,14 @@ a:visited {
 }
 
 .pots-container tbody tr.finger-pointer:hover {
-    background-color: #d1f2eb; 
-    color: #00796b; 
+    background-color: #d1f2eb; /* Matched to users table hover */
+    /* color: #00796b; */ /* Users table hover doesn't change text color directly */
 }
 .pots-container tbody tr.finger-pointer:hover td {
-    color: #004d40; 
+    /* color: #004d40; */ /* Users table hover doesn't change td text color */
 }
 
-
-/* Error message styling */
+/* Error message styling (Matched to GetAllUsersPage.css) */
 .error-container { 
     margin: 20px auto;
     width: 100%;
@@ -157,27 +173,27 @@ a:visited {
     border-radius: 5px;
     padding: 15px;
     text-align: center;
-    font-weight: bold;
-    background-color: #e0f2f1;
-    color: #721c24;
-    
 }
-.error-container p { margin: 0; }
+.error-container p {
+    font-weight: bold;
+    color: #e74c3c; 
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 4px; /* Consistent with button/input radius */
+    margin: 0;
+}
 
-/* Message for no pots */
+/* Message for no pots/search results (Styled like GetAllUsersPage.css > p) */
 .all-pots-page-container > p { 
     text-align: center;
-    color: #555; 
+    color: #666; 
     font-size: 1.1em;
-    padding: 25px;
-    background-color: #fff; 
-    border-radius: 5px;
-    margin-top: 20px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    padding: 20px; /* Matched */
+    /* Removed extra background, shadow from original pots page for simplicity */
 }
 
-/* Loading spinner (if using ClipLoader, it has its own styles, this is for the container) */
-.loading-spinner-container { /* Assuming you might wrap ClipLoader */
+
+.loading-spinner-container {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -189,4 +205,56 @@ a:visited {
     margin-top: 15px;
     color: #555;
     font-size: 1.1em;
+}
+
+/* Pagination controls (Copied and adapted from GetAllUsersPage.css) */
+.pagination-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 30px;
+    margin-bottom: 20px;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.pagination-controls button,
+.pagination-controls .page-number { 
+    padding: 9px 15px;
+    border: 1px solid #b2dfdb; 
+    background-color: #ffffff; 
+    color: #1abc9c; 
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    font-size: 0.9em;
+    min-width: 40px;
+    text-align: center;
+}
+
+.pagination-controls button:hover:not(:disabled),
+.pagination-controls .page-number:hover:not(.active) {
+    background-color: #e0f2f1; 
+    border-color: #1abc9c;
+}
+
+.pagination-controls button:disabled {
+    background-color: #f0f0f0;
+    color: #aaa;
+    cursor: not-allowed;
+    border-color: #eee;
+}
+
+.pagination-controls .page-number.active {
+    background-color: #1abc9c; 
+    color: white;
+    border-color: #1abc9c;
+    font-weight: bold;
+}
+
+.pagination-controls .page-ellipsis {
+    padding: 8px 5px;
+    color: #777;
+    display: flex;
+    align-items: center; 
 }

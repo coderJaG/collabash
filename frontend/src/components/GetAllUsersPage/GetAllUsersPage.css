@@ -8,28 +8,26 @@
     background-color: #e8f8f5; 
     border-radius: 8px;
     /* box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08); */
-    text-align: center; /* Added to center inline-block children like the h1 */
+    text-align: center; 
 }
 
 .user-list-page-container h1 {
     text-align: center;
-    color: #1abc9c; /* User updated color */
+    color: #1abc9c; 
     margin-bottom: 25px;
     font-size: 2em;
     background-color: white;
-    padding: 0px 10px 0px 10px; /* Adjusted padding for better oval shape with shadow */
-    border-radius: 30px; /* User updated border-radius */
+    padding: 0px 10px 0px 10px; 
+    border-radius: 30px; 
     display: inline-block; 
     width: auto; 
-    /* Updated box-shadow for a "gorged out" or "debossed" effect */
     box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.25), 
                 inset -2px -2px 5px rgba(255, 255, 255, 0.7);
-    position: relative; /* Needed if you add pseudo-elements for more complex curves */
+    position: relative; 
 }
 /* User list controls section */
 .user-list-controls {
     display: flex;
-    justify-content: space-between;
     align-items: center;
     margin-bottom: 25px;
     gap: 20px; 
@@ -60,6 +58,7 @@
     border-radius: 5px;
     font-size: 1em;
     min-width: 280px; 
+    margin-left: auto
 }
 .users-search-input:focus {
     border-color: #3498db;
