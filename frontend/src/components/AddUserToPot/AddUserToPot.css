@@ -1,0 +1,111 @@
+/* AddUserToPot.css */
+
+.add-user-to-pot-content {
+    display: flex;
+    flex-direction: column;
+    gap: 18px; 
+    padding: 25px 30px;
+    background-color: #f4f7f6; 
+    border-radius: 8px;
+    width: 90%;
+    max-width: 450px; 
+    margin: 20px auto; 
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+    max-height: 85vh;
+    overflow-y: auto;
+    box-sizing: border-box;
+}
+
+.add-user-to-pot-content h1 {
+    color: #ffffff;
+    background-color: #1abc9c; 
+    border-top-right-radius: 8px; 
+    border-top-left-radius: 8px;
+    text-align: center;
+    margin: -25px -30px 20px -30px; 
+    padding: 15px 0;
+    font-size: 1.6em;
+    font-weight: 600;
+}
+
+.add-user-to-pot-content label {
+    font-weight: 600;
+    color: #495057;
+    font-size: 0.95em;
+    margin-bottom: -10px; 
+}
+
+.user-select-dropdown {
+    padding: 12px 15px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 1em;
+    width: 100%;
+    box-sizing: border-box;
+    background-color: white;
+    cursor: pointer;
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.user-select-dropdown:focus {
+    border-color: #1abc9c; 
+    box-shadow: 0 0 0 0.2rem rgba(26, 188, 156, 0.25); 
+    outline: none;
+}
+
+.error-message {
+    color: #e74c3c;
+    font-size: 0.9em;
+    text-align: center;
+    padding: 10px;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 4px;
+    margin-top: 5px; 
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px; 
+    margin-top: 15px; 
+    padding-top: 15px; 
+    border-top: 1px solid #e9ecef; /* Light separator line */
+}
+
+.modal-actions .modal-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-weight: 600;
+    font-size: 0.95em;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.modal-actions .modal-button.save {
+    background-color: #1abc9c; /* Main theme color */
+    color: white;
+}
+
+.modal-actions .modal-button.save:hover:not(:disabled) {
+    background-color: #16a085; /* Darker shade */
+    transform: translateY(-1px);
+}
+
+.modal-actions .modal-button.cancel {
+    background-color: #e0e0e0; /* Light grey for cancel */
+    color: #333;
+    border: 1px solid #ccc;
+}
+
+.modal-actions .modal-button.cancel:hover:not(:disabled) {
+    background-color: #d0d0d0;
+}
+
+.modal-actions .modal-button:disabled {
+    background-color: #bdc3c7;
+    color: #7f8c8d;
+    cursor: not-allowed;
+    opacity: 0.7;
+}

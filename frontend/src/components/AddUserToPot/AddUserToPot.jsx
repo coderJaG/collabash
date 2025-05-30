@@ -65,51 +65,44 @@ const AddUsersToPot = ({
         ? currentPotUsers.some(user => user.id.toString() === selectedUserById) : false;
     return (
 
-        <>
+        <div className="add-user-to-pot-content">
             <h1>ALL USERS</h1>
-            <div className="modal-overlay">
-
-                <div className="modal-content">
-                    <label htmlFor='user-select'>Add New User: </label>
-                    <select
-                        id='user-select'
-                        value={selectedUserById}
-                        onChange={handleSelectChange}
-                    >
-                        <option value=''>Select New User</option>
-                        {
-                            usersToDisplay.length > 0 ? (usersToDisplay.map(user => (
-                                <option key={user.id} value={user.id}>
-                                    {user.firstName} {user.lastName} -- {user.mobile}
-                                </option>
-                            ))
-                            ) : (
-                                <option value='' disabled>No User Available For Selection</option>
-                            )}
-                    </select>
-                </div>
-
-
-                {error && <p className="error-message">{error}</p>}
-                <div className="modal-actions">
-
-                    <button
-                        onClick={handleSaveChanges}
-                        className="modal-button save"
-                        disabled={isSavingUsers || !selectedUserById || isSelectedUserAlreadyInPot || usersToDisplay.length === 0}
-                    >
-                        {isSavingUsers ? 'Saving...' : 'Save User'}
-                    </button>
-                    <button
-                        onClick={handleCancel}
-                        className="modal-button cancel"
-                        disabled={isSavingUsers}
-                    >
-                        Cancel
-                    </button>
-                </div>
+            <label htmlFor='user-select'>Add New User: </label>
+            <select
+                id='user-select'
+                value={selectedUserById}
+                onChange={handleSelectChange}
+            >
+                <option value=''>Select New User</option>
+                {
+                    usersToDisplay.length > 0 ? (usersToDisplay.map(user => (
+                        <option key={user.id} value={user.id}>
+                            {user.firstName} {user.lastName} -- {user.mobile}
+                        </option>
+                    ))
+                    ) : (
+                        <option value='' disabled>No User Available For Selection</option>
+                    )}
+            </select>
+            {error && <p className="error-message">{error}</p>}
+            <div className="modal-actions">
+                <button
+                    onClick={handleSaveChanges}
+                    className="modal-button save"
+                    disabled={isSavingUsers || !selectedUserById || isSelectedUserAlreadyInPot || usersToDisplay.length === 0}
+                >
+                    {isSavingUsers ? 'Saving...' : 'Save User'}
+                </button>
+                <button
+                    onClick={handleCancel}
+                    className="modal-button cancel"
+                    disabled={isSavingUsers}
+                >
+                    Cancel
+                </button>
             </div>
-        </>
+        </div>
+
     )
 }
 
