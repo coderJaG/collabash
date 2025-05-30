@@ -1,7 +1,9 @@
+//routes//api/users.js
+
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const { check } = require('express-validator');
-const Sequelize = require('sequelize');
+const { Sequelize } = require('sequelize'); 
 
 const { setTokenCookie, requireAuth } = require('../../utils/auth');
 const { User, Pot, PotsUser } = require('../../db/models');
@@ -20,6 +22,12 @@ const validateSignupInputs = [
     check('mobile')
         .exists({ checkFalsy: true })
         .withMessage('Please enter a mobile number'),
+        // .custom((value) => {
+        //     if (value && !/^\d{3}-\d{3}-\d{4}$/.test(value) && !/^\d{10}$/.test(value)) {
+        //         throw new Error('Mobile number must be in the format 999-999-9999 or be 10 digits.');
+        //     }
+        //     return true;
+        // }), already validated in th model. for future changes.
     check('email')
         .exists({ checkFalsy: true })
         .isEmail()
@@ -37,63 +45,70 @@ const validateSignupInputs = [
         .isLength({ min: 6 })
         .withMessage('Password must be 6 characters or more.'),
     handleValidationErrors
-]
+];
 
 
 
 //get all users endpoint
 router.get('/', requireAuth, async (req, res) => {
-    const currUser = req.user; 
+    const currUser = req.user;
     let usersToReturn = [];
+
+    const includePotsJoinedWithUsers = {
+        model: Pot,
+        as: 'PotsJoined',
+        attributes: ['id', 'name', 'amount', 'ownerId'],
+        through: { attributes: [] },
+        include: [{
+            model: User,
+            as: 'Users',
+            attributes: ['id'],
+            through: { attributes: [] }
+        }]
+    };
 
     try {
         if (currUser.role === 'banker') {
             usersToReturn = await User.findAll({
-                // Bankers see all users, defaultScope will apply (excluding sensitive fields)
-                // If you need PotsJoined for each user for bankers:
-                include: [{ model: Pot, as: 'PotsJoined', attributes: ['id', 'name'], through: { attributes: [] } }]
+                attributes: ['id', 'firstName', 'lastName', 'email', 'username', 'mobile', 'role'],
+                include: [includePotsJoinedWithUsers]
             });
         } else if (currUser.role === 'standard') {
-            // 1. Find all pot IDs the current user is part of.
             const userPots = await PotsUser.findAll({
                 where: { userId: currUser.id },
                 attributes: ['potId']
             });
             const potIds = userPots.map(up => up.potId);
+
             if (potIds.length > 0) {
-                // 2. Find all user IDs that are part of these pots.
                 const potUserEntries = await PotsUser.findAll({
                     where: { potId: potIds },
                     attributes: [
-                        // Use Sequelize.fn and Sequelize.col for distinct userId
                         [Sequelize.fn('DISTINCT', Sequelize.col('userId')), 'userId']
                     ]
                 });
-                const sharedUserIds = potUserEntries.map(pu => pu.userId);
-    
-                // 3. Fetch these users 
-                // Ensure current user is included even if they have no pots yet but are trying to see "all" users
+                let sharedUserIds = potUserEntries.map(pu => pu.userId);
+
                 if (!sharedUserIds.includes(currUser.id)) {
                     sharedUserIds.push(currUser.id);
                 }
-                usersToReturn = await User.findAll({ where: { id: sharedUserIds },
-                    include: [{ model: Pot, as: 'PotsJoined', attributes: ['id', 'name'], through: { attributes: [] } }]
-                 });
-
+                usersToReturn = await User.findAll({
+                    where: { id: sharedUserIds },
+                    attributes: ['id', 'firstName', 'lastName', 'email', 'username', 'mobile', 'role'],
+                    include: [includePotsJoinedWithUsers]
+                });
             } else {
-                // If standard user is in no pots, they only see themselves
-                usersToReturn = [currUser]; 
-                const selfUser = await User.findByPk(currUser.id);
+                const selfUser = await User.findByPk(currUser.id, {
+                    attributes: ['id', 'firstName', 'lastName', 'email', 'username', 'mobile', 'role'],
+                    include: [includePotsJoinedWithUsers] 
+                });
                 if (selfUser) usersToReturn = [selfUser];
             }
         } else {
             return res.status(403).json({ "message": "Forbidden: Role not authorized." });
         }
 
-        // Convert to JSON format, ensuring to handle any custom toJSON methods
         const usersData = usersToReturn.map(user => user.toJSON ? user.toJSON() : user);
-
-
         return res.json({ Users: usersData });
 
     } catch (error) {
@@ -106,76 +121,80 @@ router.get('/', requireAuth, async (req, res) => {
 // Get user by id endpoint
 router.get('/:userId', requireAuth, async (req, res) => {
     const targetUserId = parseInt(req.params.userId, 10);
-    const currUser = req.user;
-    let targetUser;
+    const currUser = req.user; 
 
     if (isNaN(targetUserId)) {
         return res.status(400).json({ message: "Invalid user ID format." });
     }
 
     try {
-        if (currUser.role === 'banker') {
-            targetUser = await User.findByPk(targetUserId, {
-                include: [{
-                    model: Pot,
-                    as: 'PotsJoined', // Alias from User model
-                    attributes: ['id', 'name', 'amount'],
-                    through: { attributes: [] }
-                }]
-            });
-        } else if (currUser.role === 'standard') {
-            if (currUser.id === targetUserId) { // Standard user viewing their own profile
-                targetUser = await User.findByPk(targetUserId, { // Fetch with associations
-                    include: [{
-                        model: Pot,
-                        as: 'PotsJoined',
-                        attributes: ['id', 'name', 'amount'],
-                        through: { attributes: [] }
-                    }]
-                });
-            } else { // Standard user viewing another user's profile
-                // Check if they share a pot
-                const currentUserPots = await PotsUser.findAll({
-                    where: { userId: currUser.id },
-                    attributes: ['potId']
-                });
-                const currentUserPotIds = currentUserPots.map(p => p.potId);
+        const userAttributes = ['id', 'firstName', 'lastName', 'email', 'username', 'mobile', 'role'];
 
-                if (currentUserPotIds.length > 0) {
-                    const targetUserSharedPot = await PotsUser.findOne({
-                        where: {
-                            userId: targetUserId,
-                            potId: currentUserPotIds // Check if target user is in any of current user's pots
-                        }
-                    });
-                    if (targetUserSharedPot) {
-                        targetUser = await User.findByPk(targetUserId, {});
-                         // If I want to show common pots:
-                        // targetUser = await User.findByPk(targetUserId, {
-                        //     include: [{
-                        //         model: Pot,
-                        //         as: 'PotsJoined',
-                        //         where: { id: currentUserPotIds }, // Only common pots
-                        //         attributes: ['id', 'name', 'amount'],
-                        //         through: { attributes: [] },
-                        //         required: false // So user is returned even if no common pots (but auth failed earlier)
-                        //     }]
-                        // });
-                    }
-                }
-                if (!targetUser) { // If no shared pot or other condition fails
-                    return res.status(403).json({ "message": "Forbidden: You can only view users you share a pot with." });
-                }
-            }
-        } else {
-            return res.status(403).json({ "message": "Forbidden: Role not authorized." });
-        }
+        const targetUserInstance = await User.findByPk(targetUserId, {
+            attributes: userAttributes
+        });
 
-        if (!targetUser) {
+        if (!targetUserInstance) {
             return res.status(404).json({ "message": "User couldn't be found" });
         }
 
-        return res.json(targetUser.toJSON ? targetUser.toJSON() : targetUser);
+        // Authorization check
+        let isAuthorizedToView = false;
+        if (currUser.role === 'banker' || currUser.id === targetUserId) {
+            isAuthorizedToView = true;
+        } else {
+            const currentUserPots = await PotsUser.findAll({
+                where: { userId: currUser.id },
+                attributes: ['potId']
+            });
+            const currentUserPotIds = currentUserPots.map(p => p.potId);
+            if (currentUserPotIds.length > 0) {
+                const targetUserSharedPot = await PotsUser.findOne({
+                    where: { userId: targetUserId, potId: currentUserPotIds }
+                });
+                if (targetUserSharedPot) isAuthorizedToView = true;
+            }
+        }
+        if (!isAuthorizedToView) {
+             return res.status(403).json({ "message": "Forbidden: You are not authorized to view this user's profile." });
+        }
+
+        // Fetch pots explicitly owned by the targetUser
+        const potsOwned = await Pot.findAll({
+            where: { ownerId: targetUserId },
+            attributes: ['id', 'name', 'amount', 'ownerId'],
+            include: [{
+                model: User,
+                as: 'Users',
+                attributes: ['id'],
+                through: { attributes: [] }
+            }]
+        });
+
+        // Fetch all pots the targetUser is a member of (via PotsUser table)
+       
+        const userWithAllJoinedPots = await User.findByPk(targetUserId, {
+            attributes: [], 
+            include: [{
+                model: Pot,
+                as: 'PotsJoined', 
+                attributes: ['id', 'name', 'amount', 'ownerId'],
+                through: { attributes: [] },
+                include: [{
+                    model: User,
+                    as: 'Users', 
+                    attributes: ['id'],
+                    through: { attributes: [] }
+                }]
+            }]
+        });
+        const allPotsUserIsMemberOf = userWithAllJoinedPots ? (userWithAllJoinedPots.PotsJoined || []) : [];
+
+        const responseUser = targetUserInstance.toJSON();
+        responseUser.PotsOwned = potsOwned.map(p => p.toJSON());
+        responseUser.PotsJoined = allPotsUserIsMemberOf.map(p => p.toJSON()); 
+
+        return res.json(responseUser);
 
     } catch (error) {
         console.error(`Error fetching user ${targetUserId}:`, error);
@@ -197,14 +216,10 @@ router.post('/', validateSignupInputs, async (req, res) => {
             drawDate,
             username,
             hashedPassword,
-            // Banker can set role; otherwise, it defaults to 'standard'.
-            // Also, ensure the current authenticated user (if any, for this public route) is a banker if setting role.
-            // For a truly public signup, 'role' might not be accepted from the body.
-            // If a banker is creating, they are authenticated, and req.user would exist.
             role: (meta_createdByBanker && req.user?.role === 'banker' && role) ? role : 'standard'
         });
 
-        const safeUser = { 
+        const safeUser = {
             id: newUser.id,
             firstName: newUser.firstName,
             lastName: newUser.lastName,
@@ -214,7 +229,6 @@ router.post('/', validateSignupInputs, async (req, res) => {
             role: newUser.role
         };
 
-        // Only set token cookie if it's a self-signup (not created by banker)
         if (!meta_createdByBanker) {
             await setTokenCookie(res, safeUser);
         }
@@ -241,59 +255,53 @@ router.put('/:userId', requireAuth, validateSignupInputs, async (req, res) => {
         return res.status(400).json({ message: "Invalid user ID format." });
     }
 
-    // Authorization: Banker can edit anyone. Standard user can only edit themselves.
     if (currUser.role !== 'banker' && currUser.id !== targetUserId) {
         return res.status(403).json({ "message": "Forbidden: You are not authorized to edit this user." });
     }
-
     try {
-        const userToUpdate = await User.findByPk(targetUserId);
+        const userToUpdate = await User.scope(null).findByPk(targetUserId);
         if (!userToUpdate) {
             return res.status(404).json({ "message": "User not found" });
         }
 
         const { firstName, lastName, mobile, drawDate, email, username, password, role } = req.body;
 
-        // Update fields
-        userToUpdate.firstName = firstName || userToUpdate.firstName;
-        userToUpdate.lastName = lastName || userToUpdate.lastName;
-        userToUpdate.mobile = mobile || userToUpdate.mobile;
-        userToUpdate.drawDate = drawDate === undefined ? userToUpdate.drawDate : drawDate; // Allow null for drawDate
-        userToUpdate.email = email || userToUpdate.email;
-        userToUpdate.username = username || userToUpdate.username;
-
-        if (password) { // Only update password if a new one is provided
+        if (firstName !== undefined) userToUpdate.firstName = firstName;
+        if (lastName !== undefined) userToUpdate.lastName = lastName;
+        if (mobile !== undefined) userToUpdate.mobile = mobile;
+        if (drawDate !== undefined) userToUpdate.drawDate = drawDate;
+        if (email !== undefined) userToUpdate.email = email;
+        if (username !== undefined) userToUpdate.username = username;
+        if (password) {
             userToUpdate.hashedPassword = bcrypt.hashSync(password);
         }
-
-        // Only allow bankers to change roles, and only if 'role' is actually in the request body
         if (currUser.role === 'banker' && role !== undefined) {
             userToUpdate.role = role;
         }
 
         await userToUpdate.save();
-
-        const safeUser = {
-            id: userToUpdate.id,
-            firstName: userToUpdate.firstName,
-            lastName: userToUpdate.lastName,
-            mobile: userToUpdate.mobile,
-            email: userToUpdate.email,
-            username: userToUpdate.username,
-            role: userToUpdate.role
+        const updatedSafeUserFromDB = await User.findByPk(userToUpdate.id, {
+            attributes: ['id', 'firstName', 'lastName', 'email', 'username', 'mobile', 'role']
+        });
+        const safeUserResponse = {
+            id: updatedSafeUserFromDB.id,
+            firstName: updatedSafeUserFromDB.firstName,
+            lastName: updatedSafeUserFromDB.lastName,
+            mobile: updatedSafeUserFromDB.mobile,
+            email: updatedSafeUserFromDB.email,
+            username: updatedSafeUserFromDB.username,
+            role: updatedSafeUserFromDB.role
         };
 
-        // If the user updated their own session, re-set the token cookie
         if (currUser.id === targetUserId) {
-            await setTokenCookie(res, safeUser);
+            await setTokenCookie(res, safeUserResponse);
         }
-
-        return res.json({ user: safeUser });
-
+        return res.json({ user: safeUserResponse });
     } catch (error) {
         console.error(`Error updating user ${targetUserId}:`, error);
         if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
-            const errors = error.errors.map(e => e.message);
+            const errors = {};
+            error.errors.forEach(e => errors[e.path || 'general'] = e.message);
             return res.status(400).json({ message: "Validation error", errors });
         }
         return res.status(500).json({ message: "Internal server error while updating user." });
@@ -310,24 +318,19 @@ router.delete('/:userId', requireAuth, async (req, res) => {
         return res.status(400).json({ message: "Invalid user ID format." });
     }
 
-    // Authorization: Banker can delete anyone. Standard user can only delete themselves.
     if (currUser.role !== 'banker' && currUser.id !== targetUserId) {
         return res.status(403).json({ 'message': 'Forbidden: You are not authorized to delete this user.' });
     }
-
     try {
         const userToDelete = await User.findByPk(targetUserId);
         if (!userToDelete) {
             return res.status(404).json({ 'message': 'User not found!' });
         }
-
         await userToDelete.destroy();
-        // If user deleted their own account, clear the cookie (handled by frontend usually, but can be done here too)
         if (currUser.id === targetUserId) {
             res.clearCookie('token');
         }
         return res.json({ 'message': 'User Successfully Deleted' });
-
     } catch (error) {
         console.error(`Error deleting user ${targetUserId}:`, error);
         return res.status(500).json({ message: "Internal server error while deleting user." });

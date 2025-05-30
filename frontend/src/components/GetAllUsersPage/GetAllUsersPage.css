@@ -104,6 +104,19 @@
     background-color: #d1f2eb; 
 }
 
+/* Style for clickable user names */
+.users-table td.user-name-link {
+    color: #1abc9c; /* Main theme color to indicate link */
+    font-weight: 500; /* Slightly bolder */
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+.users-table td.user-name-link:hover {
+    color: #16a085; /* Darker shade on hover */
+    text-decoration: underline;
+}
+
+
 .users-table td.has-tooltip { /* Targets td with the 'has-tooltip' class */
     cursor: help; /* Changes cursor to a help icon (question mark) */
 }

@@ -8,9 +8,9 @@ import CreatePotsPage from "./components/CreatePotsPage";
 import PotsLayout from "./components/PotsLayout";
 import PotDetailsPage from "./components/PotDetailspage";
 import GetAllUsersPage from "./components/GetAllUsersPage";
-
-
+import GetSingleUserPage from "./components/GetSingleUserPage";
 import * as sessionActions from './store/session'
+
 
 function Layout() {
   const dispatch = useDispatch();
@@ -59,6 +59,10 @@ const router = createBrowserRouter([
       {
         path: '/users',
         element: <GetAllUsersPage />
+      },
+      {
+        path: '/users/:userId',
+        element:  <GetSingleUserPage /> 
       }
     ]
   }

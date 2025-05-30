@@ -1,7 +1,7 @@
 /* UserProfilePage.css */
 
 /* Overall Page Container */
-.user-page-wrapper {
+.single-user-page-wrapper {
     padding: 20px 30px;
     max-width: 1000px;
     margin: 30px auto;
@@ -12,8 +12,8 @@
 }
 
 /* Page Header and Section Headers (h2) */
-.user-page-header h1,
-.user-pots-list h2 {
+.single-user-page-header h1,
+.single-user-pots-list h2 {
     text-align: center;
     color: #1abc9c; /* Main theme color */
     margin-bottom: 25px;
@@ -28,14 +28,14 @@
     position: relative;
 }
 
-.user-pots-list h2 {
+.single-user-pots-list h2 {
     font-size: 1.6em; 
     margin-top: 0; 
     margin-bottom: 20px;
 }
 
 /* User Details Section */
-.user-info-card {
+.single-user-info-card {
     background-color: #ffffff;
     padding: 20px 25px; 
     border-radius: 8px;
@@ -45,18 +45,18 @@
     text-align: left;
 }
 
-.user-detail-row p { 
+.single-user-detail-row p { 
     font-size: 1.05em; 
     color: #333;
     margin: 0; 
     padding: 12px 0; 
     border-bottom: 1px solid #f0f0f0;
 }
-.user-info-card .user-detail-row:last-child p {
+.single-user-info-card .single-user-detail-row:last-child p {
     border-bottom: none;
 }
 
-.user-info-card p strong {
+.single-user-info-card p strong {
     color: #1abc9c; 
     margin-right: 10px; 
     min-width: 90px; 
@@ -65,7 +65,7 @@
 
 
 /* User's Pots List Section */
-.user-pots-list {
+.single-user-pots-list {
     margin-top: 30px;
     background-color: #ffffff;
     padding: 25px;
@@ -73,13 +73,13 @@
     box-shadow: 0 1px 5px rgba(0,0,0,0.07);
 }
 
-.user-pots-list .pot-item table {
+.single-user-pots-list .pot-item table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 10px;
 }
 
-.user-pots-list .pot-item th {
+.single-user-pots-list .pot-item th {
     background-color: #1abc9c;
     color: white;
     font-weight: 600;
@@ -89,34 +89,34 @@
     height: 40px;
 }
 
-.user-pots-list .pot-item th,
-.user-pots-list .pot-item td {
+.single-user-pots-list .pot-item th,
+.single-user-pots-list .pot-item td {
     text-align: left;
     padding: 12px 15px;
     border-bottom: 1px solid #e0f2f1;
     border-left: 1px solid #e0f2f1;
 }
 
-.user-pots-list .pot-item th:first-child,
-.user-pots-list .pot-item td:first-child {
+.single-user-pots-list .pot-item th:first-child,
+.single-user-pots-list .pot-item td:first-child {
     padding-left: 20px;
     border-left: none;
 }
-.user-pots-list .pot-item th:last-child,
-.user-pots-list .pot-item td:last-child {
+.single-user-pots-list .pot-item th:last-child,
+.single-user-pots-list .pot-item td:last-child {
     padding-right: 20px;
     border-right: none;
 }
 
-.user-pots-list .pot-item tbody tr:nth-child(even) {
+.single-user-pots-list .pot-item tbody tr:nth-child(even) {
     background-color: #f8f9fa;
 }
 
-.user-pots-list .pot-item tbody tr:nth-child(odd) {
+.single-user-pots-list .pot-item tbody tr:nth-child(odd) {
     background-color: #ffffff;
 }
 
-.user-pots-list .pot-item tbody tr:hover {
+.single-user-pots-list .pot-item tbody tr:hover {
     background-color: #e8f8f5;
 }
 
@@ -133,7 +133,7 @@
 /* "No pots" message */
 .no-pots-message {
     text-align: center;
-    color:  #555; 
+    color:  #721c24; 
     font-size: 1.1em;
     padding: 20px;
     background-color: #f0fff0;

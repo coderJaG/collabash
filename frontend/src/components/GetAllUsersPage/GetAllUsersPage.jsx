@@ -1,7 +1,7 @@
 // src/components/GetAllUsersPage/GetAllUsersPage.jsx
-import React, { useEffect, useState, useMemo } from 'react'; // Added useState and useMemo
+import React, { useEffect, useState, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { NavLink } from 'react-router-dom'; // Keep for Create User button if preferred over modal
+import { useNavigate } from 'react-router-dom'; 
 import * as usersActions from '../../store/users';
 import LoadingSpinner from '../LoadingSpinner';
 import OpenModalButton from '../OpenModalButton';
@@ -12,6 +12,7 @@ const USERS_PER_PAGE = 5;
 
 const GetAllUsersPage = () => {
     const dispatch = useDispatch();
+    const navigate = useNavigate(); 
     const allUsersObject = useSelector(state => state.users.allUsers);
     const isLoading = useSelector(state => state.users.isLoadingAllUsers);
     const error = useSelector(state => state.users.errorAllUsers);
@@ -19,15 +20,8 @@ const GetAllUsersPage = () => {
 
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
-    // const [initialFetchAttempted, setInitialFetchAttempted] = useState(false); 
 
     useEffect(() => {
-        // if (!isLoading && !error && !initialFetchAttempted && (!allUsersObject || Object.keys(allUsersObject).length === 0)) {
-        //     dispatch(usersActions.getAllUsers());
-        //     setInitialFetchAttempted(true);
-        // }
-        // Simplified fetch on mount if not already populated or to refresh.
-        // will uncomment if this causes too many fetches.
         dispatch(usersActions.getAllUsers());
     }, [dispatch]);
 
@@ -48,7 +42,6 @@ const GetAllUsersPage = () => {
         );
     }, [usersArray, searchTerm]);
 
-    // Pagination logic
     const indexOfLastUser = currentPage * USERS_PER_PAGE;
     const indexOfFirstUser = indexOfLastUser - USERS_PER_PAGE;
     const currentUsersOnPage = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
@@ -64,6 +57,18 @@ const GetAllUsersPage = () => {
     };
     const goToPrevPage = () => {
         setCurrentPage((prev) => (prev > 1 ? prev - 1 : prev));
+    };
+
+    const handleUserNameClick = (targetUser) => {
+        if (!currUser) return;
+
+        if (currUser.role === 'banker' || currUser.id === targetUser.id) {
+            navigate(`/users/${targetUser.id}`);
+        } else {
+            // Optionally, provide feedback if a standard user clicks on someone else
+            // For now, it does nothing as per implicit requirement
+            console.log("Standard users can only view their own profile page directly from this list.");
+        }
     };
 
 
@@ -98,7 +103,7 @@ const GetAllUsersPage = () => {
                 )}
                 <input
                     type="text"
-                    placeholder="Search users (name, mobile, role...)"
+                    placeholder="Search users..."
                     value={searchTerm}
                     onChange={(e) => {
                         setSearchTerm(e.target.value);
@@ -116,12 +121,10 @@ const GetAllUsersPage = () => {
                             <th>MOBILE</th>
                             <th>ROLE</th>
                             <th>POTS JOINED</th>
-                            {/* <th>Username</th> */}
-                            {/* <th>Email</th> */}
                         </tr>
                     </thead>
                     <tbody>
-                    {currentUsersOnPage.map(user => {
+                        {currentUsersOnPage.map(user => {
                             const potsJoined = user.PotsJoined || [];
                             const numPotsJoined = potsJoined.length;
                             let displayPotsText = "None";
@@ -135,9 +138,19 @@ const GetAllUsersPage = () => {
                                 hoverTitlePots = potsJoined.map(pot => pot.name).join(', ');
                             }
 
+                            // Determine if the current user can view the profile
+                            // A banker can view any user's profile, while a standard user can only view their own
+                            const canViewProfile = currUser?.role === 'banker' || currUser?.id === user.id;
+
                             return (
                                 <tr key={user.id}>
-                                    <td>{user.firstName} {user.lastName}</td>
+                                    <td
+                                        className={canViewProfile ? "user-name-link" : ""}
+                                        onClick={canViewProfile ? () => handleUserNameClick(user) : undefined}
+                                        title={canViewProfile ? `View ${user.firstName}'s profile` : undefined}
+                                    >
+                                        {user.firstName} {user.lastName}
+                                    </td>
                                     <td>{user.mobile}</td>
                                     <td>{user.role}</td>
                                     <td title={hoverTitlePots} className={numPotsJoined > 0 ? "has-tooltip" : ""}>
@@ -149,7 +162,7 @@ const GetAllUsersPage = () => {
                     </tbody>
                 </table>
             ) : (
-                <p>{searchTerm ? "No users match your search." : "No users found or you may not have permission to view them."}</p>
+                 <p>{searchTerm ? "No users match your search." : "No users found or you may not have permission to view them."}</p>
             )}
 
             {totalPages > 1 && (
@@ -157,31 +170,26 @@ const GetAllUsersPage = () => {
                     <button onClick={goToPrevPage} disabled={currentPage === 1}>
                         Previous
                     </button>
-                    {/* Page numbers (optional, can be complex for many pages) */}
-                    {/* Example: Display up to 5 page numbers around current page */}
                     {Array.from({ length: totalPages }, (_, i) => i + 1)
                         .filter(pageNumber => {
-                            // Logic to show limited page numbers:
-                            // Show first page, last page, and pages around current page
-                            if (totalPages <= 7) return true; // Show all if 7 or less pages
+                            if (totalPages <= 7) return true;
                             if (pageNumber === 1 || pageNumber === totalPages) return true;
                             if (pageNumber >= currentPage - 2 && pageNumber <= currentPage + 2) return true;
-                            // Add ellipsis indicators 
                             if ((pageNumber === currentPage - 3 && currentPage > 4) || (pageNumber === currentPage + 3 && currentPage < totalPages - 3)) {
-                                return 'ellipsis'; // Special value for ellipsis
+                                return 'ellipsis';
                             }
                             return false;
                         })
-                        .map((pageNumber, index, arr) => (
-                            pageNumber === 'ellipsis' ?
-                                <span key={`ellipsis-${index}`} className="page-ellipsis">...</span> :
-                                <button
-                                    key={pageNumber}
-                                    onClick={() => paginate(pageNumber)}
-                                    className={`page-number ${currentPage === pageNumber ? 'active' : ''}`}
-                                >
-                                    {pageNumber}
-                                </button>
+                        .map((pageNumber, index) => (
+                           pageNumber === 'ellipsis' ?
+                           <span key={`ellipsis-${index}`} className="page-ellipsis">...</span> :
+                           <button
+                                key={pageNumber}
+                                onClick={() => paginate(pageNumber)}
+                                className={`page-number ${currentPage === pageNumber ? 'active' : ''}`}
+                           >
+                               {pageNumber}
+                           </button>
                         ))
                     }
                     <button onClick={goToNextPage} disabled={currentPage === totalPages}>
