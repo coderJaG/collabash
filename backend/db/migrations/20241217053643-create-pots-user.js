@@ -22,6 +22,14 @@ module.exports = {
       userId: {
         type: Sequelize.INTEGER
       },
+      displayOrder: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+      },
+      drawDate: {
+        type: Sequelize.DATEONLY,
+        allowNull: true,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

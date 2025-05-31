@@ -15,11 +15,11 @@
 .user-page-header h1,
 .user-pots-list h2 {
     text-align: center;
-    color: #1abc9c; /* Main theme color */
+    color: white; /* Main theme color */
     margin-bottom: 25px;
     font-size: 2em; 
-    background-color: white;
-    padding: 10px 25px; 
+    background-color: #1abc9c;
+    padding: 0px 10px  0px 10px; 
     border-radius: 30px;
     display: inline-block;
     width: auto;
@@ -36,7 +36,7 @@
 
 /* User Details Section */
 .user-info-card {
-    background-color: #ffffff;
+    background-color: #1abc9c;
     padding: 20px 25px; 
     border-radius: 8px;
     box-shadow: 0 1px 5px rgba(0,0,0,0.07);
@@ -57,7 +57,7 @@
 }
 
 .user-info-card p strong {
-    color: #1abc9c; 
+    color: white; 
     margin-right: 10px; 
     min-width: 90px; 
     display: inline-block;

@@ -18,6 +18,9 @@
   "dependencies": {
     "@lottiefiles/dotlottie-react": "^0.13.5",
     "@lottiefiles/dotlottie-web": "^0.44.0",
+    "react-beautiful-dnd": "^13.1.1",
+    "react-dnd": "^16.0.1",
+    "react-dnd-html5-backend": "^16.0.1",
     "react-spinners": "^0.17.0"
   }
 }

@@ -33,6 +33,12 @@ const REMOVE_USER_FROM_POT_START = 'pots/REMOVE_USER_FROM_POT_START';
 const REMOVE_USER_FROM_POT_SUCCESS = 'pots/REMOVE_USER_FROM_POT_SUCCESS';
 const REMOVE_USER_FROM_POT_FAILURE = 'pots/REMOVE_USER_FROM_POT_FAILURE';
 
+// New Action Types for Reordering Users
+export const REORDER_POT_USERS_START = 'pots/REORDER_POT_USERS_START';
+export const REORDER_POT_USERS_SUCCESS = 'pots/REORDER_POT_USERS_SUCCESS';
+export const REORDER_POT_USERS_FAILURE = 'pots/REORDER_POT_USERS_FAILURE';
+export const CLEAR_POT_REORDER_ERROR = 'pots/CLEAR_POT_REORDER_ERROR';
+
 // --- Action Creators ---
 
 const getAllPotsStart = () => ({ type: GET_ALL_POTS_START });
@@ -65,6 +71,13 @@ const removeUserFromPotStart = () => ({ type: REMOVE_USER_FROM_POT_START });
 const removeUserFromPotSuccess = (potUserData) => ({ type: REMOVE_USER_FROM_POT_SUCCESS, payload: potUserData });
 const removeUserFromPotFailure = (error) => ({ type: REMOVE_USER_FROM_POT_FAILURE, payload: error });
 
+// New Action Creators for Reordering
+const reorderPotUsersStart = () => ({ type: REORDER_POT_USERS_START });
+const reorderPotUsersSuccess = (updatedPot) => ({ type: REORDER_POT_USERS_SUCCESS, payload: updatedPot });
+const reorderPotUsersFailure = (error) => ({ type: REORDER_POT_USERS_FAILURE, payload: error });
+export const clearPotReorderError = () => ({ type: CLEAR_POT_REORDER_ERROR });
+
+
 const initialState = {
     allById: {},
     currentPotDetails: null,
@@ -76,6 +89,8 @@ const initialState = {
     errorCreate: null,
     isUpdating: false,
     errorUpdate: null,
+    isReorderingPotUsers: false, // Specific for reorder operation
+    errorReorderingPotUsers: null,
     isDeleting: false,
     errorDelete: null,
     deletePotSuccess: false,
@@ -319,6 +334,44 @@ export const removeUserFromPot = (userData) => async (dispatch) => {
     }
 };
 
+// New Thunk for Reordering Users
+export const reorderPotUsers = (potId, orderedUserIds) => async (dispatch) => {
+    dispatch(reorderPotUsersStart());
+    try {
+        const res = await csrfFetch(`/api/pots/${potId}/reorderusers`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ orderedUserIds }),
+        });
+        if (!res.ok) {
+            throw await processErrorResponse(res, `Failed to reorder users for pot ${potId}`);
+        }
+        const updatedPot = await res.json(); // Backend returns the full updated pot
+        dispatch(reorderPotUsersSuccess(updatedPot)); // Updates currentPotDetails and allById
+        // Optionally, call getAPotById again if reorderPotUsersSuccess doesn't update currentPotDetails sufficiently,
+        // but it's better if reorderPotUsersSuccess handles the update.
+        // For now, we assume reorderPotUsersSuccess will update currentPotDetails.
+        // If not, uncomment below:
+        // dispatch(getAPotById(potId));
+        return updatedPot;
+    } catch (caughtError) {
+        let errorToDispatch;
+        if (caughtError instanceof Response) {
+            errorToDispatch = await processErrorResponse(caughtError, `Failed to reorder users (processed in catch)`);
+        } else {
+            errorToDispatch = {
+                message: caughtError.message || String(caughtError) || 'An unknown error occurred while reordering users.',
+                status: caughtError.status,
+                errors: caughtError.errors,
+                ...(typeof caughtError === 'object' && caughtError !== null ? caughtError : {})
+            };
+        }
+        dispatch(reorderPotUsersFailure(errorToDispatch));
+        throw errorToDispatch; // Re-throw for component to handle
+    }
+};
+
+
 // -- reducer --
 // Reducer remains the same as it expects error objects with a .message string property.
 const potsReducer = (state = initialState, action) => {
@@ -425,6 +478,24 @@ const potsReducer = (state = initialState, action) => {
                 errorUpdate: action.payload,
                 removeUserStatus: { success: false, ...action.payload }
             };
+
+        // Reducer cases for Reordering Users
+        case REORDER_POT_USERS_START:
+            return { ...state, isReorderingPotUsers: true, errorReorderingPotUsers: null };
+        case REORDER_POT_USERS_SUCCESS:
+            // Backend returns the updated pot, so update currentPotDetails
+            // This also means getAPotById might not be strictly needed in the thunk if this is sufficient
+            return {
+                ...state,
+                isReorderingPotUsers: false,
+                currentPotDetails: action.payload, // Pot with reordered users and updated dates
+                allById: { ...state.allById, [action.payload.id]: action.payload },
+                errorReorderingPotUsers: null
+            };
+        case REORDER_POT_USERS_FAILURE:
+            return { ...state, isReorderingPotUsers: false, errorReorderingPotUsers: action.payload };
+        case CLEAR_POT_REORDER_ERROR:
+            return { ...state, errorReorderingPotUsers: null };
 
         // Delete Pot
         case DELETE_POT_START:

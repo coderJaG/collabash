@@ -20,6 +20,15 @@ module.exports = (sequelize, DataTypes) => {
     userId: {
       type:DataTypes.INTEGER
     },
+    displayOrder: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    
+    drawDate: {
+      type: DataTypes.DATEONLY,
+      allowNull: true,
+    },
   }, {
     sequelize,
     modelName: 'PotsUser',

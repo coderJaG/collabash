@@ -101,7 +101,7 @@ export const getUserById = (userId) => async (dispatch) => {
         const res = await csrfFetch(`/api/users/${userId}`);
         if (!res.ok) {
             throw await processUserErrorResponse(res, 'Could not get user');
-        };
+        }
         const userData = await res.json();
         dispatch(getUserByIdSuccess(userData));
     } catch (caughtError) {
@@ -116,7 +116,7 @@ export const getUserById = (userId) => async (dispatch) => {
             };
         }
         dispatch(getUserByIdFailure(errorToDispatch));
-    };
+    }
 };
 
 //delete user by id
@@ -143,7 +143,7 @@ export const deleteUserById = (userId) => async (dispatch) => {
             };
         }
         dispatch(deleteUserByIdFailure(errorToDispatch));
-    };
+    }
 };
 
 const initialState = {
@@ -168,7 +168,7 @@ const usersReducer = (state = initialState, action) => {
                 action.payload.Users.forEach(user => {
                     newAllUsers[user.id] = user;
                 });
-            };
+            }
             return { ...state, isLoadingAllUsers: false, allUsers: newAllUsers, errorAllUsers: null };
         }
         case GET_ALL_USERS_FAILURE: {
@@ -199,7 +199,7 @@ const usersReducer = (state = initialState, action) => {
         }
         default:
             return state;
-    };
+    }
 };
 
 export default usersReducer;

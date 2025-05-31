@@ -13,7 +13,8 @@ module.exports = (sequelize, DataTypes) => {
       Pot.belongsToMany(models.User, {
         through: models.PotsUser,
         foreignKey: 'potId',
-        otherKey: 'userId'
+        otherKey: 'userId',
+        as: 'Users'
       }); 
       Pot.hasMany(models.WeeklyPayment, { foreignKey: 'potId' });
     }
@@ -44,12 +45,12 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: 0
     },
     startDate: {
-      type: DataTypes.DATE,
+      type: DataTypes.DATEONLY,
       allowNull: true
       
     },
     endDate: {
-      type: DataTypes.DATE,
+      type: DataTypes.DATEONLY,
       allowNull: true
     },
     status: {
