@@ -13,7 +13,7 @@
 
 .pot-header {
     text-align: center;
-    color: #1abc9c; /* Green */
+    color: #1abc9c; /*Main Green */
     margin-bottom: 25px;
     font-size: 2em;
     background-color: white;
@@ -30,10 +30,10 @@
 .buttons-bar {
     display: flex;
     margin: 0 auto 30px auto;
-    justify-content: flex-end; /* Keep space-between if "All Pots" is on left */
+    justify-content: flex-end; 
     align-items: center;
     width: 100%;
-    max-width: 800px; /* Or adjust as needed */
+    max-width: 800px; 
     padding: 0;
     text-align: left;
 }
@@ -51,7 +51,7 @@
     font-size: 0.95em;
 }
 .action-buttons-container button {
-    margin-left: 10px; /* Space between action buttons */
+    margin-left: 10px; 
 }
 
 
@@ -63,7 +63,7 @@
 }
 
 .action-buttons-container button {
-    background-color: #5cb85c; /* Secondary green for actions */
+    background-color: #5cb85c; 
 }
 .action-buttons-container button:hover {
     background-color: #4cae4c;
@@ -383,7 +383,7 @@
 }
 
 .members-table th.drag-handle-header {
-    width: 40px; /* For the drag handle column */
+    width: 40px; 
     padding: 12px 5px;
     text-align: center;
 }
@@ -393,8 +393,8 @@
     text-align: center;
     vertical-align: middle;
     color: #777;
-    width: 40px; /* Ensure consistent width */
-    padding: 0 5px; /* Adjust padding for icon */
+    width: 40px;
+    padding: 0 5px; 
 }
 
 .members-table td.drag-handle-cell:hover {
@@ -402,16 +402,26 @@
 }
 
 .members-table tr.member-row.is-dragging {
-    background-color: #c8f0e4 !important; /* A slightly more distinct dragging color */
+    background-color: #c8f0e4 !important; 
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    /* Ensure other cells in the dragging row maintain their appearance if needed */
+   
 }
 .members-table tr.member-row.is-dragging td {
-    border-color: #b2dfdb; /* Slightly darker border for dragging row */
+    border-color: #b2dfdb; 
 }
 
 
 .members-table.dragging-over {
-    /* Optional: style for the table when an item is being dragged over it */
-     background-color: #f0f8ff;  /* Example: light blue tint */
+   /*style for the table when an item is being dragged over it */
+     background-color: #f0f8ff; 
+}
+
+.edit-icon {
+    color: #0ca8f0;
+}
+.cancel-icon {
+    color: #e74c3c;
+}
+.save-icon {
+    color: #1abc9c;
 }

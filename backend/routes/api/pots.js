@@ -18,7 +18,7 @@ const updatePotScheduleAndDetails = async (potId, transaction) => {
         if (!pot.startDate) {
             console.warn(`Pot ${potId} has no start date. Cannot calculate schedule.`);
             pot.amount = 0;
-            pot.endDate = pot.startDate; // Or null if preferred
+            pot.endDate = pot.startDate; 
             await pot.save({ transaction: t });
             return pot;
         }

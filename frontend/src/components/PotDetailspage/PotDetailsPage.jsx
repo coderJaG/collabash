@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState, useMemo, useCallback } from "react";
-import { FaBars, FaEdit, FaSave, FaTimesCircle } from 'react-icons/fa'; // Import icons
+import { FaBars, FaEdit, FaSave, FaTimesCircle } from 'react-icons/fa';
 import * as potsActions from '../../store/pots';
 import * as usersActions from '../../store/users';
 import { fetchWeeklyStatus, updateWeeklyPayment } from '../../store/transactions';
@@ -34,8 +34,8 @@ const formatDate = (dateStr) => { // dateStr is expected to be 'YYYY-MM-DD' from
 
         if (isNaN(utcDate.getTime())) return 'Invalid Date Object';
 
-        // Format this UTC date. toLocaleDateString with timeZone:'UTC' will show the correct day.
-        // Using 'en-US' for MM/DD/YYYY format. Adjust if a different locale/format is needed.
+        // Format toLocaleDateString with timeZone:'UTC'.
+        // Using 'en-US' for MM/DD/YYYY format.
         const options = { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'UTC' };
         return utcDate.toLocaleDateString('en-US', options);
     }
@@ -76,7 +76,7 @@ const PotDetailsPage = () => {
         // only if not currently dragging and not currently saving a reorder to backend.
         if (!isUserActuallyDragging && !isReordering) {
             if (potDetails?.Users) {
-                // Backend should provide users sorted by displayOrder.
+                // Backend provide users sorted by displayOrder.
                 // Create a new sorted array to avoid direct state mutation issues.
                 const sortedUsersFromProps = [...potDetails.Users].sort((a, b) =>
                     (a.potMemberDetails?.displayOrder || Infinity) - (b.potMemberDetails?.displayOrder || Infinity)
@@ -96,7 +96,6 @@ const PotDetailsPage = () => {
         if (potDetails) {
             setEditableAmount(potDetails.hand || '');
             // potDetails.startDate is expected to be 'YYYY-MM-DD' from the backend (DATEONLY)
-            // The HTML <input type="date"> also expects 'YYYY-MM-DD'
             if (potDetails.startDate) {
                 setEditableStartDate(potDetails.startDate);
             } else {
@@ -200,7 +199,7 @@ const PotDetailsPage = () => {
             if (field === 'hand') setIsEditingAmount(false);
             if (field === 'startDate') setIsEditingStartDate(false);
         } catch (updateError) {
-            // The thunk already sets the redux error state, but we can display it locally.
+            // The thunk already sets the redux error state, but I can display it locally.
             setLocalUiError(updateError.message || `Failed to update ${field}.`);
         }
     };
@@ -335,7 +334,7 @@ const PotDetailsPage = () => {
                 <div className='banker-div'>
                     <span>Banker:</span> <span>{potDetails.ownerName}</span>
                 </div>
-                {/* --- UPDATED START DATE --- */}
+               
                 <div className="pot-dates-div">
                     <span>Start Date:</span>
                     {isEditingStartDate && canBankerEditDetails ? (
@@ -361,7 +360,7 @@ const PotDetailsPage = () => {
                 <div className="pot-dates-div">
                     <span>End Date:</span> <span>{formatDate(potDetails.endDate)}</span>
                 </div>
-                {/* --- UPDATED AMOUNT PER HAND --- */}
+               
                 <div className="pot-amount-div">
                     <span>Amt/Hand:</span>
                     {isEditingAmount && canBankerEditDetails ? (

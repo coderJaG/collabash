@@ -110,7 +110,7 @@ const processErrorResponse = async (response, defaultMessage) => {
         // Merge backendError properties; backendError might overwrite default message or status if provided
         errorData = { ...errorData, ...backendError };
 
-        // Ensure errorData.message is a string
+      
         if (typeof errorData.message === 'object' && errorData.message !== null) {
             // If backendError.message is an object, try to find a detail or stringify it
             errorData.message = errorData.message.detail || errorData.message.error || JSON.stringify(errorData.message);
@@ -348,11 +348,7 @@ export const reorderPotUsers = (potId, orderedUserIds) => async (dispatch) => {
         }
         const updatedPot = await res.json(); // Backend returns the full updated pot
         dispatch(reorderPotUsersSuccess(updatedPot)); // Updates currentPotDetails and allById
-        // Optionally, call getAPotById again if reorderPotUsersSuccess doesn't update currentPotDetails sufficiently,
-        // but it's better if reorderPotUsersSuccess handles the update.
-        // For now, we assume reorderPotUsersSuccess will update currentPotDetails.
-        // If not, uncomment below:
-        // dispatch(getAPotById(potId));
+        
         return updatedPot;
     } catch (caughtError) {
         let errorToDispatch;
@@ -373,7 +369,7 @@ export const reorderPotUsers = (potId, orderedUserIds) => async (dispatch) => {
 
 
 // -- reducer --
-// Reducer remains the same as it expects error objects with a .message string property.
+
 const potsReducer = (state = initialState, action) => {
     let newState;
     let potIdToRemove;
@@ -483,12 +479,10 @@ const potsReducer = (state = initialState, action) => {
         case REORDER_POT_USERS_START:
             return { ...state, isReorderingPotUsers: true, errorReorderingPotUsers: null };
         case REORDER_POT_USERS_SUCCESS:
-            // Backend returns the updated pot, so update currentPotDetails
-            // This also means getAPotById might not be strictly needed in the thunk if this is sufficient
             return {
                 ...state,
                 isReorderingPotUsers: false,
-                currentPotDetails: action.payload, // Pot with reordered users and updated dates
+                currentPotDetails: action.payload, 
                 allById: { ...state.allById, [action.payload.id]: action.payload },
                 errorReorderingPotUsers: null
             };

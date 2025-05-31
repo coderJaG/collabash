@@ -8,13 +8,6 @@ const ItemTypes = {
     USER_ROW: 'userRow',
 };
 
-// const formatDate = (dateStr) => {
-//     if (!dateStr) return 'N/A';
-//     const dateObject = new Date(dateStr);
-//     if (isNaN(dateObject.getTime())) return 'Invalid Date';
-//     const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
-//     return dateObject.toLocaleDateString(undefined, options);
-// };
 
 const DraggableUserRow = ({
     user,

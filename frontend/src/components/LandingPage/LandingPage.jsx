@@ -1,5 +1,5 @@
 // LandingPage.jsx
-import  React  from "react";
+
 import { useSelector } from "react-redux";
 import UserProfilePage from "../UserProfilePage";
 import OpenModalButton from "../OpenModalButton";
