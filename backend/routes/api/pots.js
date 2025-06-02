@@ -148,7 +148,7 @@ router.get('/', requireAuth, async (req, res) => {
 router.get('/:potId', requireAuth, async (req, res) => {
     const currUser = req.user;
     const { potId } = req.params;
-
+ console.log(`Deleting pot with ID: ${potId}`);
     try {
         const pot = await Pot.findByPk(potId, {
             attributes: ['id', 'ownerId', 'ownerName', 'name', 'hand', 'amount', 'startDate', 'endDate', 'status'],
@@ -319,6 +319,58 @@ router.put('/:potId', requireAuth, async (req, res) => {
             return res.status(400).json({ message: "Validation error", errors });
         }
         return res.status(500).json({ message: error.message || "Internal server error." });
+    }
+});
+
+// DELETE a pot by id
+router.delete('/:potId', requireAuth, async (req, res) => {
+    const currUser = req.user;
+    const { potId } = req.params;
+    const numPotId = parseInt(potId);
+
+    // 1. Authorization: Only bankers can delete pots
+    if (currUser.role !== 'banker') {
+        return res.status(403).json({ "message": "Forbidden, you must be a banker to delete a pot." });
+    }
+
+    if (isNaN(numPotId)) {
+        return res.status(400).json({ 'message': 'Invalid Pot ID.' });
+    }
+
+    const t = await sequelize.transaction();
+
+    try {
+        const potToDelete = await Pot.findByPk(numPotId, { transaction: t });
+
+        // 2. Check if pot exists
+        if (!potToDelete) {
+            await t.rollback();
+            return res.status(404).json({ message: "Pot not found!" });
+        }
+
+        // 3. Authorization: Only the owner of the pot can delete it
+        if (currUser.id !== potToDelete.ownerId) {
+            await t.rollback();
+            return res.status(403).json({ "message": "Forbidden, you must be the pot owner to delete it." });
+        }
+
+        // 4. Business Logic: Pot can only be deleted if it has not started
+        if (potToDelete.status !== 'Not Started') {
+            await t.rollback();
+            return res.status(400).json({ message: "A pot can only be deleted if its status is 'Not Started'." });
+        }
+
+        // Proceed with deletion
+        await potToDelete.destroy({ transaction: t });
+
+        await t.commit();
+
+        return res.status(200).json({ message: "Successfully deleted the pot." });
+
+    } catch (error) {
+        await t.rollback();
+        console.error(`Error deleting pot ${potId}:`, error);
+        return res.status(500).json({ message: error.message || "Internal server error while deleting the pot." });
     }
 });
 
