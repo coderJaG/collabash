@@ -3,6 +3,8 @@ import { useRef } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 import { MdDelete } from 'react-icons/md';
 import { FaBars, FaCheck, FaTimes } from 'react-icons/fa';
+import './DraggableUserRow.css'; 
+
 
 const ItemTypes = {
     USER_ROW: 'userRow',

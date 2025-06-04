@@ -1,64 +1,83 @@
-/* GetAllUsersPage.css */
-
 /* Container for the whole page */
 .user-list-page-container {
-    padding: 20px 30px; 
-    max-width: 1000px; 
+    padding: 20px 30px;
+    max-width: 1000px;
     margin: 30px auto;
-    background-color: #e8f8f5; 
+    background-color: #e8f8f5;
     border-radius: 8px;
-    /* box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08); */
-    text-align: center; 
+    text-align: center;
 }
 
 .user-list-page-container h1 {
     text-align: center;
-    color: #1abc9c; 
+    color: #1abc9c;
     margin-bottom: 25px;
     font-size: 2em;
     background-color: white;
-    padding: 0px 10px 0px 10px; 
-    border-radius: 30px; 
-    display: inline-block; 
-    width: auto; 
-    box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.25), 
+    padding: 0px 10px 0px 10px;
+    border-radius: 30px;
+    display: inline-block;
+    width: auto;
+    box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.25),
                 inset -2px -2px 5px rgba(255, 255, 255, 0.7);
-    position: relative; 
+    position: relative;
 }
 /* User list controls section */
 .user-list-controls {
     display: flex;
     align-items: center;
     margin-bottom: 25px;
-    gap: 20px; 
-    flex-wrap: wrap; 
-    text-align: left; /* Reset text-align for the controls container if needed */
+    gap: 20px;
+    flex-wrap: wrap;
+    text-align: left;
 }
 
-.user-list-controls button {
+/* General button style for consistency */
+.general-button {
     padding: 10px 18px;
-    background-color: #5cb85c; 
     color: white;
     text-decoration: none;
     border-radius: 5px;
     font-weight: bold;
     border: none;
     cursor: pointer;
-    transition: background-color 0.2s ease;
+    transition: background-color 0.2s ease, opacity 0.2s ease;
     font-size: 0.95em;
 }
 
-.user-list-controls button:hover {
-    background-color: #4cae4c; 
+/* Styles for the "Create New User" button if it's an OpenModalButton */
+/* If OpenModalButton renders its own button, target it like this */
+.user-list-controls .open-modal-button {
+    background-color: #5cb85c;
 }
+.user-list-controls .open-modal-button:hover {
+    background-color: #4cae4c;
+}
+
+.user-list-controls > button {
+    padding: 10px 18px;
+    color: white;
+    background-color: #5cb85c;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease, opacity 0.2s ease;
+    font-size: 0.95em;
+}
+.user-list-controls > button:hover {
+    background-color: #4cae4c;
+}
+
 
 .users-search-input {
     padding: 10px 14px;
     border: 1px solid #ccc;
     border-radius: 5px;
     font-size: 1em;
-    min-width: 280px; 
-    margin-left: auto
+    min-width: 280px;
+    margin-left: auto;
 }
 .users-search-input:focus {
     border-color: #3498db;
@@ -72,54 +91,54 @@
     border-collapse: collapse;
     margin-top: 20px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    text-align: left; /* Ensure table content itself is not centered due to parent */
+    text-align: left;
 }
 
 .users-table th,
 .users-table td {
-    border: 1px solid #d0e0e3; 
-    padding: 12px 15px; 
+    border: 1px solid #d0e0e3;
+    padding: 12px 15px;
     text-align: left;
     vertical-align: middle;
 }
 
 .users-table th {
-    background-color: #1abc9c; 
+    background-color: #1abc9c;
     color: white;
-    font-weight: 600; 
+    font-weight: 600;
     text-transform: uppercase;
     font-size: 0.85em;
     letter-spacing: 0.5px;
 }
 
 .users-table tbody tr:nth-child(odd) {
-    background-color: #e8f8f5; 
+    background-color: #e8f8f5;
 }
 .users-table tbody tr:nth-child(even) {
-    background-color: #f0fff0; 
+    background-color: #f0fff0;
 }
 
 .users-table tbody tr:hover {
-    background-color: #d1f2eb; 
+    background-color: #d1f2eb;
 }
 
 /* Style for clickable user names */
 .users-table td.user-name-link {
-    color: #1abc9c; /* Main theme color to indicate link */
-    font-weight: 500; /* Slightly bolder */
+    color: #1abc9c;
+    font-weight: 500;
     cursor: pointer;
     transition: color 0.2s ease;
 }
 .users-table td.user-name-link:hover {
-    color: #16a085; /* Darker shade on hover */
+    color: #16a085;
     text-decoration: underline;
 }
 
 
-.users-table td.has-tooltip { /* Targets td with the 'has-tooltip' class */
-    cursor: help; /* Changes cursor to a help icon (question mark) */
+.users-table td.has-tooltip {
+    cursor: help;
 }
-.users-table td.has-tooltip span.more-indicator { /* Style for the (+N more) text */
+.users-table td.has-tooltip span.more-indicator {
     font-style: italic;
     color: #555;
     margin-left: 4px;
@@ -127,7 +146,7 @@
 }
 
 .error-container p {
-    color: #e74c3c; 
+    color: #e74c3c;
     font-weight: bold;
     text-align: center;
     padding: 15px;
@@ -136,7 +155,7 @@
     border-radius: 5px;
 }
 
-.user-list-page-container > p { 
+.user-list-page-container > p { /* For "No users match..." message */
     text-align: center;
     color: #666;
     font-size: 1.1em;
@@ -155,34 +174,45 @@
 }
 
 .pagination-controls button,
-.pagination-controls .page-number { 
+.pagination-controls .page-number {
     padding: 9px 15px;
-    border: 1px solid #b2dfdb; 
-    background-color: #ffffff; 
-    color: #1abc9c; 
-    cursor: pointer;
-    border-radius: 4px;
-    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    border: 1px solid #b2dfdb;
+    background-color: #ffffff;
+    color: #1abc9c;
     font-size: 0.9em;
     min-width: 40px;
     text-align: center;
+    /* Inherit from .general-button if applied, or define here */
+    border-radius: 5px; /* from general-button */
+    font-weight: bold; /* from general-button */
+    cursor: pointer; /* from general-button */
+    transition: background-color 0.2s ease, opacity 0.2s ease; /* from general-button */
 }
+
+.pagination-controls .general-button { /* For Previous/Next specifically */
+     background-color: #ffffff;
+     color: #1abc9c;
+     border: 1px solid #b2dfdb;
+}
+
 
 .pagination-controls button:hover:not(:disabled),
 .pagination-controls .page-number:hover:not(.active) {
-    background-color: #e0f2f1; 
+    background-color: #e0f2f1;
     border-color: #1abc9c;
 }
 
-.pagination-controls button:disabled {
-    background-color: #f0f0f0;
-    color: #aaa;
-    cursor: not-allowed;
-    border-color: #eee;
+.pagination-controls button:disabled,
+.pagination-controls .general-button:disabled {
+    background-color: #f0f0f0 !important;
+    color: #aaa !important;
+    cursor: not-allowed !important;
+    border-color: #eee !important;
+    opacity: 0.7;
 }
 
 .pagination-controls .page-number.active {
-    background-color: #1abc9c; 
+    background-color: #1abc9c;
     color: white;
     border-color: #1abc9c;
     font-weight: bold;
@@ -192,5 +222,59 @@
     padding: 8px 5px;
     color: #777;
     display: flex;
-    align-items: center; 
+    align-items: center;
 }
+
+/* Styles for Actions column and Delete button */
+.users-table th:last-child,
+.users-table td:last-child {
+    text-align: center;
+}
+
+.actions-cell {
+    width: 120px; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Container for the delete button (OpenModalButton or static button) */
+.delete-button-container {
+    display: inline-block; 
+}
+
+/* Styles for the button rendered by OpenModalButton OR the static disabled button */
+.delete-button-container button {
+    background-color: #e74c3c; 
+    color: white;
+    padding: 6px 12px;
+    font-size: 0.9em;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+
+/* Hover state for the active (non-disabled) button */
+.delete-button-container button:hover:not(:disabled) {
+    background-color: #c0392b;
+}
+
+/* Styles for when the container has the 'disabled' class, affecting the button inside */
+.delete-button-container.disabled button,
+.delete-button-container button:disabled {
+    background-color: #ccc !important;
+    color: #666 !important;
+    cursor: not-allowed !important;
+    opacity: 0.6 !important;
+}
+
+/* Ensure no hover effect on the icon or button when it's meant to be disabled */
+.delete-button-container.disabled button:hover {
+    background-color: #ccc !important; 
+}
+

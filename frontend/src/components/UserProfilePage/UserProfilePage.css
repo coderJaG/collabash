@@ -17,9 +17,9 @@
     text-align: center;
     color: white; /* Main theme color */
     margin-bottom: 25px;
-    font-size: 2em; 
+    font-size: 2em;
     background-color: #1abc9c;
-    padding: 0px 10px  0px 10px; 
+    padding: 10px 20px; /* Adjusted padding */
     border-radius: 30px;
     display: inline-block;
     width: auto;
@@ -29,42 +29,167 @@
 }
 
 .user-pots-list h2 {
-    font-size: 1.6em; 
-    margin-top: 0; 
+    font-size: 1.6em;
+    margin-top: 0;
     margin-bottom: 20px;
 }
 
 /* User Details Section */
 .user-info-card {
-    background-color: #1abc9c;
-    padding: 20px 25px; 
+    background-color: #ffffff; /* Changed for better contrast with form */
+    padding: 25px 30px; /* Increased padding */
     border-radius: 8px;
-    box-shadow: 0 1px 5px rgba(0,0,0,0.07);
-    margin: 0 auto 35px auto; 
-    max-width: 650px; 
+    box-shadow: 0 1px 8px rgba(0,0,0,0.1); /* Slightly more pronounced shadow */
+    margin: 0 auto 35px auto;
+    max-width: 650px;
     text-align: left;
+    border: 1px solid #1abc9c; /* Added border */
 }
 
-.user-detail-row p { 
-    font-size: 1.05em; 
+.user-detail-row p {
+    font-size: 1.05em;
     color: #333;
-    margin: 0; 
-    padding: 12px 0; 
-    border-bottom: 1px solid #f0f0f0;
+    margin: 0;
+    padding: 12px 0;
+    border-bottom: 1px solid #e0f2f1; /* Lighter border */
 }
 .user-info-card .user-detail-row:last-child p {
     border-bottom: none;
 }
 
 .user-info-card p strong {
-    color: white; 
-    margin-right: 10px; 
-    min-width: 90px; 
+    color: #1abc9c; /* Theme color for emphasis */
+    margin-right: 10px;
+    min-width: 100px; /* Adjusted min-width */
     display: inline-block;
+    font-weight: 600; /* Bolder */
+}
+
+/* Edit Form Styles */
+.user-info-edit-form .form-input-group {
+    margin-bottom: 18px;
+}
+
+.user-info-edit-form label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: #333; /* Darker label color */
+    font-size: 0.95em;
+}
+
+.user-info-edit-form input[type="text"],
+.user-info-edit-form input[type="email"],
+.user-info-edit-form input[type="tel"],
+.user-info-edit-form input[type="password"] {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+    font-size: 1em;
+    transition: border-color 0.3s ease;
+}
+
+.user-info-edit-form input[type="text"]:focus,
+.user-info-edit-form input[type="email"]:focus,
+.user-info-edit-form input[type="tel"]:focus,
+.user-info-edit-form input[type="password"]:focus {
+    border-color: #1abc9c;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(26, 188, 156, 0.2);
+}
+
+.password-change-info {
+    font-size: 0.9em;
+    color: #555;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.form-divider {
+    border: none;
+    border-top: 1px solid #e0e0e0;
+    margin: 25px 0;
+}
+
+/* Button Styles */
+.user-profile-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1em;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    display: inline-block; /* For proper margin handling */
+    margin-top: 10px; /* Add some top margin */
+}
+
+.edit-profile-button {
+    background-color: #1abc9c;
+    color: white;
+    display: block; /* Make it full width or align as needed */
+    margin: 20px auto 0 auto; /* Center it */
+    width: fit-content;
+}
+.edit-profile-button:hover {
+    background-color: #16a085;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+}
+
+.form-button-group {
+    margin-top: 25px;
+    display: flex;
+    justify-content: flex-end; /* Align buttons to the right */
+    gap: 10px; /* Space between buttons */
+}
+
+.save-changes-button {
+    background-color: #2ecc71; /* Green for save */
+    color: white;
+}
+.save-changes-button:hover {
+    background-color: #27ae60;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+}
+
+.cancel-button {
+    background-color: #e74c3c; /* Red for cancel */
+    color: white;
+}
+.cancel-button:hover {
+    background-color: #c0392b;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
 }
 
 
-/* User's Pots List Section */
+/* Error and Success Messages */
+.form-error-message {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 10px;
+    border: 1px solid #f5c6cb;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    text-align: center;
+    font-size: 0.95em;
+}
+
+.form-success-message {
+    background-color: #d4edda;
+    color: #155724;
+    padding: 10px;
+    border: 1px solid #c3e6cb;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    text-align: center;
+    font-size: 0.95em;
+}
+
+
+/* User's Pots List Section (existing styles, ensure they are still good) */
 .user-pots-list {
     margin-top: 30px;
     background-color: #ffffff;
@@ -133,7 +258,7 @@
 /* "No pots" message */
 .no-pots-message {
     text-align: center;
-    color:  #555; 
+    color:  #555;
     font-size: 1.1em;
     padding: 20px;
     background-color: #f0fff0;
