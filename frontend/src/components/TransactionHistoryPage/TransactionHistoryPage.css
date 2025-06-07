@@ -1,0 +1,89 @@
+/* frontend/src/components/TransactionHistoryPage/TransactionHistoryPage.css */
+.transaction-history-page {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 20px auto;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.transaction-history-page h1 {
+    text-align: center;
+    color: white;
+    margin-bottom: 25px;
+    font-size: 2em;
+    background-color: #1abc9c;
+    padding: 0px 10px 0px 10px;
+    border-radius: 30px;
+    display: inline-block;
+    width: auto;
+    box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.25),
+                inset -2px -2px 5px rgba(255, 255, 255, 0.7);
+    position: relative;
+}
+
+.transaction-history-page table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.transaction-history-page th,
+.transaction-history-page td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+    font-size: 0.9em;
+}
+
+.transaction-history-page th {
+    background-color: #1abc9c;
+    color: white;
+    font-weight: bold;
+}
+
+.transaction-history-page tbody tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+.transaction-history-page tbody tr:hover {
+    background-color: #e9e9e9;
+}
+
+.transaction-history-page .loading,
+.transaction-history-page .error,
+.transaction-history-page .unauthorized {
+    text-align: center;
+    padding: 20px;
+    font-size: 1.2em;
+}
+.transaction-history-page .error { color: red; }
+.transaction-history-page .unauthorized p { color: orange; }
+
+
+.pagination-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.pagination-controls button {
+    padding: 8px 15px;
+    background-color: #1abc9c;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.pagination-controls button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.pagination-controls span {
+    font-size: 0.9em;
+}

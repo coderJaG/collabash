@@ -35,11 +35,14 @@ const Navigation = ({ isLoaded }) => {
     return (
         <nav className="main-nav-bar">
             <div className="nav-left">
-                <h1>COLLABASH</h1> 
+                <h1>COLLABASH</h1>
                 <ul>
                     <li><NavLink to={'/'}>Home</NavLink></li>
                     <li><NavLink to={'/pots'}>Pots</NavLink></li>
                     <li><NavLink to={'/users'}>Users</NavLink></li>
+                    {currUser && currUser.role === 'banker' && (
+                        <li><NavLink to={'/history'}>History</NavLink></li>
+                    )}
                 </ul>
             </div>
             <div className="nav-right">

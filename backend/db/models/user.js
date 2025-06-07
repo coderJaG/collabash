@@ -26,6 +26,7 @@ module.exports = (sequelize, DataTypes) => {
         as: 'PotsJoined'
       });
       User.hasMany(models.WeeklyPayment, { foreignKey: 'userId' });
+      User.hasMany(models.TransactionHistory, { foreignKey: 'userId', as: 'actionHistory' });
      
     }
   }

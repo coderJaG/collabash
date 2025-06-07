@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { requireAuth } = require('../../utils/auth');
 const { Pot, User, PotsUser, WeeklyPayment, sequelize } = require('../../db/models');
+const { logHistory } = require('../../utils/historyLogger'); // Assuming this path is correct
 const { Op } = require('sequelize');
 
 // --- HELPER FUNCTION to recalculate draw dates, pot endDate, and pot amount ---
@@ -18,7 +19,7 @@ const updatePotScheduleAndDetails = async (potId, transaction) => {
         if (!pot.startDate) {
             console.warn(`Pot ${potId} has no start date. Cannot calculate schedule.`);
             pot.amount = 0;
-            pot.endDate = pot.startDate; 
+            pot.endDate = pot.startDate; // Or null if startDate is null
             await pot.save({ transaction: t });
             return pot;
         }
@@ -32,13 +33,11 @@ const updatePotScheduleAndDetails = async (potId, transaction) => {
         const numberOfUsers = potMembersEntries.length;
         const potStartDateString = pot.startDate; // Should be 'YYYY-MM-DD'
 
-        let calculatedPotEndDate = potStartDateString; // Default to startDate if no users
+        let calculatedPotEndDate = potStartDateString;
 
         if (numberOfUsers > 0) {
-            // Parse the potStartDateString into UTC date components
             const [startYear, startMonth, startDay] = potStartDateString.split('-').map(Number);
-            // Create a Date object representing 00:00:00 UTC on the start date
-            const baseDateUTC = new Date(Date.UTC(startYear, startMonth - 1, startDay)); // month is 0-indexed
+            const baseDateUTC = new Date(Date.UTC(startYear, startMonth - 1, startDay));
 
             if (isNaN(baseDateUTC.getTime())) {
                 throw new Error('Invalid pot start date found for schedule calculation.');
@@ -46,18 +45,14 @@ const updatePotScheduleAndDetails = async (potId, transaction) => {
 
             for (let i = 0; i < numberOfUsers; i++) {
                 const memberEntry = potMembersEntries[i];
-                
-                // Create a new Date object for each draw date calculation, starting from baseDateUTC
-                const drawDateUTC = new Date(baseDateUTC.valueOf()); // Clone baseDateUTC
-                // Add (i * 7) days to the UTC date
+                const drawDateUTC = new Date(baseDateUTC.valueOf());
                 drawDateUTC.setUTCDate(baseDateUTC.getUTCDate() + (i * 7));
 
-                // Format the UTC drawDate to 'YYYY-MM-DD' string
                 const dYear = drawDateUTC.getUTCFullYear();
-                const dMonth = (drawDateUTC.getUTCMonth() + 1).toString().padStart(2, '0'); // getUTCMonth is 0-indexed
+                const dMonth = (drawDateUTC.getUTCMonth() + 1).toString().padStart(2, '0');
                 const dDay = drawDateUTC.getUTCDate().toString().padStart(2, '0');
                 memberEntry.drawDate = `${dYear}-${dMonth}-${dDay}`;
-                
+
                 await memberEntry.save({ transaction: t });
 
                 if (i === numberOfUsers - 1) {
@@ -67,8 +62,7 @@ const updatePotScheduleAndDetails = async (potId, transaction) => {
             pot.endDate = calculatedPotEndDate;
             pot.amount = parseFloat(pot.hand) * numberOfUsers;
         } else {
-            // If no users, endDate is same as startDate, amount is 0
-            pot.endDate = potStartDateString; 
+            pot.endDate = potStartDateString;
             pot.amount = 0;
         }
 
@@ -77,7 +71,7 @@ const updatePotScheduleAndDetails = async (potId, transaction) => {
 
     } catch (error) {
         console.error(`Error in updatePotScheduleAndDetails for potId ${potId}:`, error);
-        throw error; // Re-throw to be caught by the route handler
+        throw error;
     }
 };
 
@@ -91,11 +85,11 @@ router.get('/', requireAuth, async (req, res) => {
 
     const includeUsersWithDetails = {
         model: User,
-        as: 'Users', 
-        attributes: ['id', 'firstName', 'lastName'], 
+        as: 'Users',
+        attributes: ['id', 'firstName', 'lastName'],
         through: {
             model: PotsUser,
-            as: 'potMemberDetails', 
+            as: 'potMemberDetails',
             attributes: ['displayOrder', 'drawDate']
         }
     };
@@ -105,18 +99,18 @@ router.get('/', requireAuth, async (req, res) => {
             potsToReturn = await Pot.findAll({
                 attributes: ['id', 'ownerId', 'ownerName', 'name', 'amount', 'startDate', 'endDate', 'status', 'hand'],
                 include: [includeUsersWithDetails],
-                order: [['name', 'ASC']] 
+                order: [['name', 'ASC']]
             });
         } else if (currUser.role === 'standard') {
             const userWithPots = await User.findByPk(currUser.id, {
                 include: [{
                     model: Pot,
-                    as: 'PotsJoined', 
+                    as: 'PotsJoined',
                     attributes: ['id', 'ownerId', 'ownerName', 'name', 'amount', 'startDate', 'endDate', 'status', 'hand'],
-                    through: { attributes: [] }, 
-                    include: [includeUsersWithDetails] 
+                    through: { attributes: [] },
+                    include: [includeUsersWithDetails]
                 }],
-                order: [[{ model: Pot, as: 'PotsJoined' }, 'name', 'ASC']] 
+                order: [[{ model: Pot, as: 'PotsJoined' }, 'name', 'ASC']]
             });
             potsToReturn = userWithPots && userWithPots.PotsJoined ? userWithPots.PotsJoined : [];
         } else {
@@ -148,7 +142,7 @@ router.get('/', requireAuth, async (req, res) => {
 router.get('/:potId', requireAuth, async (req, res) => {
     const currUser = req.user;
     const { potId } = req.params;
- console.log(`Deleting pot with ID: ${potId}`);
+
     try {
         const pot = await Pot.findByPk(potId, {
             attributes: ['id', 'ownerId', 'ownerName', 'name', 'hand', 'amount', 'startDate', 'endDate', 'status'],
@@ -215,18 +209,31 @@ router.post('/', requireAuth, async (req, res) => {
             ownerName,
             name,
             hand: parsedHand,
-            amount: 0, 
+            amount: 0, // Will be updated by updatePotScheduleAndDetails
             startDate,
-            endDate: startDate, 
+            endDate: startDate, // Will be updated by updatePotScheduleAndDetails
             status: 'Not Started'
         }, { transaction: t });
 
-        await updatePotScheduleAndDetails(newPot.id, t);
+        // Log this action before schedule update to capture initial creation
+        await logHistory({
+            userId: currUser.id,
+            actionType: 'CREATE_POT',
+            entityType: 'Pot',
+            entityId: newPot.id,
+            potIdContext: newPot.id,
+            changes: { name: newPot.name, hand: newPot.hand, startDate: newPot.startDate, status: newPot.status, ownerId: newPot.ownerId, ownerName: newPot.ownerName },
+            description: `User ${currUser.username} (ID: ${currUser.id}) created pot "${newPot.name}" (ID: ${newPot.id}).`,
+            transaction: t
+        });
+
+        await updatePotScheduleAndDetails(newPot.id, t); // This updates amount and endDate
 
         await t.commit();
+
         const finalNewPot = await Pot.findByPk(newPot.id, {
-             include: [{ model: User, as: 'Users', through: { model: PotsUser, as: 'potMemberDetails', attributes: ['drawDate', 'displayOrder'] }}],
-             order: [[sequelize.literal('`Users->potMemberDetails`.`displayOrder`'), 'ASC']]
+            include: [{ model: User, as: 'Users', through: { model: PotsUser, as: 'potMemberDetails', attributes: ['drawDate', 'displayOrder'] } }],
+            order: [[sequelize.literal('`Users->potMemberDetails`.`displayOrder`'), 'ASC']]
         });
         return res.status(201).json(finalNewPot);
     } catch (error) {
@@ -261,24 +268,34 @@ router.put('/:potId', requireAuth, async (req, res) => {
             return res.status(403).json({ "message": "Forbidden, you must be pot owner" });
         }
 
+        const oldValues = {
+            name: potToUpdate.name,
+            hand: potToUpdate.hand,
+            startDate: potToUpdate.startDate,
+            status: potToUpdate.status,
+        };
+
         const { name, hand, startDate, status } = req.body;
         let scheduleNeedsUpdate = false;
+        const appliedChanges = {};
 
         const isHandChanging = hand !== undefined && potToUpdate.hand.toString() !== parseFloat(hand).toString();
-        
-        let currentStartDateStr = null;
-        if (potToUpdate.startDate) { 
-            currentStartDateStr = potToUpdate.startDate;
-        }
+        let currentStartDateStr = potToUpdate.startDate || null;
         const isStartDateChanging = startDate !== undefined && currentStartDateStr !== startDate;
-        
+
         if ((isHandChanging || isStartDateChanging) && (potToUpdate.status !== 'Not Started' && potToUpdate.status !== 'Paused')) {
             await t.rollback();
-            return res.status(400).json({ message: "Amount and start date can only be changed when the pot is 'Not Started' or 'Paused'." });
+            return res.status(400).json({ message: "Hand amount and start date can only be changed when the pot is 'Not Started' or 'Paused'." });
         }
 
-        if (name !== undefined) potToUpdate.name = name;
-        if (status !== undefined) potToUpdate.status = status;
+        if (name !== undefined && name !== oldValues.name) {
+            potToUpdate.name = name;
+            appliedChanges.name = { old: oldValues.name, new: name };
+        }
+        if (status !== undefined && status !== oldValues.status) {
+            potToUpdate.status = status;
+            appliedChanges.status = { old: oldValues.status, new: status };
+        }
 
         if (isHandChanging) {
             const newHand = parseFloat(hand);
@@ -286,6 +303,7 @@ router.put('/:potId', requireAuth, async (req, res) => {
                 await t.rollback();
                 return res.status(400).json({ message: "Hand amount must be a positive number." });
             }
+            appliedChanges.hand = { old: oldValues.hand, new: newHand };
             potToUpdate.hand = newHand;
             scheduleNeedsUpdate = true;
         }
@@ -295,15 +313,40 @@ router.put('/:potId', requireAuth, async (req, res) => {
                 await t.rollback();
                 return res.status(400).json({ message: "Start date must be in YYYY-MM-DD format." });
             }
+            appliedChanges.startDate = { old: oldValues.startDate, new: startDate };
             potToUpdate.startDate = startDate;
             scheduleNeedsUpdate = true;
         }
 
-        await potToUpdate.save({ transaction: t });
+        if (Object.keys(appliedChanges).length > 0 || scheduleNeedsUpdate) {
+            await potToUpdate.save({ transaction: t });
 
-        if (scheduleNeedsUpdate) {
-            await updatePotScheduleAndDetails(numPotId, t);
+            if (scheduleNeedsUpdate) {
+                // updatePotScheduleAndDetails will also save the pot after updating amount/endDate
+                const potAfterScheduleUpdate = await updatePotScheduleAndDetails(numPotId, t);
+                // Log additional changes from schedule update if needed, e.g., amount, endDate
+                if (potAfterScheduleUpdate.amount !== oldValues.amount) { // Assuming oldValues captured amount
+                    appliedChanges.amount = { old: oldValues.amount, new: potAfterScheduleUpdate.amount };
+                }
+                if (potAfterScheduleUpdate.endDate !== oldValues.endDate) { // Assuming oldValues captured endDate
+                     appliedChanges.endDate = { old: oldValues.endDate, new: potAfterScheduleUpdate.endDate };
+                }
+            }
+
+            await logHistory({
+                userId: currUser.id,
+                actionType: 'UPDATE_POT',
+                entityType: 'Pot',
+                entityId: potToUpdate.id,
+                potIdContext: potToUpdate.id,
+                changes: appliedChanges,
+                description: `User ${currUser.username} (ID: ${currUser.id}) updated pot "${potToUpdate.name}" (ID: ${potToUpdate.id}).`,
+                transaction: t
+            });
+        } else {
+            // No changes were made, no need to save or log
         }
+
 
         await t.commit();
         const finalUpdatedPot = await Pot.findByPk(numPotId, {
@@ -328,45 +371,54 @@ router.delete('/:potId', requireAuth, async (req, res) => {
     const { potId } = req.params;
     const numPotId = parseInt(potId);
 
-    // 1. Authorization: Only bankers can delete pots
     if (currUser.role !== 'banker') {
         return res.status(403).json({ "message": "Forbidden, you must be a banker to delete a pot." });
     }
-
     if (isNaN(numPotId)) {
         return res.status(400).json({ 'message': 'Invalid Pot ID.' });
     }
 
     const t = await sequelize.transaction();
-
     try {
         const potToDelete = await Pot.findByPk(numPotId, { transaction: t });
 
-        // 2. Check if pot exists
         if (!potToDelete) {
             await t.rollback();
             return res.status(404).json({ message: "Pot not found!" });
         }
-
-        // 3. Authorization: Only the owner of the pot can delete it
         if (currUser.id !== potToDelete.ownerId) {
             await t.rollback();
             return res.status(403).json({ "message": "Forbidden, you must be the pot owner to delete it." });
         }
-
-        // 4. Business Logic: Pot can only be deleted if it has not started
         if (potToDelete.status !== 'Not Started') {
             await t.rollback();
             return res.status(400).json({ message: "A pot can only be deleted if its status is 'Not Started'." });
         }
 
-        // Proceed with deletion
+        const deletedPotInfo = {
+            name: potToDelete.name,
+            ownerId: potToDelete.ownerId,
+            ownerName: potToDelete.ownerName,
+            status: potToDelete.status,
+            startDate: potToDelete.startDate,
+            hand: potToDelete.hand
+        };
+
         await potToDelete.destroy({ transaction: t });
 
+        await logHistory({
+            userId: currUser.id,
+            actionType: 'DELETE_POT',
+            entityType: 'Pot',
+            entityId: numPotId, // Use numPotId as potToDelete.id might be undefined after destroy in some ORM versions
+            potIdContext: numPotId,
+            changes: { deletedPot: deletedPotInfo },
+            description: `User ${currUser.username} (ID: ${currUser.id}) deleted pot "${deletedPotInfo.name}" (ID: ${numPotId}).`,
+            transaction: t
+        });
+
         await t.commit();
-
         return res.status(200).json({ message: "Successfully deleted the pot." });
-
     } catch (error) {
         await t.rollback();
         console.error(`Error deleting pot ${potId}:`, error);
@@ -378,7 +430,7 @@ router.delete('/:potId', requireAuth, async (req, res) => {
 router.post('/:potId/addusers', requireAuth, async (req, res) => {
     const currUser = req.user;
     const { potId } = req.params;
-    const { userId } = req.body;
+    const { userId } = req.body; // Assuming userId is the ID of the user to add
     const numPotId = parseInt(potId);
     const numUserId = parseInt(userId);
 
@@ -400,10 +452,10 @@ router.post('/:potId/addusers', requireAuth, async (req, res) => {
             await t.rollback();
             return res.status(400).json({ message: 'Users can only be added to a pot that has not started or is paused.' });
         }
-        const user = await User.findByPk(numUserId, { transaction: t });
-        if (!user) {
+        const userToAdd = await User.findByPk(numUserId, { attributes: ['id', 'firstName', 'lastName', 'username'], transaction: t });
+        if (!userToAdd) {
             await t.rollback();
-            return res.status(404).json({ 'message': 'User not found.' });
+            return res.status(404).json({ 'message': 'User to add not found.' });
         }
         const existingPotsUser = await PotsUser.findOne({ where: { potId: numPotId, userId: numUserId }, transaction: t });
         if (existingPotsUser) {
@@ -420,14 +472,25 @@ router.post('/:potId/addusers', requireAuth, async (req, res) => {
             displayOrder: nextOrder
         }, { transaction: t });
 
-        await updatePotScheduleAndDetails(numPotId, t);
+        const potAfterScheduleUpdate = await updatePotScheduleAndDetails(numPotId, t);
+
+        await logHistory({
+            userId: currUser.id,
+            actionType: 'ADD_USER_TO_POT',
+            entityType: 'PotsUser',
+            entityId: numUserId, // ID of the user added
+            potIdContext: numPotId,
+            changes: { userId: numUserId, username: userToAdd.username, potId: numPotId, displayOrder: nextOrder, newPotAmount: potAfterScheduleUpdate.amount, newPotEndDate: potAfterScheduleUpdate.endDate },
+            description: `User ${currUser.username} (ID: ${currUser.id}) added user ${userToAdd.username} (ID: ${numUserId}) to pot "${pot.name}" (ID: ${numPotId}).`,
+            transaction: t
+        });
 
         await t.commit();
-        const updatedPot = await Pot.findByPk(numPotId, {
+        const updatedPotResult = await Pot.findByPk(numPotId, {
             include: [{ model: User, as: 'Users', through: { model: PotsUser, as: 'potMemberDetails', attributes: ['drawDate', 'displayOrder'] } }],
             order: [[sequelize.literal('`Users->potMemberDetails`.`displayOrder`'), 'ASC']]
         });
-        return res.status(201).json(updatedPot);
+        return res.status(201).json(updatedPotResult);
     } catch (error) {
         await t.rollback();
         console.error(`Error adding user ${userId} to pot ${potId}:`, error);
@@ -439,7 +502,7 @@ router.post('/:potId/addusers', requireAuth, async (req, res) => {
 router.delete('/:potId/removeusers', requireAuth, async (req, res) => {
     const currUser = req.user;
     const { potId } = req.params;
-    const { userId } = req.body;
+    const { userId } = req.body; // User to remove
     const numPotId = parseInt(potId);
     const numUserId = parseInt(userId);
 
@@ -459,7 +522,14 @@ router.delete('/:potId/removeusers', requireAuth, async (req, res) => {
         }
         if (pot.status !== 'Not Started' && pot.status !== 'Paused') {
             await t.rollback();
-            return res.status(400).json({ message: 'Users can only be removed from a pot that has not started.' });
+            return res.status(400).json({ message: 'Users can only be removed from a pot that has not started or is paused.' });
+        }
+        const userToRemove = await User.findByPk(numUserId, { attributes: ['id', 'username'], transaction: t });
+        if (!userToRemove) {
+            // This case might not be strictly necessary if PotsUser check is sufficient,
+            // but good for logging if user doesn't exist at all.
+            await t.rollback();
+            return res.status(404).json({ 'message': 'User to remove not found in system.' });
         }
 
         const potsUserEntry = await PotsUser.findOne({ where: { potId: numPotId, userId: numUserId }, transaction: t });
@@ -467,27 +537,45 @@ router.delete('/:potId/removeusers', requireAuth, async (req, res) => {
             await t.rollback();
             return res.status(404).json({ 'message': 'User not found in this pot.' });
         }
+        
+        const removedUserInfo = {
+            userId: potsUserEntry.userId,
+            username: userToRemove.username, // Fetched for logging
+            oldDisplayOrder: potsUserEntry.displayOrder
+        };
 
         await potsUserEntry.destroy({ transaction: t });
 
+        // Re-order remaining members
         const remainingMembers = await PotsUser.findAll({
             where: { potId: numPotId },
-            order: [['displayOrder', 'ASC']], 
+            order: [['displayOrder', 'ASC']], // Get them in current order to re-assign new sequential order
             transaction: t
         });
         for (let i = 0; i < remainingMembers.length; i++) {
-            remainingMembers[i].displayOrder = i + 1; 
+            remainingMembers[i].displayOrder = i + 1;
             await remainingMembers[i].save({ transaction: t });
         }
 
-        await updatePotScheduleAndDetails(numPotId, t);
+        const potAfterScheduleUpdate = await updatePotScheduleAndDetails(numPotId, t);
+
+        await logHistory({
+            userId: currUser.id,
+            actionType: 'REMOVE_USER_FROM_POT',
+            entityType: 'PotsUser',
+            entityId: numUserId,
+            potIdContext: numPotId,
+            changes: { removedUser: removedUserInfo, newPotAmount: potAfterScheduleUpdate.amount, newPotEndDate: potAfterScheduleUpdate.endDate },
+            description: `User ${currUser.username} (ID: ${currUser.id}) removed user ${removedUserInfo.username} (ID: ${numUserId}) from pot "${pot.name}" (ID: ${numPotId}).`,
+            transaction: t
+        });
 
         await t.commit();
-        const updatedPot = await Pot.findByPk(numPotId, {
+        const updatedPotResult = await Pot.findByPk(numPotId, {
             include: [{ model: User, as: 'Users', through: { model: PotsUser, as: 'potMemberDetails', attributes: ['drawDate', 'displayOrder'] } }],
             order: [[sequelize.literal('`Users->potMemberDetails`.`displayOrder`'), 'ASC']]
         });
-        return res.json(updatedPot);
+        return res.json(updatedPotResult);
     } catch (error) {
         await t.rollback();
         console.error(`Error removing user ${userId} from pot ${potId}:`, error);
@@ -499,7 +587,7 @@ router.delete('/:potId/removeusers', requireAuth, async (req, res) => {
 router.put('/:potId/reorderusers', requireAuth, async (req, res) => {
     const currUser = req.user;
     const { potId } = req.params;
-    const { orderedUserIds } = req.body;
+    const { orderedUserIds } = req.body; // Array of user IDs in the new desired order
     const numPotId = parseInt(potId);
 
     if (currUser.role !== 'banker') {
@@ -514,7 +602,10 @@ router.put('/:potId/reorderusers', requireAuth, async (req, res) => {
 
     const t = await sequelize.transaction();
     try {
-        const pot = await Pot.findByPk(numPotId, { transaction: t });
+        const pot = await Pot.findByPk(numPotId, {
+            include: [{ model: PotsUser, as: 'potMemberships', attributes: ['userId', 'displayOrder']}], // For old order
+            transaction: t
+        });
         if (!pot) {
             await t.rollback();
             return res.status(404).json({ message: 'Pot not found.' });
@@ -526,13 +617,23 @@ router.put('/:potId/reorderusers', requireAuth, async (req, res) => {
 
         const currentMembers = await PotsUser.findAll({ where: { potId: numPotId }, attributes: ['userId'], transaction: t });
         const currentMemberIds = currentMembers.map(m => m.userId);
+
+        const oldOrderSnapshot = pot.potMemberships
+            .sort((a,b) => a.displayOrder - b.displayOrder)
+            .map(m => ({userId: m.userId, displayOrder: m.displayOrder}));
+
+
         if (orderedUserIds.length !== currentMemberIds.length || !orderedUserIds.every(id => currentMemberIds.includes(parseInt(id)))) {
             await t.rollback();
-            return res.status(400).json({ message: 'Invalid user list for reordering. All current members must be included exactly once.' });
+            return res.status(400).json({ message: 'Invalid user list for reordering. All current members must be included exactly once and be valid numeric IDs.' });
         }
 
         for (let i = 0; i < orderedUserIds.length; i++) {
-            const userId = parseInt(orderedUserIds[i]); 
+            const userId = parseInt(orderedUserIds[i]);
+            if (isNaN(userId)) { // Additional check for safety
+                 await t.rollback();
+                 return res.status(400).json({ message: `Invalid user ID found in ordered list: ${orderedUserIds[i]}` });
+            }
             const newOrder = i + 1;
             await PotsUser.update(
                 { displayOrder: newOrder },
@@ -540,14 +641,25 @@ router.put('/:potId/reorderusers', requireAuth, async (req, res) => {
             );
         }
 
-        await updatePotScheduleAndDetails(numPotId, t);
+        const potAfterScheduleUpdate = await updatePotScheduleAndDetails(numPotId, t);
+
+        await logHistory({
+            userId: currUser.id,
+            actionType: 'REORDER_POT_USERS',
+            entityType: 'Pot', // The pot's user order is being changed
+            entityId: numPotId,
+            potIdContext: numPotId,
+            changes: { oldOrder: oldOrderSnapshot, newOrderUserIds: orderedUserIds.map(id => parseInt(id)), newPotEndDate: potAfterScheduleUpdate.endDate },
+            description: `User ${currUser.username} (ID: ${currUser.id}) reordered users in pot "${pot.name}" (ID: ${numPotId}).`,
+            transaction: t
+        });
 
         await t.commit();
-        const updatedPot = await Pot.findByPk(numPotId, {
+        const updatedPotResult = await Pot.findByPk(numPotId, {
             include: [{ model: User, as: 'Users', through: { model: PotsUser, as: 'potMemberDetails', attributes: ['drawDate', 'displayOrder'] } }],
             order: [[sequelize.literal('`Users->potMemberDetails`.`displayOrder`'), 'ASC']]
         });
-        return res.json(updatedPot);
+        return res.json(updatedPotResult);
     } catch (error) {
         await t.rollback();
         console.error(`Error reordering users for pot ${potId}:`, error);
@@ -566,7 +678,7 @@ router.get('/:potId/users', requireAuth, async (req, res) => {
             include: [{
                 model: User,
                 as: 'Users',
-                attributes: ['id', 'firstName', 'lastName', 'username', 'email', 'mobile'], 
+                attributes: ['id', 'firstName', 'lastName', 'username', 'email', 'mobile'],
                 through: {
                     model: PotsUser,
                     as: 'potMemberDetails',
@@ -585,7 +697,7 @@ router.get('/:potId/users', requireAuth, async (req, res) => {
             return res.status(403).json({ "message": "Forbidden, you must be a banker or a member of this pot." });
         };
 
-        return res.json(targetPot.Users); 
+        return res.json(targetPot.Users);
     } catch (error) {
         console.error(`Error fetching users for pot ${potId}:`, error);
         return res.status(500).json({ message: "Internal server error." });

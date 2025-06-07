@@ -9,6 +9,7 @@ import PotsLayout from "./components/PotsLayout";
 import PotDetailsPage from "./components/PotDetailspage";
 import GetAllUsersPage from "./components/GetAllUsersPage";
 import GetSingleUserPage from "./components/GetSingleUserPage";
+import TransactionHistoryPage from "./components/TransactionHistoryPage";
 import * as sessionActions from './store/session'
 
 
@@ -63,6 +64,10 @@ const router = createBrowserRouter([
       {
         path: '/users/:userId',
         element:  <GetSingleUserPage /> 
+      },
+      {
+        path: '/history',
+        element: <TransactionHistoryPage />
       }
     ]
   }

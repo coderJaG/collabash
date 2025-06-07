@@ -8,10 +8,14 @@ const { secret, expiresIn } = jwtConfig;
 //Sends JWT Cookie
 const setTokenCookie = (res, user) => {
     //Create the token
-    const safeUserForToken = { // Renamed to avoid confusion with the user object passed in
+    const safeUserForToken = { 
         id: user.id,
-        // email: user.email, // Email is often included in token
-        username: user.username // Username is often included in token
+        firstName: user.firstName,
+        lastName: user.lastName,  
+        email: user.email,
+        username: user.username,
+        mobile: user.mobile,      
+        role: user.role           
     };
     const token = jwt.sign(
         { data: safeUserForToken },

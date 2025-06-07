@@ -3,6 +3,8 @@ import { useRef } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 import { MdDelete } from 'react-icons/md';
 import { FaBars, FaCheck, FaTimes } from 'react-icons/fa';
+import OpenModalButton from '../OpenModalButton';
+import DeleteConfirmationModal from '../DeleteConfirmationModal';
 import './DraggableUserRow.css'; 
 
 
@@ -117,14 +119,29 @@ const DraggableUserRow = ({
             </td>
             <td>
                 {currUser?.role === 'banker' && (potDetailsStatus === 'Not Started' || potDetailsStatus === 'Paused') && (
-                    <button
+                    <OpenModalButton
+                        buttonText={<MdDelete style={{ color: "#e74c3c" }} />}
+                        modalComponent={
+                            <DeleteConfirmationModal
+                                message={`Are you sure you want to remove ${user.firstName} ${user.lastName} from the pot? This action cannot be undone.`}
+                                onConfirm={() => handleRemoveUserFromPot(user.id)}
+                                confirmButtonText="Yes, Remove"
+                                cancelButtonText="No, Cancel"
+                            />
+                        }
                         className="finger-button-pointer"
-                        onClick={() => handleRemoveUserFromPot(user.id)}
                         title="Remove User from Pot"
                         style={{ background: 'none', border: 'none', cursor: 'pointer' }}
-                    >
-                        <MdDelete style={{ color: "#e74c3c" }} />
-                    </button>
+                    />
+
+                    // <button
+                    //     className="finger-button-pointer"
+                    //     onClick={() => handleRemoveUserFromPot(user.id)}
+                    //     title="Remove User from Pot"
+                    //     style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+                    // >
+                    //     <MdDelete style={{ color: "#e74c3c" }} />
+                    // </button>
                 )}
             </td>
         </tr>
