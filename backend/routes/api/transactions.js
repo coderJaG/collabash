@@ -1,19 +1,19 @@
-
+//routes/api/transactions.js
 const express = require('express');
 const { requireAuth } = require('../../utils/auth');
-const { WeeklyPayment, Pot, User } = require('../../db/models');
+const { WeeklyPayment, Pot, User, sequelize } = require('../../db/models'); // Import sequelize
+const { logHistory } = require('../../utils/historyLogger'); // Import the logger
 const { Op } = require('sequelize');
 
 const router = express.Router();
 
 
 // GET /api/transactions/pot/:potId?weekNumber=<value> - Fetch weekly statuses
-
 router.get('/pot/:potId', requireAuth, async (req, res) => {
+    // ... existing, unchanged code ...
     const { potId } = req.params;
     const { weekNumber } = req.query;
 
-    // --- Validation ---
     if (!weekNumber) {
         return res.status(400).json({ message: "Missing 'weekNumber' query parameter" });
     }
@@ -21,17 +21,13 @@ router.get('/pot/:potId', requireAuth, async (req, res) => {
     const numPotId = parseInt(potId, 10);
 
     if (isNaN(numWeek) || numWeek <= 0) {
-         return res.status(400).json({ message: "Invalid 'weekNumber' query parameter. Must be a positive integer." });
+        return res.status(400).json({ message: "Invalid 'weekNumber' query parameter. Must be a positive integer." });
     }
     if (isNaN(numPotId)) {
         return res.status(400).json({ message: "Invalid Pot ID in URL path." });
     }
-    // --- End Validation ---
-
 
     try {
-
-
         const weeklyPayments = await WeeklyPayment.findAll({
             where: {
                 potId: numPotId,
@@ -57,116 +53,142 @@ router.get('/pot/:potId', requireAuth, async (req, res) => {
 });
 
 
-// /api/transactions updates and creates transactions
+// PUT /api/transactions - updates and creates transactions
 router.put('/', requireAuth, async (req, res) => {
-
     const currUser = req.user;
     if (currUser.role !== 'banker') {
         return res.status(403).json({ message: "Forbidden: Only bankers can update payments." });
     }
     const { potId, userId, weekNumber, paymentType, isPaid } = req.body;
-    //--validation--
-     if (potId == null || userId == null || weekNumber == null || paymentType == null || isPaid == null) {
-       return res.status(400).json({ message: "Missing required fields (potId, userId, weekNumber, paymentType, isPaid)" });
+    
+    if (potId == null || userId == null || weekNumber == null || paymentType == null || isPaid == null) {
+        return res.status(400).json({ message: "Missing required fields (potId, userId, weekNumber, paymentType, isPaid)" });
     }
     if (typeof isPaid !== 'boolean') {
         return res.status(400).json({ message: "isPaid must be a boolean value" });
     }
-     if (paymentType !== 'paidHand' && paymentType !== 'gotDraw') {
+    if (paymentType !== 'paidHand' && paymentType !== 'gotDraw') {
         return res.status(400).json({ message: "Invalid paymentType. Must be 'paidHand' or 'gotDraw'." });
     }
-     const numPotId = parseInt(potId, 10);
-     const numUserId = parseInt(userId, 10);
-     const numWeekNumber = parseInt(weekNumber, 10);
+    const numPotId = parseInt(potId, 10);
+    const numUserId = parseInt(userId, 10);
+    const numWeekNumber = parseInt(weekNumber, 10);
 
-     if (isNaN(numPotId) || isNaN(numUserId) || isNaN(numWeekNumber)) {
-         return res.status(400).json({ message: "Invalid ID or week number provided." });
-     }
-     //-- End validation--
+    if (isNaN(numPotId) || isNaN(numUserId) || isNaN(numWeekNumber)) {
+        return res.status(400).json({ message: "Invalid ID or week number provided." });
+    }
+
+    const t = await sequelize.transaction();
     try {
-        const [transaction, created] = await WeeklyPayment.findOrCreate({
+        const [transactionRecord, created] = await WeeklyPayment.findOrCreate({
             where: { potId: numPotId, userId: numUserId, weekNumber: numWeekNumber },
             defaults: {
                 potId: numPotId, userId: numUserId, weekNumber: numWeekNumber,
                 paidHand: paymentType === 'paidHand' ? isPaid : false,
                 gotDraw: paymentType === 'gotDraw' ? isPaid : false,
-            }
+            },
+            transaction: t
         });
+
+        let actionType = 'CREATE_PAYMENT';
+        let changes = { newRecord: transactionRecord.toJSON() };
+        let description = `Banker ${currUser.username} recorded initial payment for user ID ${numUserId} in pot ID ${numPotId} for week ${numWeekNumber}: ${paymentType} set to ${isPaid}.`;
+
         if (!created) {
-            if (paymentType === 'paidHand') transaction.paidHand = isPaid;
-            else if (paymentType === 'gotDraw') transaction.gotDraw = isPaid;
-            await transaction.save();
+            actionType = 'UPDATE_PAYMENT';
+            const oldValues = { paidHand: transactionRecord.paidHand, gotDraw: transactionRecord.gotDraw };
+
+            if (paymentType === 'paidHand' && transactionRecord.paidHand !== isPaid) {
+                transactionRecord.paidHand = isPaid;
+                changes = { paidHand: { old: oldValues.paidHand, new: isPaid } };
+                description = `Banker ${currUser.username} updated 'paidHand' to ${isPaid} for user ID ${numUserId}, pot ID ${numPotId}, week ${numWeekNumber}.`;
+            } else if (paymentType === 'gotDraw' && transactionRecord.gotDraw !== isPaid) {
+                transactionRecord.gotDraw = isPaid;
+                changes = { gotDraw: { old: oldValues.gotDraw, new: isPaid } };
+                description = `Banker ${currUser.username} updated 'gotDraw' to ${isPaid} for user ID ${numUserId}, pot ID ${numPotId}, week ${numWeekNumber}.`;
+            } else {
+                // No actual change, so we can decide not to log
+                await t.commit(); // Commit the transaction even if no log is made
+                return res.json(transactionRecord.toJSON());
+            }
+            await transactionRecord.save({ transaction: t });
         }
-        res.json({
-             id: transaction.id, potId: transaction.potId, userId: transaction.userId,
-             weekNumber: transaction.weekNumber, paidHand: transaction.paidHand, gotDraw: transaction.gotDraw
-         });
+
+        await logHistory({
+            userId: currUser.id,
+            actionType: actionType,
+            entityType: 'WeeklyPayment',
+            entityId: transactionRecord.id,
+            potIdContext: numPotId,
+            changes: changes,
+            description: description,
+            transaction: t
+        });
+
+        await t.commit();
+        res.json(transactionRecord.toJSON());
     } catch (error) {
+        await t.rollback();
         console.error("Error updating/creating weekly payment:", error);
         res.status(500).json({ message: "Failed to update payment status." });
     }
 });
 
-// ---delete transaction by userId and potId;
-
-router.delete('/', requireAuth, async (req, res) => {   
+// DELETE /api/transactions - deletes all transactions for a user in a pot
+router.delete('/', requireAuth, async (req, res) => {
     const currUser = req.user;
     if (currUser.role !== 'banker') {
         return res.status(403).json({ message: "Forbidden: Only bankers can delete payments." });
     }
-    const { potId, userId} = req.body;
+    const { potId, userId } = req.body;
 
-    // --- Validation ---
     if (potId == null || userId == null) {
         return res.status(400).json({ message: "Missing required fields (potId, userId)" });
     }
     const numPotId = parseInt(potId, 10);
     const numUserId = parseInt(userId, 10);
 
-
     if (isNaN(numPotId) || isNaN(numUserId)) {
         return res.status(400).json({ message: "Invalid ID provided." });
     }
-    // --- End Validation ---
 
+    const t = await sequelize.transaction();
     try {
-        const numTransactionDel = await WeeklyPayment.destroy({
-            where: { potId: numPotId, userId: numUserId},
+        const transactionsToDelete = await WeeklyPayment.findAll({
+            where: { potId: numPotId, userId: numUserId },
+            transaction: t
         });
 
-        if (numTransactionDel === 0) {
+        if (transactionsToDelete.length === 0) {
+            await t.rollback();
             return res.status(404).json({ message: "No matching Transaction(s) found to delete." });
         }
         
-        res.json({ message: `${numTransactionDel} Transaction deleted successfully.` });
+        const deletedRecordsInfo = transactionsToDelete.map(tr => tr.toJSON());
+
+        const numTransactionDel = await WeeklyPayment.destroy({
+            where: { potId: numPotId, userId: numUserId },
+            transaction: t
+        });
+
+        await logHistory({
+            userId: currUser.id,
+            actionType: 'DELETE_PAYMENTS_BULK',
+            entityType: 'WeeklyPayment',
+            entityId: numUserId, // The user whose payments were deleted
+            potIdContext: numPotId,
+            changes: { deletedRecords: deletedRecordsInfo },
+            description: `Banker ${currUser.username} deleted all ${numTransactionDel} payment records for user ID ${numUserId} in pot ID ${numPotId}.`,
+            transaction: t
+        });
+        
+        await t.commit();
+        res.json({ message: `${numTransactionDel} Transaction(s) deleted successfully.` });
     } catch (error) {
-        res.status(500).json(error.message || {  message: "Failed to delete transaction." });
+        await t.rollback();
+        console.error("Error deleting transactions:", error);
+        res.status(500).json({ message: "Failed to delete transaction." });
     }
 });
-
-// Using PUT route handler for now to handle both creation and update of transactions
-// POST /api/transactions
-// router.post('/', requireAuth, async (req, res) => {
-   
-//     const currUser = req.user;
-//     if (currUser.role !== 'banker') return res.status(403).json({ "message": "Forbidden, you must be a banker" });
-//     const { potId, userId, weekNumber, paidHand, gotDraw } = req.body;
-    
-//     if (potId == null || userId == null || weekNumber == null || paidHand == null || gotDraw == null) {
-//        return res.status(400).json({ message: "Missing required fields" });
-//     }
-//     try {
-//         const existing = await WeeklyPayment.findOne({ where: { potId, userId, weekNumber } });
-//         if (existing) {
-//             return res.status(409).json({ message: "Transaction already exists." });
-//         }
-//         const transaction = await WeeklyPayment.create({ potId, userId, weekNumber, paidHand, gotDraw });
-//         res.status(201).json(transaction);
-//     } catch (error) {
-//          console.error("Error creating weekly payment:", error);
-//          res.status(500).json({ message: "Failed to create payment record." });
-//     }
-// });
-
 
 module.exports = router;

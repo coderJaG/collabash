@@ -28,7 +28,7 @@ const formatDate = (dateStr) => { // dateStr is expected to be 'YYYY-MM-DD' from
         const day = parseInt(parts[2], 10);
 
         if (isNaN(year) || isNaN(month) || isNaN(day)) return 'Invalid Date Parts';
-        
+
         // Create a Date object specifically for 00:00:00 UTC on that day
         const utcDate = new Date(Date.UTC(year, month, day));
 
@@ -218,15 +218,15 @@ const PotDetailsPage = () => {
     const handleRemoveUserFromPot = async (userId) => {
         if (!potDetails || !userId) return;
         const userData = { userId, potId: numPotId };
-        if (window.confirm("Are you sure you want to remove this user from the pot? This action cannot be undone.")) {
-            setLocalUiError(null);
-            try {
-                await dispatch(potsActions.removeUserFromPot(userData));
-            } catch (error) {
-                console.error("Failed to delete user from pot:", error.message);
-                setLocalUiError(error.message || "Failed to remove user.");
-            }
+
+        setLocalUiError(null);
+        try {
+            await dispatch(potsActions.removeUserFromPot(userData));
+        } catch (error) {
+            console.error("Failed to delete user from pot:", error.message);
+            setLocalUiError(error.message || "Failed to remove user.");
         }
+
     };
 
     // Callback for react-dnd to update local state during drag (optimistic update)
@@ -334,7 +334,7 @@ const PotDetailsPage = () => {
                 <div className='banker-div'>
                     <span>Banker:</span> <span>{potDetails.ownerName}</span>
                 </div>
-               
+
                 <div className="pot-dates-div">
                     <span>Start Date:</span>
                     {isEditingStartDate && canBankerEditDetails ? (
@@ -360,7 +360,7 @@ const PotDetailsPage = () => {
                 <div className="pot-dates-div">
                     <span>End Date:</span> <span>{formatDate(potDetails.endDate)}</span>
                 </div>
-               
+
                 <div className="pot-amount-div">
                     <span>Amt/Hand:</span>
                     {isEditingAmount && canBankerEditDetails ? (

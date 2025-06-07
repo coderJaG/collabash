@@ -4,13 +4,15 @@ import sessionReducer from './session';
 import potsReducer from './pots';
 import transactionsReducer from './transactions';
 import usersReducer from './users';
+import historyReducer from './history';
 
 
 const rootReducer = combineReducers({
   session: sessionReducer,
   pots: potsReducer,
   transactions: transactionsReducer,
-  users: usersReducer
+  users: usersReducer,
+  history: historyReducer
 });
 
 let enhancer;

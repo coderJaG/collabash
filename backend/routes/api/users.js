@@ -1,181 +1,114 @@
 //routes//api/users.js
-
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const { check, body } = require('express-validator');
-const { Sequelize } = require('sequelize');
-
+const { Sequelize, sequelize } = require('../../db/models'); // Import sequelize for transactions
 const { setTokenCookie, requireAuth } = require('../../utils/auth');
 const { User, Pot, PotsUser } = require('../../db/models');
 const { handleValidationErrors } = require('../../utils/validation');
+const { logHistory } = require('../../utils/historyLogger'); // Import the logger
 
 const router = express.Router();
 
-//validate signup inputs 
+// --- Validation Middlewares (unchanged) ---
+// validate signup inputs
 const validateSignupInputs = [
-    check('firstName')
-        .exists({ checkFalsy: true })
-        .withMessage('Please enter a first name'),
-    check('lastName')
-        .exists({ checkFalsy: true })
-        .withMessage('Please enter a last name'),
-    check('mobile')
-        .exists({ checkFalsy: true })
-        .withMessage('Please enter a mobile number')
-        .custom(async (value, { req }) => { // Check for uniqueness on new user creation
-            if (req.method === 'POST') { // Only for signup
+    check('firstName').exists({ checkFalsy: true }).withMessage('Please enter a first name'),
+    check('lastName').exists({ checkFalsy: true }).withMessage('Please enter a last name'),
+    check('mobile').exists({ checkFalsy: true }).withMessage('Please enter a mobile number')
+        .custom(async (value, { req }) => {
+            if (req.method === 'POST') {
                 const existingUser = await User.findOne({ where: { mobile: value } });
-                if (existingUser) {
-                    throw new Error('Mobile number is already in use.');
-                }
+                if (existingUser) throw new Error('Mobile number is already in use.');
             }
             return true;
         }),
-    check('email')
-        .exists({ checkFalsy: true })
-        .isEmail()
-        .withMessage('Please enter a valid email')
-        .custom(async (value, { req }) => { // Check for uniqueness on new user creation
-            if (req.method === 'POST') { // Only for signup
+    check('email').exists({ checkFalsy: true }).isEmail().withMessage('Please enter a valid email')
+        .custom(async (value, { req }) => {
+            if (req.method === 'POST') {
                 const existingUser = await User.findOne({ where: { email: value } });
-                if (existingUser) {
-                    throw new Error('Email is already in use.');
-                }
+                if (existingUser) throw new Error('Email is already in use.');
             }
             return true;
         }),
-    check('username')
-        .exists({ checkFalsy: true })
-        .isLength({ min: 4 })
-        .withMessage('Please provide a username with at least 4 characters.')
-        .not()
-        .isEmail()
-        .withMessage('Username cannot be an email.')
-        .custom(async (value, { req }) => { // Check for uniqueness on new user creation
-            if (req.method === 'POST') { // Only for signup
+    check('username').exists({ checkFalsy: true }).isLength({ min: 4 }).withMessage('Please provide a username with at least 4 characters.')
+        .not().isEmail().withMessage('Username cannot be an email.')
+        .custom(async (value, { req }) => {
+            if (req.method === 'POST') {
                 const existingUser = await User.findOne({ where: { username: value } });
-                if (existingUser) {
-                    throw new Error('Username is already in use.');
-                }
+                if (existingUser) throw new Error('Username is already in use.');
             }
             return true;
         }),
-    check('password')
-        .exists({ checkFalsy: true })
-        .isLength({ min: 6 })
-        .withMessage('Password must be 6 characters or more.'),
+    check('password').exists({ checkFalsy: true }).isLength({ min: 6 }).withMessage('Password must be 6 characters or more.'),
     handleValidationErrors
 ];
 
 // Validate user update inputs
-// This validation is used for the PUT /:userId endpoint
 const validateUserUpdate = [
-    // Optional: Validate firstName if provided
-    body('firstName')
-        .optional()
-        .notEmpty()
-        .withMessage('First name cannot be empty if provided.'),
-    // Optional: Validate lastName if provided
-    body('lastName')
-        .optional()
-        .notEmpty()
-        .withMessage('Last name cannot be empty if provided.'),
-    // Optional: Validate mobile if provided
-    // Note: Mobile number format validation is commented out, as it's handled at the model level
-    body('mobile')
-        .optional()
-        .notEmpty().withMessage('Mobile number cannot be empty if provided.')
-        // .matches(/^\d{3}-\d{3}-\d{4}$/).withMessage('Mobile number must be in the format 999-999-9999.')
+    body('firstName').optional().notEmpty().withMessage('First name cannot be empty if provided.'),
+    body('lastName').optional().notEmpty().withMessage('Last name cannot be empty if provided.'),
+    body('mobile').optional().notEmpty().withMessage('Mobile number cannot be empty if provided.')
         .custom(async (value, { req }) => {
-            if (value) { // Only check for uniqueness if mobile is provided and different from current user's
+            if (value) {
                 const targetUserId = parseInt(req.params.userId, 10);
                 const userToUpdate = await User.findByPk(targetUserId);
                 if (userToUpdate && userToUpdate.mobile !== value) {
                     const existingUser = await User.findOne({ where: { mobile: value } });
-                    if (existingUser && existingUser.id !== targetUserId) {
-                        throw new Error('Mobile number is already in use by another account.');
-                    }
+                    if (existingUser && existingUser.id !== targetUserId) throw new Error('Mobile number is already in use by another account.');
                 }
             }
             return true;
         }),
-    // Optional: Validate email if provided
-    body('email')
-        .optional()
-        .isEmail()
-        .withMessage('Please provide a valid email if you are changing it.')
+    body('email').optional().isEmail().withMessage('Please provide a valid email if you are changing it.')
         .custom(async (value, { req }) => {
-            if (value) { // Only check for uniqueness if email is provided and different
+            if (value) {
                 const targetUserId = parseInt(req.params.userId, 10);
                 const userToUpdate = await User.findByPk(targetUserId);
                 if (userToUpdate && userToUpdate.email !== value) {
                     const existingUser = await User.findOne({ where: { email: value } });
-                    if (existingUser && existingUser.id !== targetUserId) {
-                        throw new Error('Email is already in use by another account.');
-                    }
+                    if (existingUser && existingUser.id !== targetUserId) throw new Error('Email is already in use by another account.');
                 }
             }
             return true;
         }),
-    // Optional: Validate username if provided
-    body('username')
-        .optional()
-        .isLength({ min: 4 })
-        .withMessage('Username must be at least 4 characters if provided.')
-        .not()
-        .isEmail()
-        .withMessage('Username cannot be an email.')
+    body('username').optional().isLength({ min: 4 }).withMessage('Username must be at least 4 characters if provided.')
+        .not().isEmail().withMessage('Username cannot be an email.')
         .custom(async (value, { req }) => {
-            if (value) { // Only check for uniqueness if username is provided and different
+            if (value) {
                 const targetUserId = parseInt(req.params.userId, 10);
                 const userToUpdate = await User.findByPk(targetUserId);
                 if (userToUpdate && userToUpdate.username !== value) {
                     const existingUser = await User.findOne({ where: { username: value } });
-                    if (existingUser && existingUser.id !== targetUserId) {
-                        throw new Error('Username is already in use by another account.');
-                    }
+                    if (existingUser && existingUser.id !== targetUserId) throw new Error('Username is already in use by another account.');
                 }
             }
             return true;
         }),
-    // Optional: Validate password if provided
-    body('password')
-        .optional({ checkFalsy: false })
-        .if(body('password').exists({ checkFalsy: false }).notEmpty()) // Only validate if password is provided and not empty
-        .isLength({ min: 6 })
-        .withMessage('New password must be 6 characters or more.'),
-    // Role validation: only a banker can change a role
-    body('role')
-        .optional()
+    body('password').optional({ checkFalsy: false }).if(body('password').exists({ checkFalsy: false }).notEmpty())
+        .isLength({ min: 6 }).withMessage('New password must be 6 characters or more.'),
+    body('role').optional()
         .custom((value, { req }) => {
-            if (value && req.user.role !== 'banker') {
-                throw new Error('You are not authorized to change user roles.');
-            }
-            if (value && !['standard', 'banker'].includes(value)) { // Example roles
-                throw new Error('Invalid role specified.');
-            }
+            if (value && req.user.role !== 'banker') throw new Error('You are not authorized to change user roles.');
+            if (value && !['standard', 'banker'].includes(value)) throw new Error('Invalid role specified.');
             return true;
         }),
     handleValidationErrors
 ];
 
 
-//get all users endpoint
+// --- Read-Only Routes (unchanged) ---
+// GET all users
 router.get('/', requireAuth, async (req, res) => {
+    // ... existing code ...
     const currUser = req.user;
     let usersToReturn = [];
 
     const includePotsJoinedWithUsers = {
         model: Pot,
         as: 'PotsJoined',
-        attributes: ['id', 'name', 'amount', 'ownerId'],
-        through: { attributes: [] },
-        include: [{
-            model: User,
-            as: 'Users',
-            attributes: ['id'],
-            through: { attributes: [] }
-        }]
+        attributes: ['id', 'name'], // Only fetch what the frontend needs (name for the tooltip)
+        through: { attributes: [] }
     };
 
     try {
@@ -227,10 +160,9 @@ router.get('/', requireAuth, async (req, res) => {
         return res.status(500).json({ message: "Internal server error while fetching users." });
     }
 });
-
-
-// Get user by id endpoint
+// GET user by ID
 router.get('/:userId', requireAuth, async (req, res) => {
+    // ... existing code ...
     const targetUserId = parseInt(req.params.userId, 10);
     const currUser = req.user;
 
@@ -312,49 +244,50 @@ router.get('/:userId', requireAuth, async (req, res) => {
     }
 });
 
+// --- Create/Update/Delete Routes (UPDATED with History Logging) ---
 
 // Sign up a user endpoint
 router.post('/', validateSignupInputs, async (req, res) => {
     const { firstName, lastName, mobile, email, drawDate, username, password, role, meta_createdByBanker } = req.body;
+    const t = await sequelize.transaction();
     try {
         const hashedPassword = bcrypt.hashSync(password);
         const newUser = await User.create({
-            firstName,
-            lastName,
-            mobile,
-            email,
-            drawDate,
-            username,
-            hashedPassword,
+            firstName, lastName, mobile, email, drawDate, username, hashedPassword,
             role: (meta_createdByBanker && req.user?.role === 'banker' && role) ? role : 'standard'
-        });
+        }, { transaction: t });
 
-        const safeUser = {
-            id: newUser.id,
-            firstName: newUser.firstName,
-            lastName: newUser.lastName,
-            mobile: newUser.mobile,
-            email: newUser.email,
-            username: newUser.username,
-            role: newUser.role
-        };
+        const safeUser = { id: newUser.id, firstName: newUser.firstName, lastName: newUser.lastName, mobile: newUser.mobile, email: newUser.email, username: newUser.username, role: newUser.role };
+
+        const description = req.user?.role === 'banker' && meta_createdByBanker
+            ? `Banker ${req.user.username} (ID: ${req.user.id}) created new user ${newUser.username} (ID: ${newUser.id}).`
+            : `New user ${newUser.username} (ID: ${newUser.id}) signed up.`;
+
+        await logHistory({
+            userId: req.user?.id || newUser.id, // User performing action, or self if signing up
+            actionType: 'CREATE_USER',
+            entityType: 'User',
+            entityId: newUser.id,
+            changes: { newUser: safeUser },
+            description: description,
+            transaction: t
+        });
 
         if (!meta_createdByBanker) {
             await setTokenCookie(res, safeUser);
         }
 
+        await t.commit();
         return res.status(201).json({ user: safeUser });
 
     } catch (error) {
+        await t.rollback();
         console.error("Error signing up user:", error);
         if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
             const errors = {};
-            // error.errors might not always be an array, could be an object in some cases or from custom validations.
-            // Safely iterate or access properties.
             if (Array.isArray(error.errors)) {
                 error.errors.forEach(e => errors[e.path || 'general'] = e.message);
             } else if (typeof error.errors === 'object' && error.errors !== null) {
-                // Handle cases where error.errors is an object (e.g. from custom unique checks)
                 for (const key in error.errors) {
                     errors[key] = error.errors[key].message || error.errors[key];
                 }
@@ -376,85 +309,74 @@ router.put('/:userId', requireAuth, validateUserUpdate, async (req, res) => {
         return res.status(400).json({ message: "Invalid user ID format." });
     }
 
-    // Banker can edit anyone, standard user can only edit themselves.
     if (currUser.role !== 'banker' && currUser.id !== targetUserId) {
         return res.status(403).json({ "message": "Forbidden: You are not authorized to edit this user." });
     }
+
+    const t = await sequelize.transaction();
     try {
-        const userToUpdate = await User.scope(null).findByPk(targetUserId);
+        const userToUpdate = await User.scope(null).findByPk(targetUserId, { transaction: t });
         if (!userToUpdate) {
+            await t.rollback();
             return res.status(404).json({ "message": "User not found" });
         }
 
+        const oldValues = { ...userToUpdate.get({ plain: true }) };
         const { firstName, lastName, mobile, drawDate, email, username, password, role } = req.body;
+        const appliedChanges = {};
 
-        // Update fields if they are provided in the request body
-        if (firstName !== undefined) userToUpdate.firstName = firstName;
-        if (lastName !== undefined) userToUpdate.lastName = lastName;
-        if (mobile !== undefined) userToUpdate.mobile = mobile;
-        if (drawDate !== undefined) userToUpdate.drawDate = drawDate; 
-        if (email !== undefined) userToUpdate.email = email;
-        if (username !== undefined) userToUpdate.username = username;
+        // Update fields and track changes
+        if (firstName !== undefined && firstName !== oldValues.firstName) { userToUpdate.firstName = firstName; appliedChanges.firstName = { old: oldValues.firstName, new: firstName }; }
+        if (lastName !== undefined && lastName !== oldValues.lastName) { userToUpdate.lastName = lastName; appliedChanges.lastName = { old: oldValues.lastName, new: lastName }; }
+        if (mobile !== undefined && mobile !== oldValues.mobile) { userToUpdate.mobile = mobile; appliedChanges.mobile = { old: oldValues.mobile, new: mobile }; }
+        if (drawDate !== undefined && drawDate !== oldValues.drawDate) { userToUpdate.drawDate = drawDate; appliedChanges.drawDate = { old: oldValues.drawDate, new: drawDate }; }
+        if (email !== undefined && email !== oldValues.email) { userToUpdate.email = email; appliedChanges.email = { old: oldValues.email, new: email }; }
+        if (username !== undefined && username !== oldValues.username) { userToUpdate.username = username; appliedChanges.username = { old: oldValues.username, new: username }; }
+        if (password && password.trim() !== "") { userToUpdate.hashedPassword = bcrypt.hashSync(password); appliedChanges.password = "Changed"; }
+        if (currUser.role === 'banker' && role !== undefined && role !== oldValues.role) { userToUpdate.role = role; appliedChanges.role = { old: oldValues.role, new: role }; }
 
-        // hash and update password if a new password is provided and is not an empty string
-        if (password && password.trim() !== "") {
-            userToUpdate.hashedPassword = bcrypt.hashSync(password);
+        if (Object.keys(appliedChanges).length > 0) {
+            await userToUpdate.save({ transaction: t });
+
+            await logHistory({
+                userId: currUser.id,
+                actionType: 'UPDATE_USER',
+                entityType: 'User',
+                entityId: targetUserId,
+                changes: appliedChanges,
+                description: `User ${currUser.username} (ID: ${currUser.id}) updated details for user ${userToUpdate.username} (ID: ${targetUserId}).`,
+                transaction: t
+            });
         }
 
-        // Only allow role changes if the current user is a banker and role is provided
-        if (currUser.role === 'banker' && role !== undefined) {
-            userToUpdate.role = role;
-        } else if (role !== undefined && currUser.role !== 'banker') {
-            return res.status(403).json({ message: "You are not authorized to change user roles." });
-
-        }
-
-
-        await userToUpdate.save();
-
-        // Fetch the updated user again, but using the default scope to exclude sensitive info for the response
-        const updatedSafeUserFromDB = await User.findByPk(userToUpdate.id); // Default scope applied
-
-
-        // If default scope doesn't exclude everything needed, manually build it
-        const safeUserResponse = {
-            id: updatedSafeUserFromDB.id,
-            firstName: updatedSafeUserFromDB.firstName,
-            lastName: updatedSafeUserFromDB.lastName,
-            mobile: updatedSafeUserFromDB.mobile,
-            email: updatedSafeUserFromDB.email, // check if email is in default scope
-            username: updatedSafeUserFromDB.username, // check if username is in default scope
-            role: updatedSafeUserFromDB.role
-        };
-        // Manually ensure email and username are included if not by default scope for this response
-        if (!safeUserResponse.email) safeUserResponse.email = updatedSafeUserFromDB.email;
-        if (!safeUserResponse.username) safeUserResponse.username = updatedSafeUserFromDB.username;
-
-
+        const safeUserResponse = { id: userToUpdate.id, firstName: userToUpdate.firstName, lastName: userToUpdate.lastName, mobile: userToUpdate.mobile, email: userToUpdate.email, username: userToUpdate.username, role: userToUpdate.role };
 
         if (currUser.id === targetUserId) {
-            await setTokenCookie(res, safeUserResponse); // Pass the safe user object to setTokenCookie
+            await setTokenCookie(res, safeUserResponse);
         }
+
+        await t.commit();
         return res.json({ user: safeUserResponse });
+
     } catch (error) {
+        await t.rollback();
         console.error(`Error updating user ${targetUserId}:`, error);
         if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
             const errors = {};
-            if (Array.isArray(error.errors)) {
+             if (Array.isArray(error.errors)) {
                 error.errors.forEach(e => errors[e.path || 'general'] = e.message);
             } else if (typeof error.errors === 'object' && error.errors !== null) {
                 for (const key in error.errors) {
                     errors[key] = error.errors[key].message || error.errors[key];
                 }
             } else {
-                errors.general = error.message || "Validation error occurred during update.";
+                 errors.general = error.message || "Validation error occurred during update.";
             }
             return res.status(400).json({ message: "Validation error", errors });
         }
         return res.status(500).json({ message: "Internal server error while updating user." });
     }
 });
-
 
 // Delete a user by id
 router.delete('/:userId', requireAuth, async (req, res) => {
@@ -464,24 +386,49 @@ router.delete('/:userId', requireAuth, async (req, res) => {
     if (isNaN(targetUserId)) {
         return res.status(400).json({ message: "Invalid user ID format." });
     }
-
-    // Banker can delete anyone, standard user can only delete themselves.
     if (currUser.role !== 'banker' && currUser.id !== targetUserId) {
         return res.status(403).json({ 'message': 'Forbidden: You are not authorized to delete this user.' });
     }
+    if (currUser.role === 'banker' && currUser.id === targetUserId) {
+        return res.status(400).json({ 'message': 'Bankers cannot delete their own account.' });
+    }
+
+    const t = await sequelize.transaction();
     try {
-        const userToDelete = await User.findByPk(targetUserId);
+        const userToDelete = await User.findByPk(targetUserId, { transaction: t });
         if (!userToDelete) {
+            await t.rollback();
             return res.status(404).json({ 'message': 'User not found!' });
         }
-        await userToDelete.destroy();
 
-        // If the deleted user is the one who made the request, clear their token
+        // Prevent deletion if user is in any pots
+        const userPots = await PotsUser.findOne({ where: { userId: targetUserId }, transaction: t });
+        if (userPots) {
+            await t.rollback();
+            return res.status(400).json({ message: "Cannot delete user. They are still a member of one or more pots." });
+        }
+
+        const deletedUserInfo = { id: userToDelete.id, username: userToDelete.username, email: userToDelete.email, role: userToDelete.role };
+        await userToDelete.destroy({ transaction: t });
+
+        await logHistory({
+            userId: currUser.id,
+            actionType: 'DELETE_USER',
+            entityType: 'User',
+            entityId: targetUserId,
+            changes: { deletedUser: deletedUserInfo },
+            description: `User ${currUser.username} (ID: ${currUser.id}) deleted user ${deletedUserInfo.username} (ID: ${targetUserId}).`,
+            transaction: t
+        });
+
         if (currUser.id === targetUserId) {
             res.clearCookie('token');
         }
+
+        await t.commit();
         return res.json({ 'message': 'User Successfully Deleted' });
     } catch (error) {
+        await t.rollback();
         console.error(`Error deleting user ${targetUserId}:`, error);
         return res.status(500).json({ message: "Internal server error while deleting user." });
     }

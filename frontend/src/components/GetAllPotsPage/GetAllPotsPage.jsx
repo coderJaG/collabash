@@ -142,7 +142,7 @@ const GetAllPotsPage = () => {
     return (
         <div className="all-pots-page-container">
             <h1>POTS</h1>
-            <div className="list-controls"> {/* Changed structure: H1 is now a sibling, this div groups button and search */}
+            <div className="list-controls">
                     {currUser && currUser.role === 'banker' && (
                         <button
                             className="create-pot-button finger-pointer"
