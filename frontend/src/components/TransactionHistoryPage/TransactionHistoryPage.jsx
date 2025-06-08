@@ -1,5 +1,5 @@
 // frontend/src/components/TransactionHistoryPage/TransactionHistoryPage.jsx
-import React, { useEffect, useState } from 'react';
+import { useEffect} from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getHistory } from '../../store/history';
 import './TransactionHistoryPage.css'; // Create this CSS file

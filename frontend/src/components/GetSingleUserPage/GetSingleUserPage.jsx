@@ -1,7 +1,7 @@
 // src/components/GetSingleUserPage/GetSingleUserPage.jsx
 
-import React, { useState, useEffect } from 'react';
-import { useParams, NavLink, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useParams, NavLink} from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import * as userActions from '../../store/users';
 import * as sessionActions from '../../store/session'; // For updating session user
@@ -11,7 +11,7 @@ import './GetSingleUserPage.css';
 const GetSingleUserPage = () => {
     const { userId: viewedUserId } = useParams(); // Renamed to avoid conflict
     const dispatch = useDispatch();
-    const navigate = useNavigate();
+   
 
     const selectedUser = useSelector((state) => state.users.userById);
     const isLoading = useSelector((state) => state.users.isLoadingUserDetails);
@@ -210,7 +210,7 @@ const GetSingleUserPage = () => {
 
     return (
         <div className="single-user-page-wrapper">
-            <div className="single-user-page-header"><h1>{selectedUser.firstName?.toUpperCase()}'S PROFILE</h1></div>
+            <div className="single-user-page-header"><h1>{selectedUser.firstName?.toUpperCase()}S PROFILE</h1></div>
 
             <div className="single-user-info-card">
                 {editError && <p className="form-error-message">{editError}</p>}
@@ -278,7 +278,7 @@ const GetSingleUserPage = () => {
                         )}
 
                         <hr className="form-divider" />
-                        <p className="password-change-info">Change Password (leave blank if you don't want to change it):</p>
+                        <p className="password-change-info">Change Password (leave blank if you do not want to change it):</p>
                         <div className="form-input-group">
                             <label htmlFor="newPassword">New Password:</label>
                             <input type="password" id="newPassword" name="newPassword" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} autoComplete="new-password" />

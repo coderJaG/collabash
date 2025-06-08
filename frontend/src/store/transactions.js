@@ -181,7 +181,7 @@ const transactionsReducer = (state = initialState, action) => {
                     removingTransaction: true
                 }
             };
-        case REMOVE_TRANSACTION_SUCCESS:
+        case REMOVE_TRANSACTION_SUCCESS: {
             potId = action.payload.potId;
             const updatedWeeklyStatus = { ...state.weeklyStatusByPot };
             delete updatedWeeklyStatus[potId];
@@ -193,6 +193,7 @@ const transactionsReducer = (state = initialState, action) => {
                     removingTransaction: false
                 }
             };
+        }
         case REMOVE_TRANSACTION_FAILURE:
             return {
                 ...state,

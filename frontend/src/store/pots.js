@@ -110,7 +110,7 @@ const processErrorResponse = async (response, defaultMessage) => {
         // Merge backendError properties; backendError might overwrite default message or status if provided
         errorData = { ...errorData, ...backendError };
 
-      
+
         if (typeof errorData.message === 'object' && errorData.message !== null) {
             // If backendError.message is an object, try to find a detail or stringify it
             errorData.message = errorData.message.detail || errorData.message.error || JSON.stringify(errorData.message);
@@ -348,7 +348,7 @@ export const reorderPotUsers = (potId, orderedUserIds) => async (dispatch) => {
         }
         const updatedPot = await res.json(); // Backend returns the full updated pot
         dispatch(reorderPotUsersSuccess(updatedPot)); // Updates currentPotDetails and allById
-        
+
         return updatedPot;
     } catch (caughtError) {
         let errorToDispatch;
@@ -378,14 +378,16 @@ const potsReducer = (state = initialState, action) => {
         // Get All Pots
         case GET_ALL_POTS_START:
             return { ...state, isLoadingList: true, errorList: null };
-        case GET_ALL_POTS_SUCCESS:
+        case GET_ALL_POTS_SUCCESS: {
             const newAllById = {};
             if (action.payload && action.payload.Pots) {
                 action.payload.Pots.forEach(pot => {
                     newAllById[pot.id] = pot;
                 });
             }
+
             return { ...state, isLoadingList: false, allById: newAllById, errorList: null };
+        }
         case GET_ALL_POTS_FAILURE:
             return { ...state, isLoadingList: false, errorList: action.payload };
 
@@ -482,7 +484,7 @@ const potsReducer = (state = initialState, action) => {
             return {
                 ...state,
                 isReorderingPotUsers: false,
-                currentPotDetails: action.payload, 
+                currentPotDetails: action.payload,
                 allById: { ...state.allById, [action.payload.id]: action.payload },
                 errorReorderingPotUsers: null
             };

@@ -1,6 +1,6 @@
 //src/components/UserProfilePage/UserProfilePage.jsx
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { NavLink } from "react-router-dom";
 import * as potsActions from "../../store/pots";
@@ -218,7 +218,7 @@ const UserProfilePage = () => {
                             <input type="tel" id="mobile" name="mobile" value={formData.mobile} onChange={handleInputChange} pattern="\d{3}-\d{3}-\d{4}" placeholder="999-999-9999" required />
                         </div>
                         <hr className="form-divider" />
-                        <p className="password-change-info">Change Password (leave blank if you don't want to change it):</p>
+                        <p className="password-change-info">Change Password (leave blank if you do not want to change it):</p>
                         <div className="form-input-group">
                             <label htmlFor="newPassword">New Password:</label>
                             <input type="password" id="newPassword" name="newPassword" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
