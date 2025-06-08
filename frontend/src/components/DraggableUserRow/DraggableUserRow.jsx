@@ -133,15 +133,6 @@ const DraggableUserRow = ({
                         title="Remove User from Pot"
                         style={{ background: 'none', border: 'none', cursor: 'pointer' }}
                     />
-
-                    // <button
-                    //     className="finger-button-pointer"
-                    //     onClick={() => handleRemoveUserFromPot(user.id)}
-                    //     title="Remove User from Pot"
-                    //     style={{ background: 'none', border: 'none', cursor: 'pointer' }}
-                    // >
-                    //     <MdDelete style={{ color: "#e74c3c" }} />
-                    // </button>
                 )}
             </td>
         </tr>
