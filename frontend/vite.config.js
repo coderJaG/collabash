@@ -8,8 +8,8 @@ export default defineConfig(({ mode }) => {
     react(),
     eslint({
       lintOnStart: true,
-      failOnError: mode === "production"
-    })
+      failOnError: mode === 'production',
+    }),
   ];
 
   // Only add the VitePWA plugin for production builds.
@@ -17,12 +17,14 @@ export default defineConfig(({ mode }) => {
     plugins.push(
       VitePWA({
         registerType: 'autoUpdate',
-        // ✅ FIXED: Let the plugin handle registration automatically in production.
-        // This will inject the necessary script into your index.html during build.
         injectRegister: 'auto',
-        
-        srcDir: 'src',
-        filename: 'sw.js',
+        // ✅ NEW: Let VitePWA generate the service worker, and we will inject our custom logic.
+        workbox: {
+          // A list of all files to precache. `globPatterns` is a good default.
+          globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+          // ✅ NEW: This line will import our custom logic into the generated service worker.
+          importScripts: ['sw-custom.js'], 
+        },
         manifest: {
           name: 'Collabash',
           short_name: 'Collabash',
@@ -30,30 +32,30 @@ export default defineConfig(({ mode }) => {
           theme_color: '#1abc9c',
           icons: [
             {
-              src: 'images/pwa-192x192.png', // Assuming icons are in public/images
+              src: 'pwa-192x192.png',
               sizes: '192x192',
-              type: 'image/png'
+              type: 'image/png',
             },
             {
-              src: 'images/pwa-512x512.png', // Assuming icons are in public/images
+              src: 'pwa-512x512.png',
               sizes: '512x512',
-              type: 'image/png'
-            }
-          ]
-        }
+              type: 'image/png',
+            },
+          ],
+        },
       })
     );
   }
 
   return {
-    plugins: plugins,
+    plugins,
     server: {
       proxy: {
         '/api': {
           target: 'http://localhost:8000',
-          changeOrigin: true
-        }
-      }
-    }
+          changeOrigin: true,
+        },
+      },
+    },
   };
 });
