@@ -12,51 +12,54 @@ a:visited {
     padding: 20px 30px;
     max-width: 1000px;
     margin: 30px auto;
-    background-color: #e8f8f5; 
+    background-color: #e8f8f5;
     border-radius: 8px;
     /* box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08); */
-    text-align: center; 
+    text-align: center;
 }
 
 
-.all-pots-page-container > h1 {
+.all-pots-page-container>h1 {
     text-align: center;
-    color: #1abc9c; 
+    color: white;
     margin-bottom: 25px;
     font-size: 2em;
-    background-color: white;
-    padding: 0px 10px 0px 10px; 
-    border-radius: 30px; 
-    display: inline-block; 
-    width: auto; 
-    box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.25), 
-                inset -2px -2px 5px rgba(255, 255, 255, 0.7);
-    position: relative; 
+    font-weight: 600;
+    letter-spacing: 1px;
+    background: linear-gradient(to bottom, #20c9a6, #1abc9c);
+    padding: 12px 30px;
+    border-radius: 50px;
+    border: 1px solid #16a085;
+    display: inline-block;
+    width: auto;
+    position: relative;
+    box-shadow: 0 4px 12px rgba(26, 188, 156, 0.3);
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 
 .list-controls {
     display: flex;
-    justify-content: flex-end; 
+    justify-content: flex-end;
     align-items: center;
     margin-bottom: 25px;
-    gap: 20px; 
-    flex-wrap: wrap; 
+    gap: 20px;
+    flex-wrap: wrap;
     text-align: left;
 }
 
 
 .create-pot-button {
-    background-color: #5cb85c; 
+    background-color: #5cb85c;
     color: white;
-    padding: 10px 18px; 
+    padding: 10px 18px;
     border: none;
     border-radius: 5px;
     font-weight: bold;
     cursor: pointer;
     transition: background-color 0.2s ease;
     font-size: 0.95em;
-    display: flex; 
+    display: flex;
     align-items: center;
 }
 
@@ -65,12 +68,12 @@ a:visited {
 }
 
 /* Search input styling */
-.list-search-input { 
+.list-search-input {
     padding: 10px 14px;
     border: 1px solid #ccc;
     border-radius: 5px;
     font-size: 1em;
-    min-width: 280px; 
+    min-width: 280px;
 }
 
 .list-search-input:focus {
@@ -83,9 +86,9 @@ a:visited {
 .pots-container {
     display: flex;
     flex-direction: column;
-    margin: 20px auto; 
-    max-width: 1024px; 
-    overflow: hidden; 
+    margin: 20px auto;
+    max-width: 1024px;
+    overflow: hidden;
     /* border-radius: 8px;  */
     /* box-shadow: 0 1px 5px rgba(0,0,0,0.07);  */
 }
@@ -93,35 +96,37 @@ a:visited {
 .pots-container table {
     border-collapse: collapse;
     width: 100%;
-    table-layout: fixed; 
-    background-color: #ffffff; 
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05); 
+    table-layout: fixed;
+    background-color: #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .pots-container th {
-    background-color: #1abc9c; 
+    background-color: #1abc9c;
     color: white;
-    height: 40px; 
+    height: 40px;
     font-weight: 600;
     text-transform: uppercase;
-    font-size: 0.85em; /* Matched to users table */
+    font-size: 0.85em;
+    /* Matched to users table */
     letter-spacing: 0.5px;
 }
 
 .pots-container th,
 .pots-container td {
     text-align: left;
-    vertical-align: middle; 
-    padding: 12px 15px; 
-    border: 1px solid #d0e0e3; 
+    vertical-align: middle;
+    padding: 12px 15px;
+    border: 1px solid #d0e0e3;
 }
 
 
 .pots-container th:first-child,
 .pots-container td:first-child {
-    /* padding-left: 20px; */ 
-    /* border-left: none; */ 
+    /* padding-left: 20px; */
+    /* border-left: none; */
 }
+
 .pots-container th:last-child,
 .pots-container td:last-child {
     /* padding-right: 20px; */
@@ -130,11 +135,11 @@ a:visited {
 
 /* Row striping matched to users table */
 .pots-container tbody tr:nth-child(even) {
-    background-color: #f0fff0; 
+    background-color: #f0fff0;
 }
 
 .pots-container tbody tr:nth-child(odd) {
-    background-color: #e8f8f5; 
+    background-color: #e8f8f5;
 }
 
 /* Optional: Rounded corners for table - users table doesn't have these */
@@ -158,15 +163,19 @@ a:visited {
 }
 
 .pots-container tbody tr.finger-pointer:hover {
-    background-color: #d1f2eb; /* Matched to users table hover */
-    /* color: #00796b; */ /* Users table hover doesn't change text color directly */
+    background-color: #d1f2eb;
+    /* Matched to users table hover */
+    /* color: #00796b; */
+    /* Users table hover doesn't change text color directly */
 }
+
 .pots-container tbody tr.finger-pointer:hover td {
-    /* color: #004d40; */ /* Users table hover doesn't change td text color */
+    /* color: #004d40; */
+    /* Users table hover doesn't change td text color */
 }
 
 /* Error message styling (Matched to GetAllUsersPage.css) */
-.error-container { 
+.error-container {
     margin: 20px auto;
     width: 100%;
     max-width: 600px;
@@ -174,21 +183,24 @@ a:visited {
     padding: 15px;
     text-align: center;
 }
+
 .error-container p {
     font-weight: bold;
-    color: #e74c3c; 
+    color: #e74c3c;
     background-color: #f8d7da;
     border: 1px solid #f5c6cb;
-    border-radius: 4px; /* Consistent with button/input radius */
+    border-radius: 4px;
+    /* Consistent with button/input radius */
     margin: 0;
 }
 
 /* Message for no pots/search results (Styled like GetAllUsersPage.css > p) */
-.all-pots-page-container > p { 
+.all-pots-page-container>p {
     text-align: center;
-    color: #666; 
+    color: #666;
     font-size: 1.1em;
-    padding: 20px; /* Matched */
+    padding: 20px;
+    /* Matched */
     /* Removed extra background, shadow from original pots page for simplicity */
 }
 
@@ -201,6 +213,7 @@ a:visited {
     padding: 40px 20px;
     text-align: center;
 }
+
 .loading-spinner-container p {
     margin-top: 15px;
     color: #555;
@@ -219,11 +232,11 @@ a:visited {
 }
 
 .pagination-controls button,
-.pagination-controls .page-number { 
+.pagination-controls .page-number {
     padding: 9px 15px;
-    border: 1px solid #b2dfdb; 
-    background-color: #ffffff; 
-    color: #1abc9c; 
+    border: 1px solid #b2dfdb;
+    background-color: #ffffff;
+    color: #1abc9c;
     cursor: pointer;
     border-radius: 4px;
     transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
@@ -234,7 +247,7 @@ a:visited {
 
 .pagination-controls button:hover:not(:disabled),
 .pagination-controls .page-number:hover:not(.active) {
-    background-color: #e0f2f1; 
+    background-color: #e0f2f1;
     border-color: #1abc9c;
 }
 
@@ -246,7 +259,7 @@ a:visited {
 }
 
 .pagination-controls .page-number.active {
-    background-color: #1abc9c; 
+    background-color: #1abc9c;
     color: white;
     border-color: #1abc9c;
     font-weight: bold;
@@ -256,5 +269,5 @@ a:visited {
     padding: 8px 5px;
     color: #777;
     display: flex;
-    align-items: center; 
+    align-items: center;
 }

@@ -10,18 +10,22 @@
 
 .user-list-page-container h1 {
     text-align: center;
-    color: #1abc9c;
+    color: white;
     margin-bottom: 25px;
     font-size: 2em;
-    background-color: white;
-    padding: 0px 10px 0px 10px;
-    border-radius: 30px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    background: linear-gradient(to bottom, #20c9a6, #1abc9c);
+    padding: 12px 30px;
+    border-radius: 50px;
+    border: 1px solid #16a085;
     display: inline-block;
     width: auto;
-    box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.25),
-                inset -2px -2px 5px rgba(255, 255, 255, 0.7);
     position: relative;
+    box-shadow: 0 4px 12px rgba(26, 188, 156, 0.3);
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
 }
+
 /* User list controls section */
 .user-list-controls {
     display: flex;
@@ -50,11 +54,12 @@
 .user-list-controls .open-modal-button {
     background-color: #5cb85c;
 }
+
 .user-list-controls .open-modal-button:hover {
     background-color: #4cae4c;
 }
 
-.user-list-controls > button {
+.user-list-controls>button {
     padding: 10px 18px;
     color: white;
     background-color: #5cb85c;
@@ -66,7 +71,8 @@
     transition: background-color 0.2s ease, opacity 0.2s ease;
     font-size: 0.95em;
 }
-.user-list-controls > button:hover {
+
+.user-list-controls>button:hover {
     background-color: #4cae4c;
 }
 
@@ -79,6 +85,7 @@
     min-width: 280px;
     margin-left: auto;
 }
+
 .users-search-input:focus {
     border-color: #3498db;
     box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
@@ -90,7 +97,7 @@
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     text-align: left;
 }
 
@@ -114,6 +121,7 @@
 .users-table tbody tr:nth-child(odd) {
     background-color: #e8f8f5;
 }
+
 .users-table tbody tr:nth-child(even) {
     background-color: #f0fff0;
 }
@@ -129,6 +137,7 @@
     cursor: pointer;
     transition: color 0.2s ease;
 }
+
 .users-table td.user-name-link:hover {
     color: #16a085;
     text-decoration: underline;
@@ -138,6 +147,7 @@
 .users-table td.has-tooltip {
     cursor: help;
 }
+
 .users-table td.has-tooltip span.more-indicator {
     font-style: italic;
     color: #555;
@@ -155,7 +165,8 @@
     border-radius: 5px;
 }
 
-.user-list-page-container > p { /* For "No users match..." message */
+.user-list-page-container>p {
+    /* For "No users match..." message */
     text-align: center;
     color: #666;
     font-size: 1.1em;
@@ -183,16 +194,21 @@
     min-width: 40px;
     text-align: center;
     /* Inherit from .general-button if applied, or define here */
-    border-radius: 5px; /* from general-button */
-    font-weight: bold; /* from general-button */
-    cursor: pointer; /* from general-button */
-    transition: background-color 0.2s ease, opacity 0.2s ease; /* from general-button */
+    border-radius: 5px;
+    /* from general-button */
+    font-weight: bold;
+    /* from general-button */
+    cursor: pointer;
+    /* from general-button */
+    transition: background-color 0.2s ease, opacity 0.2s ease;
+    /* from general-button */
 }
 
-.pagination-controls .general-button { /* For Previous/Next specifically */
-     background-color: #ffffff;
-     color: #1abc9c;
-     border: 1px solid #b2dfdb;
+.pagination-controls .general-button {
+    /* For Previous/Next specifically */
+    background-color: #ffffff;
+    color: #1abc9c;
+    border: 1px solid #b2dfdb;
 }
 
 
@@ -232,7 +248,7 @@
 }
 
 .actions-cell {
-    width: 120px; 
+    width: 120px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -240,12 +256,12 @@
 
 /* Container for the delete button (OpenModalButton or static button) */
 .delete-button-container {
-    display: inline-block; 
+    display: inline-block;
 }
 
 /* Styles for the button rendered by OpenModalButton OR the static disabled button */
 .delete-button-container button {
-    background-color: #e74c3c; 
+    background-color: #e74c3c;
     color: white;
     padding: 6px 12px;
     font-size: 0.9em;
@@ -275,6 +291,5 @@
 
 /* Ensure no hover effect on the icon or button when it's meant to be disabled */
 .delete-button-container.disabled button:hover {
-    background-color: #ccc !important; 
+    background-color: #ccc !important;
 }
-

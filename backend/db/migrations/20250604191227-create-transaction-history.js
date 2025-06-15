@@ -13,7 +13,7 @@ module.exports = {
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
-      },
+      },  
       userId: { // User who performed the action
         type: Sequelize.INTEGER,
         allowNull: false,

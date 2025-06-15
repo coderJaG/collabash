@@ -15,9 +15,9 @@ module.exports = {
         ownerName: 'Demo Lition',
         name: 'Cash Pot',
         hand: 20.00,
-        amount: 10000.00,
+        amount: 40.00,
         startDate: '12/01/2024',
-        endDate: '06/02/2025',
+        endDate: '06/02/2026',
         Status: 'Not Started'
       },
       {
@@ -25,9 +25,9 @@ module.exports = {
         ownerName: 'Demo Lition',
         name: 'Rainy Day',
         hand: 100.00,
-        amount: 15500.00,
+        amount: 100.00,
         startDate: '11/10/2023',
-        endDate: '02/10/2024',
+        endDate: '10/10/2025',
         Status: 'Active'
       },
       {
@@ -35,7 +35,7 @@ module.exports = {
         ownerName: 'Demo Lition',
         name: 'Friends and Family',
         hand: 150.00,
-        amount: 5000.00,
+        amount: 150.00,
         startDate: '11/10/2024',
         endDate: '02/10/2025',
         Status: 'Ended'
