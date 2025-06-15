@@ -12,13 +12,15 @@ export default defineConfig(({ mode }) => {
     })
   ];
 
-  // ✅ FIXED: Only add the VitePWA plugin for production builds.
-  // This prevents it from conflicting with other service workers like MSW during development.
+  // Only add the VitePWA plugin for production builds.
   if (mode === 'production') {
     plugins.push(
       VitePWA({
         registerType: 'autoUpdate',
-        injectRegister: null,
+        // ✅ FIXED: Let the plugin handle registration automatically in production.
+        // This will inject the necessary script into your index.html during build.
+        injectRegister: 'auto',
+        
         srcDir: 'src',
         filename: 'sw.js',
         manifest: {
@@ -28,12 +30,12 @@ export default defineConfig(({ mode }) => {
           theme_color: '#1abc9c',
           icons: [
             {
-              src: 'pwa-192x192.png',
+              src: 'images/pwa-192x192.png', // Assuming icons are in public/images
               sizes: '192x192',
               type: 'image/png'
             },
             {
-              src: 'pwa-512x512.png',
+              src: 'images/pwa-512x512.png', // Assuming icons are in public/images
               sizes: '512x512',
               type: 'image/png'
             }
@@ -44,7 +46,7 @@ export default defineConfig(({ mode }) => {
   }
 
   return {
-    plugins: plugins, // Use the conditionally built plugins array
+    plugins: plugins,
     server: {
       proxy: {
         '/api': {

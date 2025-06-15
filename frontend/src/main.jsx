@@ -14,23 +14,8 @@ import * as potsActions from './store/pots'
 
 import { Modal, ModalProvider } from './components/context/Modal';
 
-
-// The /* @vite-ignore */ comment prevents Vite's dev server from trying to resolve this import.
-if (import.meta.env.PROD) {
-  const pwaRegisterModule = 'virtual:pwa-register';
-  import(/* @vite-ignore */ pwaRegisterModule).then(({ registerSW }) => {
-    const updateSW = registerSW({
-      onNeedRefresh() {
-        if (confirm("New content available. Reload?")) {
-          updateSW(true);
-        }
-      },
-      onOfflineReady() {
-        console.log("App is ready to work offline.");
-      },
-    });
-  });
-}
+// ✅ REMOVED: All 'virtual:pwa-register' imports and registration logic have been removed.
+// VitePWA will now handle this automatically in production.
 
 const store = configureStore();
 
