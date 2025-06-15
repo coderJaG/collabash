@@ -4,7 +4,6 @@ import { Provider } from 'react-redux';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 
-
 import App from './App';
 import './index.css';
 import configureStore from './store';
@@ -14,6 +13,24 @@ import * as sessionActions from './store/session'
 import * as potsActions from './store/pots'
 
 import { Modal, ModalProvider } from './components/context/Modal';
+
+
+// The /* @vite-ignore */ comment prevents Vite's dev server from trying to resolve this import.
+if (import.meta.env.PROD) {
+  const pwaRegisterModule = 'virtual:pwa-register';
+  import(/* @vite-ignore */ pwaRegisterModule).then(({ registerSW }) => {
+    const updateSW = registerSW({
+      onNeedRefresh() {
+        if (confirm("New content available. Reload?")) {
+          updateSW(true);
+        }
+      },
+      onOfflineReady() {
+        console.log("App is ready to work offline.");
+      },
+    });
+  });
+}
 
 const store = configureStore();
 

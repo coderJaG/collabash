@@ -1,9 +1,11 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useLocation } from 'react-router-dom';
 import * as potsActions from '../../store/pots';
 import * as usersActions from '../../store/users';
 import LoadingSpinner from '../LoadingSpinner';
+import OpenModalButton from '../OpenModalButton'; // Import OpenModalButton
+import DeleteConfirmationModal from '../DeleteConfirmationModal'; // Import your confirmation modal
 import './CreatePotsPage.css';
 
 const CreatePotsPage = () => {
@@ -143,10 +145,26 @@ const CreatePotsPage = () => {
                         </div>
                     )}
                 </div>
-
-                <button type="submit" disabled={isCreatingPot} className="submit-button">
-                    {isCreatingPot ? 'Creating...' : 'Create Pot'}
-                </button>
+                
+                
+                <div className="form-actions">
+                    <div className="cancel-button-wrapper"> 
+                         <OpenModalButton
+                            buttonText="Cancel"
+                            modalComponent={
+                                <DeleteConfirmationModal
+                                    message="Are you sure you want to cancel? Any unsaved changes will be lost."
+                                    onConfirm={() => navigate('/pots')}
+                                    confirmButtonText="Yes, Discard"
+                                    cancelButtonText="No, Continue Editing"
+                                />
+                            }
+                        />
+                    </div>
+                    <button type="submit" disabled={isCreatingPot} className="submit-button">
+                        {isCreatingPot ? 'Creating...' : 'Create Pot'}
+                    </button>
+                </div>
             </form>
         </div>
     );
