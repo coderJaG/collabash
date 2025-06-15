@@ -1,5 +1,3 @@
-// File: frontend/src/components/PotDetailsPage/PotDetailsPage.jsx
-
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { FaBars, FaEdit, FaSave, FaTimesCircle } from 'react-icons/fa';

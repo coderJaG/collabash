@@ -584,7 +584,7 @@ router.put('/:potId/reorderusers', requireAuth, async (req, res) => {
 
     const t = await sequelize.transaction();
     try {
-        const pot = await Pot.findByPk(numPotId, { transaction: t });
+        const pot = await Pot.findByPk(numPotId, { include: [{ model: PotsUser, as: 'potMemberships', attributes: ['userId', 'displayOrder']}], transaction: t });
         if (!pot) {
             await t.rollback();
             return res.status(404).json({ message: 'Pot not found.' });
@@ -594,15 +594,9 @@ router.put('/:potId/reorderusers', requireAuth, async (req, res) => {
             return res.status(400).json({ message: 'Users can only be reordered in a pot that is \'Not Started\' or \'Paused\'.' });
         }
 
-        const oldPotMemberships = await PotsUser.findAll({
-            where: { potId: numPotId },
-            order: [['displayOrder', 'ASC']],
-            attributes: ['userId', 'displayOrder'],
-            transaction: t
-        });
-        const oldOrderSnapshot = oldPotMemberships.map(m => m.toJSON());
-
-        const currentMemberIds = oldPotMemberships.map(m => m.userId);
+        const currentMembers = await PotsUser.findAll({ where: { potId: numPotId }, attributes: ['userId'], transaction: t });
+        const currentMemberIds = currentMembers.map(m => m.userId);
+        const oldOrderSnapshot = pot.potMemberships.sort((a,b) => a.displayOrder - b.displayOrder).map(m => ({userId: m.userId, displayOrder: m.displayOrder}));
 
         if (orderedUserIds.length !== currentMemberIds.length || !orderedUserIds.every(id => currentMemberIds.includes(parseInt(id)))) {
             await t.rollback();
@@ -636,6 +630,7 @@ router.put('/:potId/reorderusers', requireAuth, async (req, res) => {
         const updatedPotResult = await Pot.findByPk(numPotId, {
             include: [{ model: User, as: 'Users', through: { model: PotsUser, as: 'potMemberDetails', attributes: ['drawDate', 'displayOrder'] } }],
             order: [
+                
                 [sequelize.literal('"Users->potMemberDetails"."displayOrder"'), 'ASC']
             ]
         });
@@ -646,7 +641,6 @@ router.put('/:potId/reorderusers', requireAuth, async (req, res) => {
         return res.status(500).json({ message: error.message || "Internal server error." });
     }
 });
-
 
 
 //get all users in a pot
