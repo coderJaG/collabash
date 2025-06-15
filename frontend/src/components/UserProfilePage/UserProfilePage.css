@@ -5,7 +5,8 @@
     padding: 20px 30px;
     max-width: 1000px;
     margin: 30px auto;
-    background-color: #e8f8f5; /* Light mint/aqua */
+    background-color: #e8f8f5;
+    /* Light mint/aqua */
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
     text-align: center;
@@ -15,17 +16,20 @@
 .user-page-header h1,
 .user-pots-list h2 {
     text-align: center;
-    color: white; /* Main theme color */
+    color: white;
     margin-bottom: 25px;
     font-size: 2em;
-    background-color: #1abc9c;
-    padding: 10px 20px; /* Adjusted padding */
-    border-radius: 30px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    background: linear-gradient(to bottom, #20c9a6, #1abc9c);
+    padding: 12px 30px;
+    border-radius: 50px;
+    border: 1px solid #16a085;
     display: inline-block;
     width: auto;
-    box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.2),
-                inset -2px -2px 5px rgba(255, 255, 255, 0.65);
     position: relative;
+    box-shadow: 0 4px 12px rgba(26, 188, 156, 0.3);
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .user-pots-list h2 {
@@ -36,14 +40,18 @@
 
 /* User Details Section */
 .user-info-card {
-    background-color: #ffffff; /* Changed for better contrast with form */
-    padding: 25px 30px; /* Increased padding */
+    background-color: #ffffff;
+    /* Changed for better contrast with form */
+    padding: 25px 30px;
+    /* Increased padding */
     border-radius: 8px;
-    box-shadow: 0 1px 8px rgba(0,0,0,0.1); /* Slightly more pronounced shadow */
+    box-shadow: 0 1px 8px rgba(0, 0, 0, 0.1);
+    /* Slightly more pronounced shadow */
     margin: 0 auto 35px auto;
     max-width: 650px;
     text-align: left;
-    border: 1px solid #1abc9c; /* Added border */
+    border: 1px solid #1abc9c;
+    /* Added border */
 }
 
 .user-detail-row p {
@@ -51,18 +59,23 @@
     color: #333;
     margin: 0;
     padding: 12px 0;
-    border-bottom: 1px solid #e0f2f1; /* Lighter border */
+    border-bottom: 1px solid #e0f2f1;
+    /* Lighter border */
 }
+
 .user-info-card .user-detail-row:last-child p {
     border-bottom: none;
 }
 
 .user-info-card p strong {
-    color: #1abc9c; /* Theme color for emphasis */
+    color: #1abc9c;
+    /* Theme color for emphasis */
     margin-right: 10px;
-    min-width: 100px; /* Adjusted min-width */
+    min-width: 100px;
+    /* Adjusted min-width */
     display: inline-block;
-    font-weight: 600; /* Bolder */
+    font-weight: 600;
+    /* Bolder */
 }
 
 /* Edit Form Styles */
@@ -74,7 +87,8 @@
     display: block;
     margin-bottom: 6px;
     font-weight: 600;
-    color: #333; /* Darker label color */
+    color: #333;
+    /* Darker label color */
     font-size: 0.95em;
 }
 
@@ -123,45 +137,56 @@
     font-weight: 500;
     cursor: pointer;
     transition: background-color 0.3s ease, box-shadow 0.3s ease;
-    display: inline-block; /* For proper margin handling */
-    margin-top: 10px; /* Add some top margin */
+    display: inline-block;
+    /* For proper margin handling */
+    margin-top: 10px;
+    /* Add some top margin */
 }
 
 .edit-profile-button {
     background-color: #1abc9c;
     color: white;
-    display: block; /* Make it full width or align as needed */
-    margin: 20px auto 0 auto; /* Center it */
+    display: block;
+    /* Make it full width or align as needed */
+    margin: 20px auto 0 auto;
+    /* Center it */
     width: fit-content;
 }
+
 .edit-profile-button:hover {
     background-color: #16a085;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
 }
 
 .form-button-group {
     margin-top: 25px;
     display: flex;
-    justify-content: flex-end; /* Align buttons to the right */
-    gap: 10px; /* Space between buttons */
+    justify-content: flex-end;
+    /* Align buttons to the right */
+    gap: 10px;
+    /* Space between buttons */
 }
 
 .save-changes-button {
-    background-color: #2ecc71; /* Green for save */
+    background-color: #2ecc71;
+    /* Green for save */
     color: white;
 }
+
 .save-changes-button:hover {
     background-color: #27ae60;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
 }
 
 .cancel-button {
-    background-color: #e74c3c; /* Red for cancel */
+    background-color: #e74c3c;
+    /* Red for cancel */
     color: white;
 }
+
 .cancel-button:hover {
     background-color: #c0392b;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
 }
 
 
@@ -195,7 +220,7 @@
     background-color: #ffffff;
     padding: 25px;
     border-radius: 8px;
-    box-shadow: 0 1px 5px rgba(0,0,0,0.07);
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.07);
 }
 
 .user-pots-list .pot-item table {
@@ -227,6 +252,7 @@
     padding-left: 20px;
     border-left: none;
 }
+
 .user-pots-list .pot-item th:last-child,
 .user-pots-list .pot-item td:last-child {
     padding-right: 20px;
@@ -250,6 +276,7 @@
     font-weight: 500;
     text-decoration: none;
 }
+
 .pot-link-on-profile:hover {
     text-decoration: underline;
     color: #16a085;
@@ -258,7 +285,7 @@
 /* "No pots" message */
 .no-pots-message {
     text-align: center;
-    color:  #555;
+    color: #555;
     font-size: 1.1em;
     padding: 20px;
     background-color: #f0fff0;

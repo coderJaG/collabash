@@ -1,163 +1,152 @@
-import { useEffect, useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect, useMemo } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate, useLocation } from 'react-router-dom';
 import * as potsActions from '../../store/pots';
-import './CreatePotsPage.css'; 
+import * as usersActions from '../../store/users';
+import LoadingSpinner from '../LoadingSpinner';
+import './CreatePotsPage.css';
 
 const CreatePotsPage = () => {
-    const dispatch = useDispatch(); 
+    const dispatch = useDispatch();
     const navigate = useNavigate();
-    const currUser = useSelector(state => state.session.user);
+    const location = useLocation();
+
+    // Get all users for selection
+    const allUsers = useSelector(state => state.users.allUsers);
+    const isLoadingUsers = useSelector(state => state.users.isLoadingAllUsers);
+    const isCreatingPot = useSelector(state => state.pots.isCreating);
+    const createError = useSelector(state => state.pots.errorCreate);
 
     const [name, setName] = useState('');
     const [hand, setHand] = useState('');
-    const [amount, setAmount] = useState(''); 
-    const defaultDate = new Date().toISOString().split('T')[0];
-    const [startDate, setStartDate] = useState(defaultDate);
-    const [endDate, setEndDate] = useState(defaultDate);
+    const [startDate, setStartDate] = useState('');
+    const [selectedUserIds, setSelectedUserIds] = useState(new Set());
+    const [searchTerm, setSearchTerm] = useState('');
     const [errors, setErrors] = useState({});
 
-    // Authorization check
+    // Check for duplicated data passed via route state
     useEffect(() => {
-        if (!currUser || currUser.role !== 'banker') {
-            navigate('/');
+        const duplicateData = location.state?.duplicateData;
+        if (duplicateData) {
+            setName(duplicateData.name || '');
+            setHand(duplicateData.hand !== undefined ? duplicateData.hand.toString() : '0');
+            // Pre-select users if userIds are provided
+            if (duplicateData.userIds) {
+                setSelectedUserIds(new Set(duplicateData.userIds));
+            }
         }
-    }, [currUser, navigate]);
+    }, [location.state]);
 
-    
-    if (!currUser || currUser.role !== 'banker') {
-        return null; 
-    }
+    // Fetch all users on component mount
+    useEffect(() => {
+        dispatch(usersActions.getAllUsers());
+    }, [dispatch]);
 
-    const ownerId = currUser.id; 
+    const usersArray = useMemo(() => Object.values(allUsers || {}), [allUsers]);
 
-    const handleSubmit = async (e) => { 
+    const filteredUsers = useMemo(() => {
+        if (!searchTerm) return usersArray;
+        const lowerSearchTerm = searchTerm.toLowerCase();
+        return usersArray.filter(user =>
+            (`${user.firstName} ${user.lastName}`.toLowerCase().includes(lowerSearchTerm)) ||
+            (user.username?.toLowerCase().includes(lowerSearchTerm))
+        );
+    }, [usersArray, searchTerm]);
+
+    const handleUserSelection = (userId) => {
+        const newSelectedUserIds = new Set(selectedUserIds);
+        if (newSelectedUserIds.has(userId)) {
+            newSelectedUserIds.delete(userId);
+        } else {
+            newSelectedUserIds.add(userId);
+        }
+        setSelectedUserIds(newSelectedUserIds);
+    };
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        setErrors({}); 
+        setErrors({});
 
-        // Basic frontend validation (backend also validate thoroughly)
-        const formErrors = {};
-        if (!name.trim()) formErrors.name = "Pot name is required.";
-        if (isNaN(parseFloat(hand)) || parseFloat(hand) <= 0) formErrors.hand = "Amount per hand must be a positive number.";
-        // if (isNaN(parseFloat(amount)) || parseFloat(amount) <= 0) formErrors.amount = "Pot amount must be a positive number.";
-        if (!startDate) formErrors.startDate = "Start date is required.";
-      
-
-        if (Object.keys(formErrors).length > 0) {
-            setErrors(formErrors);
+        // Frontend validation
+        const validationErrors = {};
+        if (!name.trim()) validationErrors.name = 'Pot name is required.';
+        if (!startDate) validationErrors.startDate = 'Start date is required.';
+        const handNum = parseFloat(hand);
+        if (isNaN(handNum) || handNum < 0) validationErrors.hand = 'Amount per hand must be a valid number (0 or greater).';
+        if (selectedUserIds.size === 0) validationErrors.users = 'You must select at least one member.';
+        
+        if (Object.keys(validationErrors).length > 0) {
+            setErrors(validationErrors);
             return;
         }
 
         const potData = {
-            ownerId,
             name,
-            hand: parseFloat(hand), 
-            amount: parseFloat(amount) || 0, 
+            hand: handNum,
             startDate,
-            endDate,
+            userIds: Array.from(selectedUserIds),
         };
 
         try {
-            const createdPot = await dispatch(potsActions.createNewPot(potData));
-            if (createdPot && createdPot.id) {
-                navigate(`/pots/${createdPot.id}`);
-            } else {
-                setErrors({ general: "Pot created, but failed to retrieve details. Please check the pots list." });
+            const newPot = await dispatch(potsActions.createNewPot(potData));
+            if (newPot && newPot.id) {
+                navigate(`/pots/${newPot.id}`);
             }
-        } catch (res) {
-            let errorData = { general: "An unexpected error occurred." };
-            if (res && typeof res.json === 'function') { 
-                try {
-                    const data = await res.json();
-                    if (data && data.errors) {
-                        errorData = data.errors;
-                    } else if (data && data.message) {
-                        errorData = { general: data.message };
-                    }
-                } catch (jsonError) {
-                    console.error("Could not parse error response JSON:", jsonError);
-                    errorData = { general: "An error occurred, and the error response could not be parsed." };
-                }
-            } else if (res && res.message) { 
-                errorData = { general: res.message, ...res.errors };
-            }
-            setErrors(errorData);
+        } catch (error) {
+            // Errors from the thunk will be set in the Redux state
+            console.error("Failed to create pot:", error);
         }
     };
-
+    
     return (
-        <div className="pot-form-container">
-            <div className="pot-form-header"><h1>CREATE POT PAGE</h1></div>
-            <form className="create-pot-form" onSubmit={handleSubmit}>
-                {errors.general && <p className="form-general-error">{errors.general}</p>}
-
-                <div className="pot-name">
-                    <label htmlFor="potName">POT NAME:</label>
-                    <input
-                        id="potName"
-                        type="text"
-                        value={name}
-                        onChange={e => setName(e.target.value)}
-                        placeholder="Enter name of pot"
-                    />
-                    {errors.name && <p className="error-message">{errors.name}</p>}
+        <div className="create-pot-page-wrapper">
+            <h1 className="create-pot-header">{location.state?.duplicateData ? 'DUPLICATE POT' : 'CREATE A NEW POT'}</h1>
+            {createError && <p className="error-message">{createError.message || "An error occurred."}</p>}
+            
+            <form onSubmit={handleSubmit} className="create-pot-form">
+                <div className="form-section">
+                    <div className="form-group">
+                        <label htmlFor="name">Pot Name</label>
+                        <input id="name" type="text" value={name} onChange={(e) => setName(e.target.value)} />
+                        {errors.name && <p className="validation-error">{errors.name}</p>}
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="hand">Amount per Hand ($)</label>
+                        <input id="hand" type="number" value={hand} onChange={(e) => setHand(e.target.value)} placeholder="0.00" />
+                        {errors.hand && <p className="validation-error">{errors.hand}</p>}
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="startDate">Start Date</label>
+                        <input id="startDate" type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+                        {errors.startDate && <p className="validation-error">{errors.startDate}</p>}
+                    </div>
                 </div>
 
-                <div className="hand-amount">
-                    <label htmlFor="handAmount">AMOUNT PER HAND:</label>
-                    <input
-                        id="handAmount"
-                        type="number" 
-                        value={hand}
-                        onChange={e => setHand(e.target.value)}
-                        placeholder="0.00"
-                        step="0.01" 
-                        min="0.01"   
-                    />
-                    {errors.hand && <p className="error-message">{errors.hand}</p>}
+                <div className="form-section members-selection">
+                    <h3>Select Members ({selectedUserIds.size} selected)</h3>
+                    {errors.users && <p className="validation-error">{errors.users}</p>}
+                    <input type="text" placeholder="Search for users..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="user-search-input"/>
+                    
+                    {isLoadingUsers ? <LoadingSpinner message="Loading users..." /> : (
+                        <div className="user-list">
+                            {filteredUsers.map(user => (
+                                <div key={user.id} className="user-list-item">
+                                    <input
+                                        type="checkbox"
+                                        id={`user-${user.id}`}
+                                        checked={selectedUserIds.has(user.id)}
+                                        onChange={() => handleUserSelection(user.id)}
+                                    />
+                                    <label htmlFor={`user-${user.id}`}>{user.firstName} {user.lastName} ({user.username})</label>
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
-                <div className="pot-amount">
-                    <label htmlFor="potAmount">POT AMOUNT:</label>
-                    <input
-                        id="potAmount"
-                        type="number" 
-                        value={amount}
-                        onChange={e => setAmount(e.target.value)}
-                        placeholder="0.00"
-                        step="0.01"
-                        min="0"
-                        disabled={true} 
-                    />
-                    {errors.amount && <p className="error-message">{errors.amount}</p>}
-                </div>
-
-                <div className="pot-start">
-                    <label htmlFor="startDate">START DATE:</label>
-                    <input
-                        id="startDate"
-                        type="date"
-                        value={startDate}
-                        onChange={e => setStartDate(e.target.value)}
-                    />
-                    {errors.startDate && <p className="error-message">{errors.startDate}</p>}
-                </div>
-
-                <div className="pot-end">
-                    <label htmlFor="endDate">END DATE:</label>
-                    <input
-                        id="endDate"
-                        type="date"
-                        value={endDate}
-                        onChange={e => setEndDate(e.target.value)}
-                        disabled={true} 
-                    />
-                    {errors.endDate && <p className="error-message">{errors.endDate}</p>}
-                </div>
-
-                <div className="create-pot-form-button-div">
-                    <button className="create-pot-form-button" type="submit">Create Pot</button>
-                </div>
+                <button type="submit" disabled={isCreatingPot} className="submit-button">
+                    {isCreatingPot ? 'Creating...' : 'Create Pot'}
+                </button>
             </form>
         </div>
     );

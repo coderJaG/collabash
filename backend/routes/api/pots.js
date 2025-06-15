@@ -190,7 +190,8 @@ router.post('/', requireAuth, async (req, res) => {
     }
     const t = await sequelize.transaction();
     try {
-        const { name, hand, startDate } = req.body;
+        // Now accepts an optional userIds array
+        const { name, hand, startDate, userIds } = req.body;
         const ownerName = `${currUser.firstName} ${currUser.lastName}`;
 
         if (!name || !hand || !startDate) {
@@ -198,9 +199,9 @@ router.post('/', requireAuth, async (req, res) => {
             return res.status(400).json({ message: "Name, hand amount, and start date are required." });
         }
         const parsedHand = parseFloat(hand);
-        if (isNaN(parsedHand) || parsedHand <= 0) {
+        if (isNaN(parsedHand)) { // Can be 0 for duplicated pots
             await t.rollback();
-            return res.status(400).json({ message: "Hand amount must be a positive number." });
+            return res.status(400).json({ message: "Hand amount must be a number." });
         }
         if (!/^\d{4}-\d{2}-\d{2}$/.test(startDate)) {
             await t.rollback();
@@ -224,21 +225,45 @@ router.post('/', requireAuth, async (req, res) => {
             entityType: 'Pot',
             entityId: newPot.id,
             potIdContext: newPot.id,
-            changes: { name: newPot.name, hand: newPot.hand, startDate: newPot.startDate, status: newPot.status, ownerId: newPot.ownerId, ownerName: newPot.ownerName },
-            description: `User ${currUser.username} (ID: ${currUser.id}) created pot "${newPot.name}" (ID: ${newPot.id}).`,
+            changes: { name: newPot.name, hand: newPot.hand, startDate: newPot.startDate },
+            description: `User ${currUser.username} created pot "${newPot.name}".`,
             transaction: t
         });
 
-        await updatePotScheduleAndDetails(newPot.id, t);
+        // If userIds are provided (from duplication), add them to the pot
+        if (userIds && Array.isArray(userIds) && userIds.length > 0) {
+            for (let i = 0; i < userIds.length; i++) {
+                const userId = userIds[i];
+                // Check if user exists before creating association
+                const userExists = await User.findByPk(userId, { transaction: t });
+                if (userExists) {
+                    await PotsUser.create({
+                        potId: newPot.id,
+                        userId: userId,
+                        displayOrder: i + 1
+                    }, { transaction: t });
+                }
+            }
+             await logHistory({
+                userId: currUser.id,
+                actionType: 'ADD_USER_TO_POT_BULK',
+                entityType: 'Pot',
+                entityId: newPot.id,
+                potIdContext: newPot.id,
+                changes: { addedUserIds: userIds },
+                description: `Added ${userIds.length} users during creation of pot "${newPot.name}".`,
+                transaction: t
+            });
+        }
+        
+        // This will now correctly calculate amount/endDate based on the users added
+        await updatePotScheduleAndDetails(newPot.id, t); 
 
         await t.commit();
 
         const finalNewPot = await Pot.findByPk(newPot.id, {
             include: [{ model: User, as: 'Users', through: { model: PotsUser, as: 'potMemberDetails', attributes: ['drawDate', 'displayOrder'] } }],
-            order: [
-                
-                [sequelize.literal('"Users->potMemberDetails"."displayOrder"'), 'ASC']
-            ]
+            order: [[sequelize.literal('"Users->potMemberDetails"."displayOrder"'), 'ASC']]
         });
         return res.status(201).json(finalNewPot);
     } catch (error) {

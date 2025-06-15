@@ -1,138 +1,150 @@
-/* CreatePotsPage.css */
-
-/* Overall form container */
-.pot-form-container {
-    display: flex;
-    flex-direction: column;
-    gap: 20px; 
-    padding: 25px 30px;
-    background-color: #e8f8f5; 
-    border-radius: 8px;
-    width: 90%;
-    max-width: 600px; 
+.create-pot-page-wrapper {
+    padding: 20px 30px;
+    max-width: 800px;
     margin: 30px auto;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    box-sizing: border-box;
+    background-color: #f7fdfc;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
-.pot-form-header h1 {
-    color: #ffffff;
-    background-color: #1abc9c; 
-    border-top-right-radius: 8px; 
-    border-top-left-radius: 8px;
+.create-pot-header {
     text-align: center;
-    margin: -25px -30px 25px -30px; 
-    padding: 15px 0;
-    font-size: 1.8em;
+    color: #16a085;
+    margin-bottom: 30px;
+    font-size: 2em;
     font-weight: 600;
+    border-bottom: 2px solid #e0f2f1;
+    padding-bottom: 15px;
 }
 
 .create-pot-form {
     display: flex;
     flex-direction: column;
-    gap: 18px; 
+    gap: 30px;
 }
 
-/* Styling for each input section div */
-.pot-form-container .pot-name,
-.pot-form-container .hand-amount,
-.pot-form-container .pot-amount,
-.pot-form-container .pot-start,
-.pot-form-container .pot-end {
-    display: flex;
-    flex-direction: column;
-    gap: 8px; 
+.form-section {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #e0f2f1;
 }
 
-.pot-form-container label {
+.form-group {
+    margin-bottom: 20px;
+}
+.form-group:last-child {
+    margin-bottom: 0;
+}
+
+.form-group label {
+    display: block;
     font-weight: 600;
-    color: #495057; 
-    font-size: 0.95em;
-    text-align: left;
+    color: #2c3e50;
+    margin-bottom: 8px;
 }
 
-.pot-form-container label:after { /* For the asterisk */
-    content: " *";
-    color: #e74c3c;
-    font-weight: normal;
-}
-/* Remove asterisk for labels that might not be strictly required/handled in JSX */
-.pot-form-container .pot-start label:after,
-.pot-form-container .pot-end label:after {
-    content: ""; 
-}
-
-
-.pot-form-container input[type="text"],
-.pot-form-container input[type="date"] {
-    padding: 12px 15px;
-    border: 1px solid #ced4da; 
-    border-radius: 4px;
-    font-size: 1em;
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group input[type="date"] {
     width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
     box-sizing: border-box;
-    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    font-size: 1em;
+    transition: all 0.2s ease;
 }
 
-.pot-form-container input[type="text"]:focus,
-.pot-form-container input[type="date"]:focus {
-    border-color: #1abc9c; 
-    box-shadow: 0 0 0 0.2rem rgba(26, 188, 156, 0.25); 
+.form-group input:focus {
+    border-color: #1abc9c;
+    box-shadow: 0 0 0 3px rgba(26, 188, 156, 0.2);
     outline: none;
 }
 
-.create-pot-form-button-div {
-    margin-top: 15px; 
-    display: flex; 
-    justify-content: center;
+.members-selection h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #16a085;
 }
 
-.create-pot-form-button {
-    background-color: #1abc9c; 
-    color: white;
-    padding: 12px 25px; 
-    border: none;
+.user-search-input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
     border-radius: 5px;
+    box-sizing: border-box;
+}
+
+.user-list {
+    max-height: 250px;
+    overflow-y: auto;
+    border: 1px solid #e0f2f1;
+    border-radius: 5px;
+    padding: 10px;
+}
+
+.user-list-item {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+.user-list-item:hover {
+    background-color: #e8f8f5;
+}
+
+.user-list-item input[type="checkbox"] {
+    margin-right: 12px;
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.user-list-item label {
+    font-weight: 500;
+    color: #34495e;
+    cursor: pointer;
+    margin: 0;
+}
+
+.submit-button {
+    padding: 15px 25px;
+    width: 100%;
     font-size: 1.1em;
     font-weight: bold;
+    color: white;
+    background-color: #1abc9c;
+    border: none;
+    border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.2s ease, transform 0.1s ease;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    transition: background-color 0.2s ease;
 }
 
-.create-pot-form-button:hover:not(:disabled) {
-    background-color: #16a085; 
-    transform: translateY(-1px);
+.submit-button:hover:not(:disabled) {
+    background-color: #16a085;
 }
 
-.create-pot-form-button:active:not(:disabled) {
-    transform: translateY(0px);
-}
-
-.create-pot-form-button:disabled {
+.submit-button:disabled {
     background-color: #bdc3c7;
     cursor: not-allowed;
-    opacity: 0.7;
 }
 
-/* Error message styling for individual fields */
-.pot-form-container p { 
+.error-message {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 10px;
+    border: 1px solid #f5c6cb;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    text-align: center;
+    font-size: 0.95em;
+}
+
+.validation-error {
     color: #e74c3c;
     font-size: 0.85em;
-    margin-top: 4px; 
-    margin-bottom: 0;
-    text-align: left;
-}
-
-
-.form-general-error {
-    text-align: center;
-    font-weight: bold;
-    margin-bottom: 15px;
-    padding: 10px;
-    background-color: #f8d7da;
-    border: 1px solid #f5c6cb;
-    color: #721c24;
-    border-radius: 4px;
+    margin-top: 5px;
 }
