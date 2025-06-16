@@ -18,12 +18,41 @@ export default defineConfig(({ mode }) => {
       VitePWA({
         registerType: 'autoUpdate',
         injectRegister: 'auto',
-        // ✅ NEW: Let VitePWA generate the service worker, and we will inject our custom logic.
         workbox: {
           // A list of all files to precache. `globPatterns` is a good default.
           globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
-          // ✅ NEW: This line will import our custom logic into the generated service worker.
-          importScripts: ['sw-custom.js'], 
+          
+          // ✅ FIXED: Define all runtime caching and background sync rules here.
+          runtimeCaching: [
+            {
+              // Caching strategy for API GET requests
+              urlPattern: ({ url }) => url.pathname.startsWith('/api/') && url.request.method === 'GET',
+              handler: 'StaleWhileRevalidate',
+              options: {
+                cacheName: 'api-cache',
+                expiration: {
+                  maxEntries: 50,
+                  maxAgeSeconds: 24 * 60 * 60, // 1 Day
+                },
+                cacheableResponse: {
+                  statuses: [0, 200],
+                },
+              },
+            },
+            {
+              // Background Sync for non-GET requests to the API
+              urlPattern: ({ url }) => url.pathname.startsWith('/api/') && url.request.method !== 'GET',
+              handler: 'NetworkOnly', // Try network first
+              options: {
+                backgroundSync: {
+                  name: 'api-mutation-queue',
+                  options: {
+                    maxRetentionTime: 24 * 60, // Retry for up to 24 hours
+                  },
+                },
+              },
+            },
+          ],
         },
         manifest: {
           name: 'Collabash',
