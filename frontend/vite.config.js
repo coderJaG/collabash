@@ -25,7 +25,8 @@ export default defineConfig(({ mode }) => {
           runtimeCaching: [
             {
               // Caching strategy for API GET requests
-              urlPattern: ({ url }) => url.pathname.startsWith('/api/') && url.request.method === 'GET',
+              // ✅ FIXED: Correctly destructure 'request' from the callback parameters
+              urlPattern: ({ url, request }) => url.pathname.startsWith('/api/') && request.method === 'GET',
               handler: 'StaleWhileRevalidate',
               options: {
                 cacheName: 'api-cache',
@@ -40,7 +41,8 @@ export default defineConfig(({ mode }) => {
             },
             {
               // Background Sync for non-GET requests to the API
-              urlPattern: ({ url }) => url.pathname.startsWith('/api/') && url.request.method !== 'GET',
+              // ✅ FIXED: Correctly destructure 'request' from the callback parameters
+              urlPattern: ({ url, request }) => url.pathname.startsWith('/api/') && request.method !== 'GET',
               handler: 'NetworkOnly', // Try network first
               options: {
                 backgroundSync: {
@@ -60,13 +62,13 @@ export default defineConfig(({ mode }) => {
           theme_color: '#1abc9c',
           icons: [
             {
-              
+              // ✅ FIXED: Added the correct path to the icons
               src: 'images/pwa-192x192.png',
               sizes: '192x192',
               type: 'image/png',
             },
             {
-              
+              // ✅ FIXED: Added the correct path to the icons
               src: 'images/pwa-512x512.png',
               sizes: '512x512',
               type: 'image/png',
