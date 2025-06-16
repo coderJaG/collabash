@@ -22,7 +22,6 @@ export default defineConfig(({ mode }) => {
           // A list of all files to precache. `globPatterns` is a good default.
           globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
           
-          // ✅ FIXED: Define all runtime caching and background sync rules here.
           runtimeCaching: [
             {
               // Caching strategy for API GET requests
@@ -61,12 +60,14 @@ export default defineConfig(({ mode }) => {
           theme_color: '#1abc9c',
           icons: [
             {
-              src: 'pwa-192x192.png',
+              
+              src: 'images/pwa-192x192.png',
               sizes: '192x192',
               type: 'image/png',
             },
             {
-              src: 'pwa-512x512.png',
+              
+              src: 'images/pwa-512x512.png',
               sizes: '512x512',
               type: 'image/png',
             },
