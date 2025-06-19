@@ -541,3 +541,19 @@
 .cancel-icon {
     color: #e74c3c;
 }
+
+
+.inline-edit-container select {
+    flex-grow: 1;
+    padding: 4px 6px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-weight: bold;
+    color: #3498db; /* Match other input colors */
+    background-color: white;
+    cursor: pointer;
+}
+
+.frequency-display {
+    text-transform: capitalize; /* e.g., 'every-2-weeks' becomes 'Every 2 weeks' */
+}

@@ -4,8 +4,8 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import * as potsActions from '../../store/pots';
 import * as usersActions from '../../store/users';
 import LoadingSpinner from '../LoadingSpinner';
-import OpenModalButton from '../OpenModalButton'; // Import OpenModalButton
-import DeleteConfirmationModal from '../DeleteConfirmationModal'; // Import your confirmation modal
+import OpenModalButton from '../OpenModalButton';
+import DeleteConfirmationModal from '../DeleteConfirmationModal';
 import './CreatePotsPage.css';
 
 const CreatePotsPage = () => {
@@ -13,7 +13,6 @@ const CreatePotsPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    // Get all users for selection
     const allUsers = useSelector(state => state.users.allUsers);
     const isLoadingUsers = useSelector(state => state.users.isLoadingAllUsers);
     const isCreatingPot = useSelector(state => state.pots.isCreating);
@@ -22,30 +21,28 @@ const CreatePotsPage = () => {
     const [name, setName] = useState('');
     const [hand, setHand] = useState('');
     const [startDate, setStartDate] = useState('');
+    const [frequency, setFrequency] = useState('weekly');
     const [selectedUserIds, setSelectedUserIds] = useState(new Set());
     const [searchTerm, setSearchTerm] = useState('');
     const [errors, setErrors] = useState({});
 
-    // Check for duplicated data passed via route state
     useEffect(() => {
         const duplicateData = location.state?.duplicateData;
         if (duplicateData) {
             setName(duplicateData.name || '');
             setHand(duplicateData.hand !== undefined ? duplicateData.hand.toString() : '0');
-            // Pre-select users if userIds are provided
+            setFrequency(duplicateData.frequency || 'weekly'); 
             if (duplicateData.userIds) {
                 setSelectedUserIds(new Set(duplicateData.userIds));
             }
         }
     }, [location.state]);
 
-    // Fetch all users on component mount
     useEffect(() => {
         dispatch(usersActions.getAllUsers());
     }, [dispatch]);
 
     const usersArray = useMemo(() => Object.values(allUsers || {}), [allUsers]);
-
     const filteredUsers = useMemo(() => {
         if (!searchTerm) return usersArray;
         const lowerSearchTerm = searchTerm.toLowerCase();
@@ -69,7 +66,6 @@ const CreatePotsPage = () => {
         e.preventDefault();
         setErrors({});
 
-        // Frontend validation
         const validationErrors = {};
         if (!name.trim()) validationErrors.name = 'Pot name is required.';
         if (!startDate) validationErrors.startDate = 'Start date is required.';
@@ -86,6 +82,7 @@ const CreatePotsPage = () => {
             name,
             hand: handNum,
             startDate,
+            frequency,
             userIds: Array.from(selectedUserIds),
         };
 
@@ -95,7 +92,6 @@ const CreatePotsPage = () => {
                 navigate(`/pots/${newPot.id}`);
             }
         } catch (error) {
-            // Errors from the thunk will be set in the Redux state
             console.error("Failed to create pot:", error);
         }
     };
@@ -122,6 +118,14 @@ const CreatePotsPage = () => {
                         <input id="startDate" type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
                         {errors.startDate && <p className="validation-error">{errors.startDate}</p>}
                     </div>
+                    <div className="form-group">
+                        <label htmlFor="frequency">Draw Frequency</label>
+                        <select id="frequency" value={frequency} onChange={(e) => setFrequency(e.target.value)}>
+                            <option value="weekly">Weekly</option>
+                            <option value="every-2-weeks">Every 2 Weeks</option>
+                            <option value="monthly">Monthly</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div className="form-section members-selection">
@@ -146,9 +150,8 @@ const CreatePotsPage = () => {
                     )}
                 </div>
                 
-                
                 <div className="form-actions">
-                    <div className="cancel-button-wrapper"> 
+                    <div className="cancel-button-wrapper">
                          <OpenModalButton
                             buttonText="Cancel"
                             modalComponent={
