@@ -16,8 +16,8 @@ module.exports = {
         name: 'Cash Pot',
         hand: 20.00,
         amount: 40.00,
-        startDate: '12/01/2024',
-        endDate: '06/02/2026',
+        startDate: '2024-12-01',
+        endDate: '2026-06-02',
         Status: 'Not Started'
       },
       {
@@ -26,8 +26,8 @@ module.exports = {
         name: 'Rainy Day',
         hand: 100.00,
         amount: 100.00,
-        startDate: '11/10/2023',
-        endDate: '10/10/2025',
+        startDate: '2023-11-10',
+        endDate: '2025-10-10',
         Status: 'Active'
       },
       {
@@ -36,8 +36,8 @@ module.exports = {
         name: 'Friends and Family',
         hand: 150.00,
         amount: 150.00,
-        startDate: '11/10/2024',
-        endDate: '02/10/2025',
+        startDate: '2024-11-10',
+        endDate: '2025-11-10',
         Status: 'Ended'
       }
     ], options);

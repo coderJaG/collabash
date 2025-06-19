@@ -16,8 +16,8 @@ module.exports = {
         firstName: 'Demo',
         lastName: 'Lition',
         username: 'Demo-lition',
-        email: 'demo@demo.io',
-        mobile: '239-932-2392',
+        email: 'jagwha@gmail.com',
+        mobile: '902-256-5599',
         drawDate: '12/12/2025',
         hashedPassword: bcrypt.hashSync('password'),
         role: 'banker'

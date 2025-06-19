@@ -18,6 +18,7 @@ module.exports = (sequelize, DataTypes) => {
       }); 
       Pot.hasMany(models.WeeklyPayment, { foreignKey: 'potId' });
       Pot.hasMany(models.TransactionHistory, { foreignKey: 'potIdContext', as: 'relatedHistory' });
+      Pot.hasMany(models.JoinRequest, { foreignKey: 'potId', as: 'joinRequests' });
     }
   }
   Pot.init({

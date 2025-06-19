@@ -1,0 +1,152 @@
+.notifications-container {
+    position: relative;
+    margin: 0 15px;
+}
+
+.notification-bell-button {
+    background: none;
+    border: none;
+    color: #fff; /* White icon to match navigation text */
+    font-size: 1.5rem;
+    cursor: pointer;
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 5px;
+}
+
+.notification-badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: #e74c3c;
+    color: white;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    line-height: 1;
+    border: 1px solid white;
+    transform: translate(25%, -25%);
+}
+
+.notifications-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 10px;
+    width: 320px;
+    max-height: 400px;
+    overflow-y: auto;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    border: 1px solid #eee;
+}
+
+.notifications-header {
+    padding: 12px 15px;
+    font-weight: bold;
+    color: white;
+    background-color: #3498db;
+    border-bottom: 1px solid #eee;
+    font-size: 0.9rem;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.notifications-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.notification-item {
+    padding: 12px 15px;
+    border-bottom: 1px solid #f0f0f0;
+    color: #333;
+    font-size: 0.9rem;
+    display: flex; /* ✅ NEW: Use flexbox for layout */
+    justify-content: space-between; /* ✅ NEW: Pushes content and button apart */
+    align-items: center; /* ✅ NEW: Vertically aligns items */
+    gap: 10px; /* ✅ NEW: Adds space between content and button */
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+.notification-content {
+    flex-grow: 1; /* ✅ NEW: Allows the text content to take up available space */
+}
+
+.notification-content p {
+    margin: 0;
+    line-height: 1.4;
+}
+
+.notification-item strong {
+    color: #16a085;
+}
+
+/* ✅ NEW: Status-specific styles for standard user's view */
+.notification-item.status-approved {
+    border-left: 4px solid #2ecc71;
+}
+.notification-item.status-denied {
+    border-left: 4px solid #e74c3c;
+}
+.notification-item.status-pending {
+    border-left: 4px solid #f39c12;
+}
+
+/* Styles for action buttons for bankers */
+.notification-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 8px; /* Add some space below the text */
+}
+
+.notification-actions button {
+    border: none;
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.approve-button {
+    background-color: #2ecc71;
+    color: white;
+}
+.approve-button:hover {
+    background-color: #27ae60;
+}
+
+.deny-button {
+    background-color: #e74c3c;
+    color: white;
+}
+.deny-button:hover {
+    background-color: #c0392b;
+}
+
+/* ✅ NEW: Styles for the dismiss button for standard users */
+.dismiss-button {
+    background: none;
+    border: none;
+    color: #bdc3c7; /* Light grey color */
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 5px;
+    line-height: 1;
+    transition: color 0.2s ease;
+}
+
+.dismiss-button:hover {
+    color: #7f8c8d; /* Darker grey on hover */
+}

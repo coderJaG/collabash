@@ -1,11 +1,9 @@
-//src/components/UserProfilePage/UserProfilePage.jsx
-
 import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { NavLink } from "react-router-dom";
 import * as potsActions from "../../store/pots";
-import { updateUser } from "../../store/users"; 
-import * as sessionActions from "../../store/session"; 
+import { updateUser } from "../../store/users";
+import * as sessionActions from "../../store/session";
 import LoadingSpinner from "../LoadingSpinner";
 import "./UserProfilePage.css";
 
@@ -76,6 +74,25 @@ const UserProfilePage = () => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
+    // New handler specifically for the mobile input to auto-format the number
+    const handleMobileChange = (e) => {
+        const { value } = e.target;
+        // 1. Remove all non-digit characters from the input
+        const numericValue = value.replace(/[^\d]/g, '');
+        // 2. Limit the number of digits to 10
+        const truncatedValue = numericValue.slice(0, 10);
+        // 3. Apply the ###-###-#### formatting
+        let formattedValue = truncatedValue;
+        if (truncatedValue.length > 6) {
+            formattedValue = `${truncatedValue.slice(0, 3)}-${truncatedValue.slice(3, 6)}-${truncatedValue.slice(6)}`;
+        } else if (truncatedValue.length > 3) {
+            formattedValue = `${truncatedValue.slice(0, 3)}-${truncatedValue.slice(3)}`;
+        }
+        // 4. Update the form state with the newly formatted value
+        setFormData(prev => ({ ...prev, mobile: formattedValue }));
+    };
+
+
     const handleSubmitChanges = async (e) => {
         e.preventDefault();
         setEditError("");
@@ -98,7 +115,7 @@ const UserProfilePage = () => {
         try {
             const updatedUser = await dispatch(updateUser(currUser.id, userDataToUpdate));
             if (updatedUser) {
-                dispatch(sessionActions.restoreUser()); 
+                dispatch(sessionActions.restoreUser());
                 setEditSuccess("Profile updated successfully!");
                 setIsEditing(false);
                 setNewPassword("");
@@ -124,7 +141,7 @@ const UserProfilePage = () => {
         return <LoadingSpinner message="Loading profile data..." />;
     }
 
-    if (potsError && !isEditing) { 
+    if (potsError && !isEditing) {
         return (
             <div className="user-page-wrapper error-container">
                 <p>Error loading pot data: {potsError.message || String(potsError)}</p>
@@ -215,7 +232,8 @@ const UserProfilePage = () => {
                         </div>
                         <div className="form-input-group">
                             <label htmlFor="mobile">Mobile (e.g., 999-999-9999):</label>
-                            <input type="tel" id="mobile" name="mobile" value={formData.mobile} onChange={handleInputChange} pattern="\d{3}-\d{3}-\d{4}" placeholder="999-999-9999" required />
+                            {/* The onChange handler is now set to handleMobileChange for automatic formatting */}
+                            <input type="tel" id="mobile" name="mobile" value={formData.mobile} onChange={handleMobileChange} placeholder="999-999-9999" required />
                         </div>
                         <hr className="form-divider" />
                         <p className="password-change-info">Change Password (leave blank if you do not want to change it):</p>

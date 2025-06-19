@@ -5,6 +5,7 @@ import potsReducer from './pots';
 import transactionsReducer from './transactions';
 import usersReducer from './users';
 import historyReducer from './history';
+import requestsReducer from './requests';
 
 
 const rootReducer = combineReducers({
@@ -12,7 +13,8 @@ const rootReducer = combineReducers({
   pots: potsReducer,
   transactions: transactionsReducer,
   users: usersReducer,
-  history: historyReducer
+  history: historyReducer,
+  requests: requestsReducer
 });
 
 let enhancer;

@@ -1,18 +1,20 @@
-// Navigation.jsx
 import { NavLink } from "react-router-dom";
 import { useSelector } from "react-redux";
 import ProfileButton from "../ProfileButton";
 import OpenModalButton from "../OpenModalButton";
 import LoginFormModal from "../LoginFormModal";
 import SignUpFormModal from "../SignUpFormModal";
-import './Navigation.css'; // Import the CSS
+import Notifications from "../Notifications/Notifications"; // Import the Notifications component
+import './Navigation.css'; 
 
 const Navigation = ({ isLoaded }) => {
     const currUser = useSelector(state => state.session.user);
 
     const sessionNavLinks = currUser ? (
         <>
-            {/* ProfileButton will be wrapped in its own container for positioning */}
+            <li>
+                <Notifications />
+            </li>
             <li><ProfileButton user={currUser} /></li>
         </>
     ) : (

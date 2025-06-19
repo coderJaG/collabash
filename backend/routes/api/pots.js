@@ -1,123 +1,34 @@
 // routes/api/pots.js (Updated with PostgreSQL compatible literal)
-
 const express = require('express');
 const router = express.Router();
 const { requireAuth } = require('../../utils/auth');
 const { Pot, User, PotsUser, WeeklyPayment, sequelize } = require('../../db/models');
-const { logHistory } = require('../../utils/historyLogger');
+const { logHistory } = require('../../utils/historyLogger'); 
+const { updatePotScheduleAndDetails } = require('../../utils/potUtils'); 
 const { Op } = require('sequelize');
-
-// --- HELPER FUNCTION (unchanged) ---
-const updatePotScheduleAndDetails = async (potId, transaction) => {
-    const t = transaction;
-
-    try {
-        const pot = await Pot.findByPk(potId, { transaction: t });
-        if (!pot) {
-            console.error(`Pot not found with ID: ${potId} for schedule update.`);
-            throw new Error('Pot not found during schedule update.');
-        }
-
-        if (!pot.startDate) {
-            console.warn(`Pot ${potId} has no start date. Cannot calculate schedule.`);
-            pot.amount = 0;
-            pot.endDate = pot.startDate;
-            await pot.save({ transaction: t });
-            return pot;
-        }
-
-        const potMembersEntries = await PotsUser.findAll({
-            where: { potId: pot.id },
-            order: [['displayOrder', 'ASC']],
-            transaction: t
-        });
-
-        const numberOfUsers = potMembersEntries.length;
-        const potStartDateString = pot.startDate;
-
-        let calculatedPotEndDate = potStartDateString;
-
-        if (numberOfUsers > 0) {
-            const [startYear, startMonth, startDay] = potStartDateString.split('-').map(Number);
-            const baseDateUTC = new Date(Date.UTC(startYear, startMonth - 1, startDay));
-
-            if (isNaN(baseDateUTC.getTime())) {
-                throw new Error('Invalid pot start date found for schedule calculation.');
-            }
-
-            for (let i = 0; i < numberOfUsers; i++) {
-                const memberEntry = potMembersEntries[i];
-                const drawDateUTC = new Date(baseDateUTC.valueOf());
-                drawDateUTC.setUTCDate(baseDateUTC.getUTCDate() + (i * 7));
-
-                const dYear = drawDateUTC.getUTCFullYear();
-                const dMonth = (drawDateUTC.getUTCMonth() + 1).toString().padStart(2, '0');
-                const dDay = drawDateUTC.getUTCDate().toString().padStart(2, '0');
-                memberEntry.drawDate = `${dYear}-${dMonth}-${dDay}`;
-
-                await memberEntry.save({ transaction: t });
-
-                if (i === numberOfUsers - 1) {
-                    calculatedPotEndDate = memberEntry.drawDate;
-                }
-            }
-            pot.endDate = calculatedPotEndDate;
-            pot.amount = parseFloat(pot.hand) * numberOfUsers;
-        } else {
-            pot.endDate = potStartDateString;
-            pot.amount = 0;
-        }
-
-        await pot.save({ transaction: t });
-        return pot;
-
-    } catch (error) {
-        console.error(`Error in updatePotScheduleAndDetails for potId ${potId}:`, error);
-        throw error;
-    }
-};
-
 
 // --- ROUTES ---
 
-//get all pots
+// ✅ FIXED: This route now returns ALL pots to any logged-in user.
+// The frontend will handle filtering for "My Pots" vs. "Find Pots".
 router.get('/', requireAuth, async (req, res) => {
-    const currUser = req.user;
-    let potsToReturn = [];
-
-    const includeUsersWithDetails = {
-        model: User,
-        as: 'Users',
-        attributes: ['id', 'firstName', 'lastName'],
-        through: {
-            model: PotsUser,
-            as: 'potMemberDetails',
-            attributes: ['displayOrder', 'drawDate']
-        }
-    };
-
     try {
-        if (currUser.role === 'banker') {
-            potsToReturn = await Pot.findAll({
-                attributes: ['id', 'ownerId', 'ownerName', 'name', 'amount', 'startDate', 'endDate', 'status', 'hand'],
-                include: [includeUsersWithDetails],
-                order: [['name', 'ASC']]
-            });
-        } else if (currUser.role === 'standard') {
-            const userWithPots = await User.findByPk(currUser.id, {
-                include: [{
-                    model: Pot,
-                    as: 'PotsJoined',
-                    attributes: ['id', 'ownerId', 'ownerName', 'name', 'amount', 'startDate', 'endDate', 'status', 'hand'],
-                    through: { attributes: [] },
-                    include: [includeUsersWithDetails]
-                }],
-                order: [[{ model: Pot, as: 'PotsJoined' }, 'name', 'ASC']]
-            });
-            potsToReturn = userWithPots && userWithPots.PotsJoined ? userWithPots.PotsJoined : [];
-        } else {
-            return res.status(403).json({ "message": "Forbidden: Role not authorized to view pots." });
-        }
+        const includeUsersWithDetails = {
+            model: User,
+            as: 'Users',
+            attributes: ['id', 'firstName', 'lastName'],
+            through: {
+                model: PotsUser,
+                as: 'potMemberDetails',
+                attributes: ['displayOrder', 'drawDate']
+            }
+        };
+
+        const potsToReturn = await Pot.findAll({
+            attributes: ['id', 'ownerId', 'ownerName', 'name', 'amount', 'startDate', 'endDate', 'status', 'hand'],
+            include: [includeUsersWithDetails],
+            order: [['name', 'ASC']]
+        });
 
         const processedPots = potsToReturn.map(potInstance => {
             const pot = potInstance.toJSON ? potInstance.toJSON() : potInstance;
@@ -159,7 +70,6 @@ router.get('/:potId', requireAuth, async (req, res) => {
                 }
             }],
             order: [
-                
                 [sequelize.literal('"Users->potMemberDetails"."displayOrder"'), 'ASC']
             ]
         });
@@ -190,7 +100,6 @@ router.post('/', requireAuth, async (req, res) => {
     }
     const t = await sequelize.transaction();
     try {
-        // Now accepts an optional userIds array
         const { name, hand, startDate, userIds } = req.body;
         const ownerName = `${currUser.firstName} ${currUser.lastName}`;
 
@@ -199,7 +108,7 @@ router.post('/', requireAuth, async (req, res) => {
             return res.status(400).json({ message: "Name, hand amount, and start date are required." });
         }
         const parsedHand = parseFloat(hand);
-        if (isNaN(parsedHand)) { // Can be 0 for duplicated pots
+        if (isNaN(parsedHand)) {
             await t.rollback();
             return res.status(400).json({ message: "Hand amount must be a number." });
         }
@@ -230,11 +139,9 @@ router.post('/', requireAuth, async (req, res) => {
             transaction: t
         });
 
-        // If userIds are provided (from duplication), add them to the pot
         if (userIds && Array.isArray(userIds) && userIds.length > 0) {
             for (let i = 0; i < userIds.length; i++) {
                 const userId = userIds[i];
-                // Check if user exists before creating association
                 const userExists = await User.findByPk(userId, { transaction: t });
                 if (userExists) {
                     await PotsUser.create({
@@ -256,7 +163,6 @@ router.post('/', requireAuth, async (req, res) => {
             });
         }
         
-        // This will now correctly calculate amount/endDate based on the users added
         await updatePotScheduleAndDetails(newPot.id, t); 
 
         await t.commit();
@@ -366,7 +272,6 @@ router.put('/:potId', requireAuth, async (req, res) => {
         const finalUpdatedPot = await Pot.findByPk(numPotId, {
             include: [{ model: User, as: 'Users', through: { model: PotsUser, as: 'potMemberDetails', attributes: ['drawDate', 'displayOrder'] } }],
             order: [
-                
                 [sequelize.literal('"Users->potMemberDetails"."displayOrder"'), 'ASC']
             ]
         });

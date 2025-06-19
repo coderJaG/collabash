@@ -5,6 +5,8 @@ const usersRouter = require('./users.js');
 const potsRouter = require('./pots.js');
 const transactionsRouter = require('./transactions.js');
 const historyRouter = require('./history.js');
+const requestrouter = require('./requests.js');
+
 
 const { restoreUser } = require('../../utils/auth.js');
 
@@ -22,6 +24,8 @@ router.use('/pots', potsRouter);
 router.use('/transactions', transactionsRouter);
 
 router.use('/history', historyRouter);
+
+router.use('/requests', requestrouter);
 
   
 module.exports = router;
