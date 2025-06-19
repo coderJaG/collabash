@@ -120,7 +120,8 @@ const DraggableUserRow = ({
             <td>
                 {currUser?.role === 'banker' && (potDetailsStatus === 'Not Started' || potDetailsStatus === 'Paused') && (
                     <OpenModalButton
-                        buttonText={<MdDelete style={{ color: "#e74c3c" }} />}
+                        buttonText={<MdDelete />}
+                        className="delete-user-from-pot-button finger-button-pointer"
                         modalComponent={
                             <DeleteConfirmationModal
                                 message={`Are you sure you want to remove ${user.firstName} ${user.lastName} from the pot? This action cannot be undone.`}
@@ -129,19 +130,9 @@ const DraggableUserRow = ({
                                 cancelButtonText="No, Cancel"
                             />
                         }
-                        className="finger-button-pointer"
                         title="Remove User from Pot"
                         style={{ background: 'none', border: 'none', cursor: 'pointer' }}
                     />
-
-                    // <button
-                    //     className="finger-button-pointer"
-                    //     onClick={() => handleRemoveUserFromPot(user.id)}
-                    //     title="Remove User from Pot"
-                    //     style={{ background: 'none', border: 'none', cursor: 'pointer' }}
-                    // >
-                    //     <MdDelete style={{ color: "#e74c3c" }} />
-                    // </button>
                 )}
             </td>
         </tr>

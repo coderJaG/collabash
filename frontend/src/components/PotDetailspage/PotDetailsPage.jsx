@@ -95,8 +95,8 @@ const PotDetailsPage = () => {
         if (potDetails && potDetails.status === 'Active' && potDetails.endDate) {
             const today = new Date();
             const endDate = new Date(potDetails.endDate);
-            today.setHours(0,0,0,0);
-            endDate.setUTCHours(0,0,0,0);
+            today.setHours(0, 0, 0, 0);
+            endDate.setUTCHours(0, 0, 0, 0);
 
             if (today > endDate) {
                 dispatch(potsActions.updateAPot({ status: 'Ended' }, numPotId));
@@ -150,7 +150,7 @@ const PotDetailsPage = () => {
             console.error("Failed to update pot status:", updateError);
         }
     };
-    
+
     const handleDuplicatePot = () => {
         if (!potDetails) return;
         const duplicationState = {
@@ -247,23 +247,23 @@ const PotDetailsPage = () => {
                 <div className="action-buttons-container">
                     {currUser?.role === 'banker' && potDetails.status === 'Not Started' && (
                         <button className="start-resume-button" onClick={() => handleChangeStatus('Active')} disabled={isUpdatingPot || !orderedUsers.length} title="Start Pot">
-                            <FaPlay/>
+                            <FaPlay />
                         </button>
                     )}
-                     {currUser?.role === 'banker' && potDetails.status === 'Paused' && (
+                    {currUser?.role === 'banker' && potDetails.status === 'Paused' && (
                         <button className="start-resume-button" onClick={() => handleChangeStatus('Active')} disabled={isUpdatingPot} title="Resume Pot">
-                            <FaPlay/>
+                            <FaPlay />
                         </button>
                     )}
-                     {currUser?.role === 'banker' && potDetails.status === 'Active' && (
+                    {currUser?.role === 'banker' && potDetails.status === 'Active' && (
                         <button className="pause-button" onClick={() => handleChangeStatus('Paused')} disabled={isUpdatingPot} title="Pause Pot">
-                            <FaPause/>
+                            <FaPause />
                         </button>
                     )}
-                     {currUser?.role === 'banker' && potLifecycle !== 'terminal' && (
-                        <div className="cancel-button-wrapper"> {/* WRAPPER ADDED */}
+                    {currUser?.role === 'banker' && potLifecycle !== 'terminal' && (
                             <OpenModalButton
-                                buttonText={<FaTimesCircle/>}
+                                buttonText={<FaTimesCircle />}
+                                className="cancel-button"
                                 title="Cancel Pot"
                                 modalComponent={
                                     <DeleteConfirmationModal
@@ -273,12 +273,12 @@ const PotDetailsPage = () => {
                                     />
                                 }
                             />
-                        </div>
                     )}
-                     {currUser?.role === 'banker' && potDetails.status === 'Ended' && (
-                         <div className="close-button-wrapper"> {/* WRAPPER ADDED */}
+                    {currUser?.role === 'banker' && potDetails.status === 'Ended' && (
+                       
                             <OpenModalButton
                                 buttonText={<FaCheckCircle />}
+                                className="close-button"
                                 title="Close Pot"
                                 modalComponent={
                                     <DeleteConfirmationModal
@@ -288,17 +288,17 @@ const PotDetailsPage = () => {
                                     />
                                 }
                             />
-                        </div>
+                        
                     )}
-                     {currUser?.role === 'banker' && potLifecycle === 'terminal' && (
+                    {currUser?.role === 'banker' && potLifecycle === 'terminal' && (
                         <button className="duplicate-button" onClick={handleDuplicatePot} disabled={isUpdatingPot} title="Duplicate Pot">
-                            <FaClone/>
+                            <FaClone />
                         </button>
                     )}
                     {currUser?.role === 'banker' && potDetails.status === 'Not Started' && (
-                         <div className="delete-button-wrapper"> {/* WRAPPER ADDED */}
                             <OpenModalButton
-                                buttonText={<FaTrashAlt/>}
+                                buttonText={<FaTrashAlt />}
+                                className="delete-button"
                                 title="Delete Pot"
                                 modalComponent={
                                     <DeleteConfirmationModal
@@ -308,7 +308,6 @@ const PotDetailsPage = () => {
                                     />
                                 }
                             />
-                        </div>
                     )}
                 </div>
             </div>
@@ -346,7 +345,14 @@ const PotDetailsPage = () => {
                 <div className="members-header">
                     <h3>MEMBERS</h3>
                     {currUser?.role === 'banker' && potLifecycle === 'pre-active' && (
-                        <OpenModalButton buttonText="Add Users" modalComponent={<AddUsersToPot currentPotUsers={orderedUsers} availableUsers={availableUsersForModalList} onSave={handleAddUser} isSavingUsers={isUpdatingPot}/>}/>
+                        <OpenModalButton
+                            buttonText="Add Users"
+                            className="add-users-button"
+                            title="Add Users to Pot"
+                            modalComponent={<AddUsersToPot
+                                currentPotUsers={orderedUsers}
+                                availableUsers={availableUsersForModalList}
+                                onSave={handleAddUser} isSavingUsers={isUpdatingPot} />} />
                     )}
                 </div>
                 <div className="members-summary">
@@ -376,7 +382,7 @@ const PotDetailsPage = () => {
                                         onDragBegin={() => setIsUserActuallyDragging(true)}
                                         onDragOperationEnd={(didDrop) => {
                                             setIsUserActuallyDragging(false);
-                                            if (didDrop) { handleReorderUsersSubmit(); } 
+                                            if (didDrop) { handleReorderUsersSubmit(); }
                                             else { if (potDetails?.Users) { setOrderedUsers([...potDetails.Users].sort((a, b) => (a.potMemberDetails?.displayOrder || 0) - (b.potMemberDetails?.displayOrder || 0))); } }
                                         }}
                                         canBankerEditOrder={canBankerEditOrder} currentWeek={currentWeek} weeklyStatusMap={weeklyStatusMap}
