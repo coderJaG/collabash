@@ -1,19 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const { requireAuth } = require('../../utils/auth');
+const { requireAuth, requirePermission } = require('../../utils/auth');
 const { Pot, User, PotsUser, JoinRequest, sequelize } = require('../../db/models');
 const { logHistory } = require('../../utils/historyLogger');
 const { updatePotScheduleAndDetails } = require('../../utils/potUtils');
+const { PERMISSIONS } = require('../../utils/roles');
 
 // --- GET /api/requests/received ---
-// Get all pending join requests for pots owned by the current user (banker)
-router.get('/received', requireAuth, async (req, res) => {
+router.get('/received', requireAuth, requirePermission(PERMISSIONS.RESPOND_TO_JOIN_REQUEST), async (req, res) => {
     const { user: currUser } = req;
-
-    if (currUser.role !== 'banker') {
-        return res.status(403).json({ message: "Forbidden: Only bankers can view received requests." });
-    }
-
     try {
         const requests = await JoinRequest.findAll({
             where: { status: 'pending' },
@@ -32,7 +27,6 @@ router.get('/received', requireAuth, async (req, res) => {
             ],
             order: [['createdAt', 'DESC']]
         });
-
         res.json({ JoinRequests: requests });
     } catch (error) {
         console.error("Error fetching received join requests:", error);
@@ -41,7 +35,6 @@ router.get('/received', requireAuth, async (req, res) => {
 });
 
 // --- GET /api/requests/sent ---
-// Get all requests sent by the current user
 router.get('/sent', requireAuth, async (req, res) => {
     const { user: currUser } = req;
     try {
@@ -59,8 +52,7 @@ router.get('/sent', requireAuth, async (req, res) => {
 
 
 // --- POST /api/requests ---
-// Create a new request to join a pot
-router.post('/', requireAuth, async (req, res) => {
+router.post('/', requireAuth, requirePermission(PERMISSIONS.CREATE_JOIN_REQUEST), async (req, res) => {
     const { user: currUser, io, connectedUsers } = req;
     const { potId } = req.body;
 
@@ -88,11 +80,7 @@ router.post('/', requireAuth, async (req, res) => {
             return res.status(400).json({ message: "You already have a pending request for this pot." });
         }
         
-        const newRequest = await JoinRequest.create({
-            potId,
-            userId: currUser.id,
-            status: 'pending'
-        }, { transaction: t });
+        const newRequest = await JoinRequest.create({ potId, userId: currUser.id, status: 'pending' }, { transaction: t });
 
         await logHistory({
             userId: currUser.id,
@@ -124,16 +112,12 @@ router.post('/', requireAuth, async (req, res) => {
     }
 });
 
-// --- PUT /api/requests/:requestId ---
-// Approve or deny a join request
-router.put('/:requestId', requireAuth, async (req, res) => {
-    const { user: currUser, io, connectedUsers } = req;
+// ✅ FIXED: --- PUT /api/requests/:requestId ---
+router.put('/:requestId', requireAuth, requirePermission(PERMISSIONS.RESPOND_TO_JOIN_REQUEST), async (req, res) => {
+    const { user: currUser, io, connectedUsers } = req; // Added io and connectedUsers back
     const { requestId } = req.params;
     const { status } = req.body;
 
-    if (currUser.role !== 'banker') {
-        return res.status(403).json({ message: "Forbidden: Only bankers can approve or deny requests." });
-    }
     if (!['approved', 'denied'].includes(status)) {
         return res.status(400).json({ message: "Invalid status. Must be 'approved' or 'denied'." });
     }
@@ -175,13 +159,15 @@ router.put('/:requestId', requireAuth, async (req, res) => {
             transaction: t
         });
         
+        // Emit a response event to the user who made the request
         const requesterSocketId = connectedUsers[request.userId];
         if (requesterSocketId) {
             io.to(requesterSocketId).emit('join_request_response', {
                 message: `Your request to join pot "${request.Pot.name}" was ${status}.`,
                 potId: request.potId,
                 potName: request.Pot.name,
-                status: status
+                status: status,
+                requestId: request.id
             });
         }
 

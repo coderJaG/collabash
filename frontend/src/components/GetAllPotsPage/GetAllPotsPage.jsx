@@ -8,7 +8,7 @@ import * as usersActions from '../../store/users';
 import { createJoinRequest } from '../../store/requests';
 import "./GetAllPotsPage.css";
 
-const POTS_PER_PAGE = 2;
+const POTS_PER_PAGE = 5;
 
 const GetAllPotsPage = () => {
     const dispatch = useDispatch();
@@ -23,6 +23,11 @@ const GetAllPotsPage = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
 
+    // ✅ NEW: Check for permissions from the user object
+    const userPermissions = useMemo(() => new Set(currUser?.permissions || []), [currUser]);
+    const canCreatePots = userPermissions.has('pot:create');
+    const canRequestToJoin = userPermissions.has('request:create');
+
     useEffect(() => {
         dispatch(potsActions.getPots());
         dispatch(usersActions.getAllUsers()); 
@@ -30,6 +35,15 @@ const GetAllPotsPage = () => {
 
     const allPotsArray = useMemo(() => allPotsMap ? Object.values(allPotsMap) : [], [allPotsMap]);
     
+    // const formatDate = (dateStr) => {
+    //     if (!dateStr) return 'N/A';
+    //     const dateObject = new Date(dateStr);
+    //     if (isNaN(dateObject.getTime())) return 'Invalid Date';
+    //     const month = dateObject.getUTCMonth() + 1;
+    //     const day = dateObject.getUTCDate();
+    //     const year = dateObject.getUTCFullYear();
+    //     return `${String(month).padStart(2, '0')}/${String(day).padStart(2, '0')}/${year}`;
+    // };
 
     const handleRequestToJoin = (potId, e) => {
         e.stopPropagation();
@@ -47,7 +61,8 @@ const GetAllPotsPage = () => {
         let pots = allPotsArray;
         
         if (viewMode === 'myPots') {
-            if (currUser?.role === 'banker') {
+            // Use permission to check if the user can see all pots
+            if (userPermissions.has('pot:view_all')) {
                 pots = allPotsArray;
             } else if (currUser) {
                 pots = allPotsArray.filter(pot => pot.Users?.some(user => user.id === currUser.id));
@@ -55,6 +70,8 @@ const GetAllPotsPage = () => {
                 return [];
             }
         }
+        // No changes needed for 'findPots' logic, it shows all pots by default
+        // and is filtered by the search term below.
 
         if (searchTerm.trim()) {
             const lowerSearchTerm = searchTerm.toLowerCase();
@@ -66,7 +83,7 @@ const GetAllPotsPage = () => {
         }
 
         return pots;
-    }, [allPotsArray, viewMode, searchTerm, currUser]);
+    }, [allPotsArray, viewMode, searchTerm, currUser, userPermissions]);
 
     const indexOfLastPot = currentPage * POTS_PER_PAGE;
     const indexOfFirstPot = indexOfLastPot - POTS_PER_PAGE;
@@ -76,13 +93,13 @@ const GetAllPotsPage = () => {
     const paginate = (pageNumber) => {
         if (pageNumber >= 1 && pageNumber <= totalPages) setCurrentPage(pageNumber);
     };
+
     const goToNextPage = () => {
         setCurrentPage((prev) => (prev < totalPages ? prev + 1 : prev));
     };
     const goToPrevPage = () => {
         setCurrentPage((prev) => (prev > 1 ? prev - 1 : prev));
     };
-
 
     if (isLoading && allPotsArray.length === 0) {
         return <div className="loading-spinner-container full-page-loader"><ClipLoader color={"#1abc9c"} loading={true} size={50} /><p>Loading Pots...</p></div>;
@@ -106,7 +123,7 @@ const GetAllPotsPage = () => {
                             <th>Banker</th>
                             <th>Pot Amount</th>
                             <th>Status</th>
-                            {viewMode === 'findPots' && currUser?.role === 'standard' && <th>Actions</th>}
+                            {viewMode === 'findPots' && canRequestToJoin && <th>Actions</th>}
                         </tr>
                     </thead>
                     <tbody>
@@ -118,7 +135,7 @@ const GetAllPotsPage = () => {
                                     <td>{pot.ownerName}</td>
                                     <td>${Number(pot.amount || 0).toFixed(2)}</td>
                                     <td>{pot.status}</td>
-                                    {viewMode === 'findPots' && currUser?.role === 'standard' && (
+                                    {viewMode === 'findPots' && canRequestToJoin && (
                                         <td className="action-cell">
                                             {currUser && !isMember && (
                                                 <button className="request-join-button" title="Request to Join" onClick={(e) => handleRequestToJoin(pot.id, e)} disabled={isRequestingJoin}>
@@ -145,7 +162,7 @@ const GetAllPotsPage = () => {
                 <button onClick={() => handleViewModeChange('findPots')} className={viewMode === 'findPots' ? 'active' : ''}>Find New Pots</button>
             </div>
             <div className="list-controls">
-                {currUser?.role === 'banker' && (
+                {canCreatePots && (
                     <button className="create-pot-button" onClick={() => navigate('/pots/create')} title="Create New Pot">
                         <MdPlusOne style={{ fontSize: 20, color: 'white', fontWeight: 'bold' }} />
                     </button>

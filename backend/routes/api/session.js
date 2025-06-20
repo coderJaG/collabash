@@ -1,14 +1,11 @@
-// route: backend/routes/api/session.js
-
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const { check } = require('express-validator');
 const { Op } = require('sequelize');
-
 const { setTokenCookie } = require('../../utils/auth');
 const { User } = require('../../db/models');
 const { handleValidationErrors } = require('../../utils/validation');
-
+const { ROLE_PERMISSIONS } = require('../../utils/roles'); 
 
 const router = express.Router();
 
@@ -36,6 +33,7 @@ router.get('/', (req, res) => {
             email: user.email,
             username: user.username,
             role: user.role,
+            permissions: ROLE_PERMISSIONS[user.role] || [] 
         };
         return res.json({
             user: safeUser
@@ -44,7 +42,7 @@ router.get('/', (req, res) => {
     else return res.json({ user: null });
 });
 
-//login user  endpoint
+//login user endpoint
 router.post('/', validateLogin, async (req, res, next) => {
     const { credential, password } = req.body;
     const user = await User.unscoped().findOne({
@@ -71,6 +69,7 @@ router.post('/', validateLogin, async (req, res, next) => {
         email: user.email,
         username: user.username,
         role: user.role,
+        permissions: ROLE_PERMISSIONS[user.role] || []
     };
 
     await setTokenCookie(res, safeUser);

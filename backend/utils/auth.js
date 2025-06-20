@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const { jwtConfig } = require('../config');
 const { User } = require('../db/models');
+const { ROLE_PERMISSIONS } = require('./roles')
 // const { Model } = require('sequelize'); // Model import is not used
 
 const { secret, expiresIn } = jwtConfig;
@@ -50,8 +51,6 @@ const restoreUser = (req, res, next) => {
 
         try {
             const { id } = jwtPayload.data;
-            // Fetch the user with all necessary attributes for the session
-            // This will override the defaultScope for this query.
             req.user = await User.findByPk(id, {
                 attributes: [
                     'id',
@@ -87,4 +86,29 @@ const requireAuth = (req, _res, next) => {
     return next(err);
 };
 
-module.exports = { setTokenCookie, restoreUser, requireAuth };
+const requirePermission = (permission) => {
+  return (req, res, next) => {
+    if (!req.user) {
+      const err = new Error('Authentication required');
+      err.title = 'Authentication required';
+      err.errors = { message: 'Authentication required' };
+      err.status = 401;
+      return next(err);
+    }
+
+    const userPermissions = ROLE_PERMISSIONS[req.user.role] || [];
+    
+    if (userPermissions.includes(permission)) {
+      return next(); // User has the permission, proceed
+    } else {
+      const err = new Error('Forbidden');
+      err.title = 'Forbidden';
+      err.errors = { message: 'You do not have permission to perform this action.' };
+      err.status = 403;
+      return next(err);
+    }
+  };
+};
+
+
+module.exports = { setTokenCookie, restoreUser, requireAuth, requirePermission };

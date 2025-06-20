@@ -1,4 +1,3 @@
-// DraggableUserRow.jsx
 import { useRef } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 import { MdDelete } from 'react-icons/md';
@@ -7,26 +6,26 @@ import OpenModalButton from '../OpenModalButton';
 import DeleteConfirmationModal from '../DeleteConfirmationModal';
 import './DraggableUserRow.css'; 
 
-
 const ItemTypes = {
     USER_ROW: 'userRow',
 };
-
 
 const DraggableUserRow = ({
     user,
     index,
     moveRow,
-    canBankerEditOrder,
+    canBankerEditOrder, // This prop controls the drag handle and reordering
     currentWeek,
     weeklyStatusMap,
     handlePaymentChange,
     handleRemoveUserFromPot,
-    currUser,
     potDetailsStatus,
     onDragBegin, 
     onDragOperationEnd,
-    formatDate
+    formatDate,
+    // ✅ NEW: Props for permission-based control
+    canManagePayments,
+    canManageMembers 
 }) => {
     const rowRef = useRef(null);
     const dragHandleRef = useRef(null);
@@ -57,14 +56,12 @@ const DraggableUserRow = ({
     const [{ isDragging }, drag, preview] = useDrag({
         type: ItemTypes.USER_ROW,
         item: () => {
-            // This is called when a drag starts
-            if (onDragBegin) onDragBegin(); // Notify parent that a drag has started
+            if (onDragBegin) onDragBegin();
             return { id: user.id.toString(), index };
         },
         end: (item, monitor) => {
-            // This is called when a drag ends (mouse up)
             if (onDragOperationEnd) {
-                onDragOperationEnd(monitor.didDrop()); // Notify parent, pass if drop was successful
+                onDragOperationEnd(monitor.didDrop());
             }
         },
         canDrag: () => canBankerEditOrder,
@@ -74,10 +71,10 @@ const DraggableUserRow = ({
     });
 
     if (canBankerEditOrder) {
-        drag(dragHandleRef); // Connect drag source to the handle
+        drag(dragHandleRef);
     }
-    drop(rowRef);    // Connect drop target to the entire row
-    preview(rowRef); // Connect drag preview to the entire row
+    drop(rowRef);
+    preview(rowRef);
 
     const userStatus = weeklyStatusMap[user.id] || { paidHand: false, gotDraw: false };
     const displayOrder = user.potMemberDetails?.displayOrder || index + 1;
@@ -104,7 +101,8 @@ const DraggableUserRow = ({
                     type="checkbox"
                     checked={userStatus.paidHand}
                     onChange={(e) => handlePaymentChange(user.id, currentWeek, "paidHand", e.target.checked)}
-                    disabled={currUser?.role !== 'banker' || potDetailsStatus !== 'Active'}
+                    // ✅ UPDATED: Use canManagePayments prop for disabled logic
+                    disabled={!canManagePayments}
                 />
                 {userStatus.paidHand ? <FaCheck style={{ color: "green", marginLeft: '5px' }} /> : <FaTimes style={{ color: "red", marginLeft: '5px' }} />}
             </td>
@@ -113,12 +111,14 @@ const DraggableUserRow = ({
                     type="checkbox"
                     checked={userStatus.gotDraw}
                     onChange={(e) => handlePaymentChange(user.id, currentWeek, "gotDraw", e.target.checked)}
-                    disabled={currUser?.role !== 'banker' || potDetailsStatus !== 'Active' || displayOrder !== currentWeek}
+                    // ✅ UPDATED: Use canManagePayments prop and other conditions
+                    disabled={!canManagePayments || displayOrder !== currentWeek}
                 />
                 {userStatus.gotDraw ? <FaCheck style={{ color: "green", marginLeft: '5px' }} /> : <FaTimes style={{ color: "red", marginLeft: '5px' }} />}
             </td>
             <td>
-                {currUser?.role === 'banker' && (potDetailsStatus === 'Not Started' || potDetailsStatus === 'Paused') && (
+                {/* ✅ UPDATED: Use canManageMembers prop */}
+                {canManageMembers && (potDetailsStatus === 'Not Started' || potDetailsStatus === 'Paused') && (
                     <OpenModalButton
                         buttonText={<MdDelete />}
                         className="delete-user-from-pot-button finger-button-pointer"

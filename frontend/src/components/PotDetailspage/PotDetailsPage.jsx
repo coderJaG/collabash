@@ -59,6 +59,12 @@ const PotDetailsPage = () => {
     const [isEditingFrequency, setIsEditingFrequency] = useState(false);
     const [editableFrequency, setEditableFrequency] = useState('');
 
+    const userPermissions = useMemo(() => new Set(currUser?.permissions || []), [currUser]);
+    const canEditPot = userPermissions.has('pot:edit');
+    const canDeletePot = userPermissions.has('pot:delete');
+    const canManageMembers = userPermissions.has('pot:manage_members');
+    const canDuplicatePot = userPermissions.has('pot:create');
+
     useEffect(() => {
         if (!isUserActuallyDragging && !isReordering) {
             if (potDetails?.Users) {
@@ -68,7 +74,7 @@ const PotDetailsPage = () => {
                 }
             } else { setOrderedUsers([]); }
         }
-    }, [potDetails?.Users, isReordering, isUserActuallyDragging]);
+    }, [potDetails?.Users, isReordering, isUserActuallyDragging, orderedUsers]);
 
     useEffect(() => {
         if (potDetails) {
@@ -186,8 +192,8 @@ const PotDetailsPage = () => {
     }, []);
 
     const handleReorderUsersSubmit = async () => {
-        if (!currUser || currUser.role !== 'banker' || (potDetails?.status !== 'Not Started' && potDetails?.status !== 'Paused')) {
-            alert("Only bankers can reorder users, and only if the pot has not started or is paused.");
+        if (!canManageMembers || (potDetails?.status !== 'Not Started' && potDetails?.status !== 'Paused')) {
+            alert("Only authorized users can reorder members, and only if the pot has not started or is paused.");
             if (potDetails?.Users) { setOrderedUsers([...potDetails.Users].sort((a, b) => (a.potMemberDetails?.displayOrder || 0) - (b.potMemberDetails?.displayOrder || 0))); }
             return;
         }
@@ -214,8 +220,9 @@ const PotDetailsPage = () => {
     if (!potDetails) return null;
 
     const potLifecycle = getPotLifecycle(potDetails.status);
-    const canBankerEditDetails = currUser?.role === 'banker' && potLifecycle === 'pre-active';
-    const canBankerEditOrder = canBankerEditDetails && orderedUsers.length > 1;
+    const canEditDetails = canEditPot && potLifecycle === 'pre-active';
+    const canEditOrder = canManageMembers && potLifecycle === 'pre-active' && orderedUsers.length > 1;
+    const canManageWeeklyPayments = canManageMembers && potDetails.status === 'Active';
     const availableUsersForModalList = Object.values(allUsersForModal || {});
     
     return (
@@ -223,22 +230,22 @@ const PotDetailsPage = () => {
             <h1 className="pot-header">POT DETAILS</h1>
             <div className="buttons-bar">
                 <div className="action-buttons-container">
-                    {currUser?.role === 'banker' && potDetails.status === 'Not Started' && (
+                    {canEditPot && potDetails.status === 'Not Started' && (
                         <button className="start-resume-button" onClick={() => handleChangeStatus('Active')} disabled={isUpdatingPot || !orderedUsers.length} title="Start Pot">
                             <FaPlay />
                         </button>
                     )}
-                    {currUser?.role === 'banker' && potDetails.status === 'Paused' && (
+                    {canEditPot && potDetails.status === 'Paused' && (
                         <button className="start-resume-button" onClick={() => handleChangeStatus('Active')} disabled={isUpdatingPot} title="Resume Pot">
                             <FaPlay />
                         </button>
                     )}
-                    {currUser?.role === 'banker' && potDetails.status === 'Active' && (
+                    {canEditPot && potDetails.status === 'Active' && (
                         <button className="pause-button" onClick={() => handleChangeStatus('Paused')} disabled={isUpdatingPot} title="Pause Pot">
                             <FaPause />
                         </button>
                     )}
-                    {currUser?.role === 'banker' && potLifecycle !== 'terminal' && (
+                    {canEditPot && potLifecycle !== 'terminal' && (
                         <OpenModalButton
                             buttonText={<FaTimesCircle />}
                             className="cancel-button"
@@ -246,7 +253,7 @@ const PotDetailsPage = () => {
                             modalComponent={<DeleteConfirmationModal message="Are you sure you want to cancel this pot?" onConfirm={() => handleChangeStatus('Cancelled')} confirmButtonText="Yes, Cancel Pot"/>}
                         />
                     )}
-                    {currUser?.role === 'banker' && potDetails.status === 'Ended' && (
+                    {canEditPot && potDetails.status === 'Ended' && (
                         <OpenModalButton
                             buttonText={<FaCheckCircle />}
                             className="close-button"
@@ -254,12 +261,12 @@ const PotDetailsPage = () => {
                             modalComponent={<DeleteConfirmationModal message="Are you sure you want to close this pot? This is the final step and cannot be undone." onConfirm={() => handleChangeStatus('Closed')} confirmButtonText="Yes, Close Pot" />}
                         />
                     )}
-                    {currUser?.role === 'banker' && potLifecycle === 'terminal' && (
+                    {canDuplicatePot && potLifecycle === 'terminal' && (
                         <button className="duplicate-button" onClick={handleDuplicatePot} disabled={isUpdatingPot} title="Duplicate Pot">
                             <FaClone />
                         </button>
                     )}
-                    {currUser?.role === 'banker' && potDetails.status === 'Not Started' && (
+                    {canDeletePot && potDetails.status === 'Not Started' && (
                         <OpenModalButton
                             buttonText={<FaTrashAlt />}
                             className="delete-button"
@@ -281,26 +288,26 @@ const PotDetailsPage = () => {
                 
                 <div className="pot-detail-row">
                     <span>Start Date:</span>
-                    {isEditingStartDate && canBankerEditDetails ? (
+                    {isEditingStartDate && canEditDetails ? (
                         <div className="inline-edit-container"><input type="date" value={editableStartDate} onChange={(e) => setEditableStartDate(e.target.value)} disabled={isUpdatingPot} /><FaSave className="save-icon" onClick={() => handleSavePotUpdate('startDate', editableStartDate)} /><FaTimesCircle className="cancel-icon" onClick={() => setIsEditingStartDate(false)} /></div>
                     ) : (
-                        <div className="inline-display-container"><span>{formatDate(potDetails.startDate)}</span>{canBankerEditDetails && !isUpdatingPot && (<FaEdit className="edit-icon" onClick={() => setIsEditingStartDate(true)} />)}</div>
+                        <div className="inline-display-container"><span>{formatDate(potDetails.startDate)}</span>{canEditDetails && !isUpdatingPot && (<FaEdit className="edit-icon" onClick={() => setIsEditingStartDate(true)} />)}</div>
                     )}
                 </div>
                 <div className="pot-detail-row"><span>End Date:</span> <span>{formatDate(potDetails.endDate)}</span></div>
                 <div className="pot-detail-row">
                     <span>Amt/Hand:</span>
-                    {isEditingAmount && canBankerEditDetails ? (
+                    {isEditingAmount && canEditDetails ? (
                         <div className="inline-edit-container"><input type="number" value={editableAmount} onChange={(e) => setEditableAmount(e.target.value)} disabled={isUpdatingPot} step="10" min="0" /><FaSave className="save-icon" onClick={() => handleSavePotUpdate('hand', editableAmount)} /><FaTimesCircle className="cancel-icon" onClick={() => setIsEditingAmount(false)} /></div>
                     ) : (
-                        <div className="inline-display-container"><span className="amount-display">{`$${Number.parseFloat(potDetails.hand || 0).toFixed(2)}`}</span>{canBankerEditDetails && !isUpdatingPot && (<FaEdit className="edit-icon" onClick={() => setIsEditingAmount(true)} />)}</div>
+                        <div className="inline-display-container"><span className="amount-display">{`$${Number.parseFloat(potDetails.hand || 0).toFixed(2)}`}</span>{canEditDetails && !isUpdatingPot && (<FaEdit className="edit-icon" onClick={() => setIsEditingAmount(true)} />)}</div>
                     )}
                 </div>
                 <div className="pot-detail-row"><span>Pot Amount:</span> <span>{`$${Number.parseFloat(potDetails.amount || 0).toFixed(2)}`}</span></div>
                 
                 <div className="pot-detail-row">
                     <span>Frequency:</span>
-                    {isEditingFrequency && canBankerEditDetails ? (
+                    {isEditingFrequency && canEditDetails ? (
                         <div className="inline-edit-container">
                             <select value={editableFrequency} onChange={(e) => setEditableFrequency(e.target.value)} disabled={isUpdatingPot}>
                                 <option value="weekly">Weekly</option>
@@ -312,8 +319,8 @@ const PotDetailsPage = () => {
                         </div>
                     ) : (
                         <div className="inline-display-container">
-                            <span className="frequency-display">{potDetails?.frequency}</span>
-                            {canBankerEditDetails && !isUpdatingPot && (<FaEdit className="edit-icon" onClick={() => setIsEditingFrequency(true)} />)}
+                            <span className="frequency-display">{potDetails.frequency?.replace('-', ' ')}</span>
+                            {canEditDetails && !isUpdatingPot && (<FaEdit className="edit-icon" onClick={() => setIsEditingFrequency(true)} />)}
                         </div>
                     )}
                 </div>
@@ -324,7 +331,7 @@ const PotDetailsPage = () => {
             <div className="members-div">
                 <div className="members-header">
                     <h3>MEMBERS</h3>
-                    {currUser?.role === 'banker' && potLifecycle === 'pre-active' && (
+                    {canManageMembers && potLifecycle === 'pre-active' && (
                         <OpenModalButton buttonText="Add Users" className="add-users-button" modalComponent={<AddUsersToPot currentPotUsers={orderedUsers} availableUsers={availableUsersForModalList} onSave={handleAddUser} isSavingUsers={isUpdatingPot}/>}/>
                     )}
                 </div>
@@ -341,9 +348,9 @@ const PotDetailsPage = () => {
                 {(isLoadingWeek || (isReordering && !isLoading)) && totalWeeks > 0 && <LoadingSpinner message={isReordering ? "Saving order..." : "Loading weekly status..."} />}
                 {!isLoadingWeek && !isReordering && totalWeeks > 0 && (
                     <div className="members-table-container">
-                        {canBankerEditOrder && (<div className="reorder-hint"><FaBars /> Drag rows to reorder draw sequence.</div>)}
+                        {canEditOrder && (<div className="reorder-hint"><FaBars /> Drag rows to reorder draw sequence.</div>)}
                         <table className={`members-table ${isReordering ? 'reordering-active' : ''}`}>
-                            <thead><tr>{canBankerEditOrder ? <th className="drag-handle-header"></th> : <th></th>}<th>#</th><th>Name</th><th>Draw Date</th><th>Paid (Wk {currentWeek})</th><th>Draw (Wk {currentWeek})</th><th>Actions</th></tr></thead>
+                            <thead><tr>{canEditOrder ? <th className="drag-handle-header"></th> : <th></th>}<th>#</th><th>Name</th><th>Draw Date</th><th>Paid (Wk {currentWeek})</th><th>Draw (Wk {currentWeek})</th><th>Actions</th></tr></thead>
                             <tbody>
                                 {orderedUsers.map((user, index) => (
                                     <DraggableUserRow key={user.id.toString()} index={index} user={user} moveRow={moveRow}
@@ -353,9 +360,16 @@ const PotDetailsPage = () => {
                                             if (didDrop) { handleReorderUsersSubmit(); } 
                                             else { if (potDetails?.Users) { setOrderedUsers([...potDetails.Users].sort((a, b) => (a.potMemberDetails?.displayOrder || 0) - (b.potMemberDetails?.displayOrder || 0))); } }
                                         }}
-                                        canBankerEditOrder={canBankerEditOrder} currentWeek={currentWeek} weeklyStatusMap={weeklyStatusMap}
-                                        handlePaymentChange={handlePaymentChange} handleRemoveUserFromPot={handleRemoveUserFromPot}
-                                        currUser={currUser} potDetailsStatus={potDetails.status} formatDate={formatDate}
+                                        canBankerEditOrder={canEditOrder}
+                                        currentWeek={currentWeek}
+                                        weeklyStatusMap={weeklyStatusMap}
+                                        handlePaymentChange={handlePaymentChange}
+                                        handleRemoveUserFromPot={handleRemoveUserFromPot}
+                                        currUser={currUser}
+                                        potDetailsStatus={potDetails.status}
+                                        canManagePayments={canManageWeeklyPayments}
+                                        canManageMembers={canManageMembers}
+                                        formatDate={formatDate}
                                     />
                                 ))}
                             </tbody>

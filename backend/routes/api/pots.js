@@ -1,10 +1,11 @@
 // routes/api/pots.js (Updated with PostgreSQL compatible literal)
 const express = require('express');
 const router = express.Router();
-const { requireAuth } = require('../../utils/auth');
+const { requireAuth, requirePermission } = require('../../utils/auth'); // Import new middleware
+const { PERMISSIONS } = require('../../utils/roles'); // Import permissions constants
 const { Pot, User, PotsUser, WeeklyPayment, sequelize } = require('../../db/models');
-const { logHistory } = require('../../utils/historyLogger'); 
-const { updatePotScheduleAndDetails } = require('../../utils/potUtils'); 
+const { logHistory } = require('../../utils/historyLogger');
+const { updatePotScheduleAndDetails } = require('../../utils/potUtils');
 const { Op } = require('sequelize');
 
 // --- ROUTES ---
@@ -89,11 +90,8 @@ router.get('/:potId', requireAuth, async (req, res) => {
 });
 
 
-router.post('/', requireAuth, async (req, res) => {
+router.post('/', requireAuth, requirePermission(PERMISSIONS.CREATE_POT), async (req, res) => {
     const currUser = req.user;
-    if (currUser.role !== 'banker') {
-        return res.status(403).json({ "message": "Forbidden, you must be a banker." });
-    }
     const t = await sequelize.transaction();
     try {
         const { name, hand, startDate, userIds, frequency } = req.body;
@@ -152,7 +150,7 @@ router.post('/', requireAuth, async (req, res) => {
                     }, { transaction: t });
                 }
             }
-             await logHistory({
+            await logHistory({
                 userId: currUser.id,
                 actionType: 'ADD_USER_TO_POT_BULK',
                 entityType: 'Pot',
@@ -163,8 +161,8 @@ router.post('/', requireAuth, async (req, res) => {
                 transaction: t
             });
         }
-        
-        await updatePotScheduleAndDetails(newPot.id, t); 
+
+        await updatePotScheduleAndDetails(newPot.id, t);
 
         await t.commit();
 
@@ -185,14 +183,11 @@ router.post('/', requireAuth, async (req, res) => {
 });
 
 
-router.put('/:potId', requireAuth, async (req, res) => {
+router.put('/:potId', requireAuth, requirePermission(PERMISSIONS.EDIT_POT), async (req, res) => {
     const currUser = req.user;
     const { potId } = req.params;
     const numPotId = parseInt(potId);
 
-    if (currUser.role !== 'banker') {
-        return res.status(403).json({ "message": "Forbidden" });
-    }
     const t = await sequelize.transaction();
     try {
         const potToUpdate = await Pot.findByPk(numPotId, { transaction: t });
@@ -209,7 +204,7 @@ router.put('/:potId', requireAuth, async (req, res) => {
         const { name, hand, startDate, status, frequency } = req.body;
         let scheduleNeedsUpdate = false;
         const appliedChanges = {};
-        
+
         const isHandChanging = hand !== undefined && potToUpdate.hand.toString() !== parseFloat(hand).toString();
         const isStartDateChanging = startDate !== undefined && potToUpdate.startDate !== startDate;
         const isFrequencyChanging = frequency !== undefined && potToUpdate.frequency !== frequency;
@@ -221,7 +216,7 @@ router.put('/:potId', requireAuth, async (req, res) => {
 
         if (name !== undefined && name !== oldValues.name) { potToUpdate.name = name; appliedChanges.name = { old: oldValues.name, new: name }; }
         if (status !== undefined && status !== oldValues.status) { potToUpdate.status = status; appliedChanges.status = { old: oldValues.status, new: status }; }
-        
+
         if (isHandChanging) {
             const newHand = parseFloat(hand);
             if (isNaN(newHand) || newHand < 0) {
@@ -256,7 +251,7 @@ router.put('/:potId', requireAuth, async (req, res) => {
         if (Object.keys(appliedChanges).length > 0) {
             await potToUpdate.save({ transaction: t });
         }
-        
+
         if (scheduleNeedsUpdate) {
             await updatePotScheduleAndDetails(numPotId, t);
         }
@@ -273,9 +268,9 @@ router.put('/:potId', requireAuth, async (req, res) => {
                 transaction: t
             });
         }
-        
+
         await t.commit();
-        
+
         const finalUpdatedPot = await Pot.findByPk(numPotId, {
             include: [{ model: User, as: 'Users', through: { model: PotsUser, as: 'potMemberDetails', attributes: ['drawDate', 'displayOrder'] } }],
             order: [[sequelize.literal('"Users->potMemberDetails"."displayOrder"'), 'ASC']]
@@ -289,14 +284,11 @@ router.put('/:potId', requireAuth, async (req, res) => {
 });
 
 // DELETE a pot by id
-router.delete('/:potId', requireAuth, async (req, res) => {
+router.delete('/:potId', requireAuth, requirePermission(PERMISSIONS.DELETE_POT), async (req, res) => {
     const currUser = req.user;
     const { potId } = req.params;
     const numPotId = parseInt(potId);
 
-    if (currUser.role !== 'banker') {
-        return res.status(403).json({ "message": "Forbidden, you must be a banker to delete a pot." });
-    }
     if (isNaN(numPotId)) {
         return res.status(400).json({ 'message': 'Invalid Pot ID.' });
     }
@@ -351,7 +343,7 @@ router.delete('/:potId', requireAuth, async (req, res) => {
 
 
 //add users to a pot
-router.post('/:potId/addusers', requireAuth, async (req, res) => {
+router.post('/:potId/addusers', requireAuth, requirePermission(PERMISSIONS.MANAGE_POT_MEMBERS), async (req, res) => {
     const currUser = req.user;
     const { potId } = req.params;
     const { userId } = req.body;
@@ -408,7 +400,7 @@ router.post('/:potId/addusers', requireAuth, async (req, res) => {
         const updatedPotResult = await Pot.findByPk(numPotId, {
             include: [{ model: User, as: 'Users', through: { model: PotsUser, as: 'potMemberDetails', attributes: ['drawDate', 'displayOrder'] } }],
             order: [
-                
+
                 [sequelize.literal('"Users->potMemberDetails"."displayOrder"'), 'ASC']
             ]
         });
@@ -422,7 +414,7 @@ router.post('/:potId/addusers', requireAuth, async (req, res) => {
 
 
 //remove users from a pot
-router.delete('/:potId/removeusers', requireAuth, async (req, res) => {
+router.delete('/:potId/removeusers', requireAuth, requirePermission(PERMISSIONS.MANAGE_POT_MEMBERS), async (req, res) => {
     const currUser = req.user;
     const { potId } = req.params;
     const { userId } = req.body;
@@ -457,7 +449,7 @@ router.delete('/:potId/removeusers', requireAuth, async (req, res) => {
             await t.rollback();
             return res.status(404).json({ 'message': 'User not found in this pot.' });
         }
-        
+
         const removedUserInfo = { userId: potsUserEntry.userId, username: userToRemove.username, oldDisplayOrder: potsUserEntry.displayOrder };
         await potsUserEntry.destroy({ transaction: t });
 
@@ -483,7 +475,7 @@ router.delete('/:potId/removeusers', requireAuth, async (req, res) => {
         const updatedPotResult = await Pot.findByPk(numPotId, {
             include: [{ model: User, as: 'Users', through: { model: PotsUser, as: 'potMemberDetails', attributes: ['drawDate', 'displayOrder'] } }],
             order: [
-                
+
                 [sequelize.literal('"Users->potMemberDetails"."displayOrder"'), 'ASC']
             ]
         });
@@ -497,7 +489,7 @@ router.delete('/:potId/removeusers', requireAuth, async (req, res) => {
 
 
 // Reorder users in a pot
-router.put('/:potId/reorderusers', requireAuth, async (req, res) => {
+router.put('/:potId/reorderusers', requireAuth, requirePermission(PERMISSIONS.MANAGE_POT_MEMBERS), async (req, res) => {
     const currUser = req.user;
     const { potId } = req.params;
     const { orderedUserIds } = req.body;
@@ -526,13 +518,13 @@ router.put('/:potId/reorderusers', requireAuth, async (req, res) => {
         }
 
         // Correctly fetch the current members from the PotsUser table
-        const currentMembers = await PotsUser.findAll({ 
-            where: { potId: numPotId }, 
+        const currentMembers = await PotsUser.findAll({
+            where: { potId: numPotId },
             order: [['displayOrder', 'ASC']],
-            transaction: t 
+            transaction: t
         });
         const currentMemberIds = currentMembers.map(m => m.userId);
-        const oldOrderSnapshot = currentMembers.map(m => ({userId: m.userId, displayOrder: m.displayOrder}));
+        const oldOrderSnapshot = currentMembers.map(m => ({ userId: m.userId, displayOrder: m.displayOrder }));
 
         if (orderedUserIds.length !== currentMemberIds.length || !orderedUserIds.every(id => currentMemberIds.includes(parseInt(id)))) {
             await t.rollback();
@@ -597,7 +589,7 @@ router.get('/:potId/users', requireAuth, async (req, res) => {
                 }
             }],
             order: [
-                
+
                 [sequelize.literal('"Users->potMemberDetails"."displayOrder"'), 'ASC']
             ]
         });

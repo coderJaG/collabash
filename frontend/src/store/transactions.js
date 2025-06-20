@@ -48,13 +48,12 @@ export const fetchWeeklyStatus = (potId, weekNumber) => async (dispatch) => {
 
 // Update weekly payment thunk
 export const updateWeeklyPayment = (transactionData) => async (dispatch) => {
-
-    const { potId, userId, week, paymentType, isPaid } = transactionData;
+    const { potId, userId, weekNumber, paymentType, isPaid } = transactionData;
     try {
         const res = await csrfFetch(`/api/transactions`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ potId, userId, weekNumber: week, paymentType, isPaid }),
+            body: JSON.stringify({ potId, userId, weekNumber, paymentType, isPaid }),
         });
         if (!res.ok) {
             throw new Error(updatedTransaction.message || `HTTP error! status: ${res.status}`);
@@ -63,7 +62,7 @@ export const updateWeeklyPayment = (transactionData) => async (dispatch) => {
         dispatch(updateWeeklyPaymentSuccess(updatedTransaction));
     } catch (error) {
         console.error("Error updating transaction:", error);
-        dispatch(fetchWeeklyStatusFailure(potId, week, `Failed to update payment for user ${userId}: ${error.message}`));
+        dispatch(fetchWeeklyStatusFailure(potId, weekNumber, `Failed to update payment for user ${userId}: ${error.message}`));
     }
 };
 

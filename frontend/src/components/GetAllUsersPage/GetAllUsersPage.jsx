@@ -10,7 +10,7 @@ import SignUpFormModal from '../SignUpFormModal';
 import DeleteConfirmationModal from '../DeleteConfirmationModal';
 import './GetAllUsersPage.css';
 
-const USERS_PER_PAGE = 2; // will increase for production, but 2 is good for testing
+const USERS_PER_PAGE = 5; // Adjusted for better viewing
 
 const GetAllUsersPage = () => {
     const dispatch = useDispatch();
@@ -22,6 +22,13 @@ const GetAllUsersPage = () => {
 
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
+
+    // Check for permissions from the user object
+    const userPermissions = useMemo(() => new Set(currUser?.permissions || []), [currUser]);
+    const canCreateUser = userPermissions.has('user:create');
+    const canViewAllUsers = userPermissions.has('user:view_all');
+    const canDeleteAnyUser = userPermissions.has('user:delete_any');
+    const canDeleteSelf = userPermissions.has('user:delete_self');
 
     useEffect(() => {
         dispatch(usersActions.getAllUsers());
@@ -38,7 +45,6 @@ const GetAllUsersPage = () => {
             (user.firstName?.toLowerCase().includes(lowerSearchTerm)) ||
             (user.lastName?.toLowerCase().includes(lowerSearchTerm)) ||
             (`${user.firstName} ${user.lastName}`.toLowerCase().includes(lowerSearchTerm)) ||
-            (`${user.lastName} ${user.firstName}`.toLowerCase().includes(lowerSearchTerm)) ||
             (user.username?.toLowerCase().includes(lowerSearchTerm)) ||
             (user.email?.toLowerCase().includes(lowerSearchTerm)) ||
             (user.mobile?.toLowerCase().includes(lowerSearchTerm)) ||
@@ -65,11 +71,10 @@ const GetAllUsersPage = () => {
 
     const handleUserNameClick = (targetUser) => {
         if (!currUser) return;
-
-        if (currUser.role === 'banker' || currUser.id === targetUser.id) {
+        if (canViewAllUsers || currUser.id === targetUser.id) {
             navigate(`/users/${targetUser.id}`);
         } else {
-            console.log("Standard users can only view their own profile page directly from this list.");
+            console.log("Standard users can only view profiles of users they share a pot with.");
         }
     };
 
@@ -81,7 +86,7 @@ const GetAllUsersPage = () => {
                 dispatch(sessionActions.logout());
                 navigate('/');
             }
-            if (currentUsersOnPage.length === 1 && currentPage > 1 && filteredUsers.length - 1 <= (currentPage - 1) * USERS_PER_PAGE) {
+            if (currentUsersOnPage.length === 1 && currentPage > 1) {
                 setCurrentPage(currentPage - 1);
             }
         } catch (err) {
@@ -111,7 +116,7 @@ const GetAllUsersPage = () => {
         <div className="user-list-page-container">
             <h1>ALL USERS</h1>
             <div className="user-list-controls">
-                {currUser?.role === 'banker' && (
+                {canCreateUser && (
                     <OpenModalButton
                         buttonText="Create New User"
                         className="create-user-button"
@@ -145,16 +150,32 @@ const GetAllUsersPage = () => {
                         {currentUsersOnPage.map(user => {
                             const potsJoined = user.PotsJoined || [];
                             const numPotsJoined = potsJoined.length;
-                            const canViewProfile = currUser?.role === 'banker' || currUser?.id === user.id;
+                            const isOwnProfile = currUser?.id === user.id;
 
+                           
+                            const canViewProfile = canViewAllUsers || isOwnProfile;
+                            const canDeleteThisUser = (isOwnProfile && canDeleteSelf) || (!isOwnProfile && canDeleteAnyUser);
+                            
+                            const isDeleteDisabled = !canDeleteThisUser || numPotsJoined > 0 || (currUser?.role === 'banker' && isOwnProfile);
+
+                         
+                            let deleteButtonTitle = "";
+                            if (!canDeleteThisUser) {
+                                deleteButtonTitle = "You do not have permission to delete this user.";
+                            } else if (numPotsJoined > 0) {
+                                deleteButtonTitle = `Cannot delete: ${user.firstName} is associated with active pots.`;
+                            } else if (currUser?.role === 'banker' && isOwnProfile) {
+                                deleteButtonTitle = "Bankers cannot delete their own account from this panel.";
+                            } else {
+                                deleteButtonTitle = isOwnProfile ? "Delete your account" : `Delete user ${user.firstName}`;
+                            }
+                            
                             let displayPotsText = "None";
-                            let hoverTitlePots = "No pots joined";
                             if (numPotsJoined > 0) {
                                 displayPotsText = potsJoined[0].name;
                                 if (numPotsJoined > 1) {
                                     displayPotsText += ` (+${numPotsJoined - 1} more)`;
                                 }
-                                hoverTitlePots = potsJoined.map(pot => pot.name).join(', ');
                             }
 
                             return (
@@ -168,59 +189,28 @@ const GetAllUsersPage = () => {
                                     </td>
                                     <td>{user.mobile}</td>
                                     <td>{user.role}</td>
-                                    <td title={hoverTitlePots} className={numPotsJoined > 0 ? "has-tooltip" : ""}>
+                                    <td title={potsJoined.map(p => p.name).join(', ')} className={numPotsJoined > 0 ? "has-tooltip" : ""}>
                                         {displayPotsText}
                                     </td>
                                     <td className="actions-cell">
-                                        {(() => {
-                                            // Determine if a button should be shown and its state (active/disabled)
-                                            const isOwnProfile = currUser?.id === user.id;
-                                            const isBanker = currUser?.role === 'banker';
-                                            const isStandard = currUser?.role === 'standard';
-                                            
-                                            // A button is potentially visible if the current user is a banker,
-                                            // or if they are a standard user viewing their own row.
-                                            const isEligibleForButton = isBanker || (isStandard && isOwnProfile);
-
-                                            if (!isEligibleForButton) {
-                                                // If not eligible, render a placeholder to maintain alignment
-                                                return <div className="action-placeholder" />;
-                                            }
-
-                                            // Determine if the button should be disabled
-                                            const isAssociatedWithPots = numPotsJoined > 0;
-                                            const isDisabled = isAssociatedWithPots || (isBanker && isOwnProfile);
-
-                                            let title = "";
-                                            if (isBanker && isOwnProfile) {
-                                                title = "Bankers cannot delete their own account from this panel.";
-                                            } else if (isAssociatedWithPots) {
-                                                title = `Cannot delete: ${user.firstName} is associated with active pots.`;
-                                            } else {
-                                                title = isOwnProfile ? "Delete your account" : `Delete user ${user.firstName}`;
-                                            }
-
-                                            return (
-                                                <div className={`delete-button-container ${isDisabled ? 'disabled' : ''}`} title={title}>
-                                                    {isDisabled ? (
-                                                        <button disabled>
-                                                            <MdDelete />
-                                                        </button>
-                                                    ) : (
-                                                        <OpenModalButton
-                                                            buttonText={<MdDelete />}
-                                                            modalComponent={
-                                                                <DeleteConfirmationModal
-                                                                    message={isOwnProfile ? "Are you sure you want to delete your account? This action cannot be undone." : `Are you sure you want to delete ${user.firstName} ${user.lastName}? This action cannot be undone.`}
-                                                                    onConfirm={() => handleDeleteUser(user.id)}
-                                                                    confirmButtonText={isOwnProfile ? "Yes, Delete Account" : "Yes, Delete User"}
-                                                                />
-                                                            }
-                                                        />
-                                                    )}
-                                                </div>
-                                            );
-                                        })()}
+                                        {canDeleteThisUser && (
+                                            <div className={`delete-button-container ${isDeleteDisabled ? 'disabled' : ''}`} title={deleteButtonTitle}>
+                                                {isDeleteDisabled ? (
+                                                    <button disabled><MdDelete /></button>
+                                                ) : (
+                                                    <OpenModalButton
+                                                        buttonText={<MdDelete />}
+                                                        modalComponent={
+                                                            <DeleteConfirmationModal
+                                                                message={`Are you sure you want to delete ${user.firstName} ${user.lastName}?`}
+                                                                onConfirm={() => handleDeleteUser(user.id)}
+                                                                confirmButtonText="Yes, Delete User"
+                                                            />
+                                                        }
+                                                    />
+                                                )}
+                                            </div>
+                                        )}
                                     </td>
                                 </tr>
                             );
@@ -233,39 +223,24 @@ const GetAllUsersPage = () => {
 
             {totalPages > 1 && (
                 <div className="pagination-controls">
-                    <button onClick={goToPrevPage} disabled={currentPage === 1} className="general-button">
-                        Previous
-                    </button>
+                    <button onClick={goToPrevPage} disabled={currentPage === 1}>Previous</button>
                     {Array.from({ length: totalPages }, (_, i) => i + 1)
                         .filter(pageNumber => {
                             if (totalPages <= 7) return true;
                             if (pageNumber === 1 || pageNumber === totalPages) return true;
                             if (pageNumber >= currentPage - 2 && pageNumber <= currentPage + 2) return true;
-                            if ((pageNumber === currentPage - 3 && currentPage > 4) || (pageNumber === currentPage + 3 && currentPage < totalPages - 3)) {
-                                return 'ellipsis';
-                            }
+                            if ((pageNumber === currentPage - 3 && currentPage > 4) || (pageNumber === currentPage + 3 && currentPage < totalPages - 3)) return 'ellipsis';
                             return false;
                         })
-                        .map((pageNumber, index, arr) => {
-                            if (pageNumber === 'ellipsis') {
-                                // Prevent consecutive ellipsis
-                                if (arr[index - 1] === 'ellipsis') return null;
-                                return <span key={`ellipsis-${index}`} className="page-ellipsis">...</span>;
-                            }
-                            return (
-                                <button
-                                    key={pageNumber}
-                                    onClick={() => paginate(pageNumber)}
-                                    className={`page-number general-button ${currentPage === pageNumber ? 'active' : ''}`}
-                                >
-                                    {pageNumber}
-                                </button>
-                            );
-                        })
+                        .map((pageNumber, index) => (
+                           pageNumber === 'ellipsis' ?
+                           <span key={`ellipsis-${index}`} className="page-ellipsis">...</span> :
+                           <button key={pageNumber} onClick={() => paginate(pageNumber)} className={`page-number ${currentPage === pageNumber ? 'active' : ''}`}>
+                               {pageNumber}
+                           </button>
+                        ))
                     }
-                    <button onClick={goToNextPage} disabled={currentPage === totalPages} className="general-button">
-                        Next
-                    </button>
+                    <button onClick={goToNextPage} disabled={currentPage === totalPages}>Next</button>
                 </div>
             )}
         </div>
