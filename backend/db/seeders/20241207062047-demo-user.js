@@ -1,5 +1,7 @@
 'use strict';
 
+const bcrypt = require('bcryptjs')
+
 let options = {};
 if (process.env.NODE_ENV === 'production') {
   options.schema = process.env.SCHEMA;  // define your schema in options object
@@ -12,7 +14,7 @@ const demoUsersData = [
     mobile: '999-999-9999',
     email: 'banker@example.com',
     username: 'Demo-lition',
-    hashedPassword: 'password123',
+    hashedPassword: bcrypt.hashSync('password'),
     role: 'banker'
   },
   {
@@ -21,7 +23,7 @@ const demoUsersData = [
     mobile: '555-555-5555',
     email: 'john.smith@example.com',
     username: 'johnsmith',
-    hashedPassword: 'password123',
+    hashedPassword: bcrypt.hashSync('password'),
     role: 'standard'
   },
   {
@@ -30,19 +32,19 @@ const demoUsersData = [
     mobile: '111-222-3333',
     email: 'jane.doe@example.com',
     username: 'janedoe',
-    hashedPassword: 'password123',
+    hashedPassword: bcrypt.hashSync('password'),
     role: 'standard'
   }
 ];
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up (queryInterface, Sequelize) {
+  async up(queryInterface, Sequelize) {
     options.tableName = 'Users';
     await queryInterface.bulkInsert(options, demoUsersData, {});
   },
 
-  async down (queryInterface, Sequelize) {
+  async down(queryInterface, Sequelize) {
     options.tableName = 'Users';
     const Op = Sequelize.Op;
     const { User, Pot, PotsUser, JoinRequest, WeeklyPayment, TransactionHistory } = require('../models');
@@ -58,12 +60,12 @@ module.exports = {
       await WeeklyPayment.destroy({ where: { userId: { [Op.in]: userIdsToDelete } } });
       const potsOwnedByDemoUsers = await Pot.findAll({ where: { ownerId: { [Op.in]: userIdsToDelete } }, attributes: ['id'] });
       const potIdsOwned = potsOwnedByDemoUsers.map(p => p.id);
-      
+
       await JoinRequest.destroy({
         where: {
           [Op.or]: [
-            { userId: { [Op.in]: userIdsToDelete } }, 
-            { potId: { [Op.in]: potIdsOwned } }       
+            { userId: { [Op.in]: userIdsToDelete } },
+            { potId: { [Op.in]: potIdsOwned } }
           ]
         }
       });
