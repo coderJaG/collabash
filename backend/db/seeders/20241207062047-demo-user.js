@@ -9,8 +9,8 @@ if (process.env.NODE_ENV === 'production') {
 
 const demoUsersData = [
   {
-    firstName: 'Banker',
-    lastName: 'Demo-lition',
+    firstName: 'Demo',
+    lastName: 'Lition',
     mobile: '999-999-9999',
     email: 'banker@example.com',
     username: 'Demo-lition',
@@ -23,7 +23,7 @@ const demoUsersData = [
     mobile: '555-555-5555',
     email: 'john.smith@example.com',
     username: 'johnsmith',
-    hashedPassword: bcrypt.hashSync('password'),
+    hashedPassword: bcrypt.hashSync('password2'),
     role: 'standard'
   },
   {
@@ -32,7 +32,7 @@ const demoUsersData = [
     mobile: '111-222-3333',
     email: 'jane.doe@example.com',
     username: 'janedoe',
-    hashedPassword: bcrypt.hashSync('password'),
+    hashedPassword: bcrypt.hashSync('password3'),
     role: 'standard'
   }
 ];
