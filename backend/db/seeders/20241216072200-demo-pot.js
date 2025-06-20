@@ -1,36 +1,37 @@
 'use strict';
-const {Pot} = require('../models')
 
 let options = {};
-if (process.env.NODE_ENV === 'prodution') {
-  options.schema = process.env.SCHEMA
+if (process.env.NODE_ENV === 'production') {
+  options.schema = process.env.SCHEMA;  
 }
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up(queryInterface, Sequelize) {
-    await Pot.bulkCreate([
+  async up (queryInterface, Sequelize) {
+    options.tableName = 'Pots';
+    await queryInterface.bulkInsert(options, [
       {
-        ownerId: 1,
-        ownerName: 'Demo Lition',
-        name: 'Cash Pot',
-        hand: 20.00,
-        amount: 40.00,
-        startDate: '2024-12-01',
-        endDate: '2026-06-02',
+        ownerId: 1, 
+        ownerName: 'Demo lition',
+        name: 'Community Fund',
+        hand: 250.00,
+        amount: 5000.00,
+        startDate: '2025-01-01',
+        endDate: '2025-06-01',
         status: 'Not Started',
-        frequency: 'monthly',
+        frequency: 'weekly',
       },
       {
-        ownerId: 1,
-        ownerName: 'Demo Lition',
-        name: 'Rainy Day',
+        ownerId: 1, 
+        ownerName: 'Demo lition',
+        name: 'Vacation Club',
         hand: 100.00,
-        amount: 100.00,
-        startDate: '2023-11-10',
-        endDate: '2025-10-10',
+        amount: 1200.00,
+        startDate: '2025-02-01',
+        endDate: '2025-05-01',
         status: 'Active',
-        frequency: 'weekly'
+        frequency: 'weekly',
+    
       },
       {
         ownerId: 1,
@@ -43,12 +44,14 @@ module.exports = {
         status: 'Ended',
         frequency: 'every-2-weeks'
       }
-    ], options);
-
+    ], {});
   },
 
-  async down(queryInterface, Sequelize) {
-    options.tableName = 'Pots'
-    return queryInterface.bulkDelete(options, {})
-  }
+  async down (queryInterface, Sequelize) {
+    options.tableName = 'Pots';
+    const Op = Sequelize.Op;
+    return queryInterface.bulkDelete(options, {
+      name: { [Op.in]: ['Community Fund', 'Vacation Club', 'Friends and Family'] }
+    }, {});
+  } 
 };
