@@ -51,7 +51,7 @@ const LoginFormModal = () => {
             <h2>LOG IN</h2>
             <div className="demo-buttons-container">
                 <button className="demo-button" onClick={() => demoUserLogin('Demo-lition', 'password')}>Demo User 1</button>
-                <button className="demo-button" onClick={() => demoUserLogin('TestUser1', 'password2')}>Demo User 2</button>
+                <button className="demo-button" onClick={() => demoUserLogin('johnsmith', 'password2')}>Demo User 2</button>
             </div>
             <form onSubmit={handleSubmit} className="login-form">
                 {errors.credential && <p className="error-message">{errors.credential}</p>}
