@@ -27,7 +27,7 @@ module.exports = (sequelize, DataTypes) => {
       });
       User.hasMany(models.WeeklyPayment, { foreignKey: 'userId' });
       User.hasMany(models.TransactionHistory, { foreignKey: 'userId', as: 'actionHistory' });
-     
+      User.hasMany(models.JoinRequest, { foreignKey: 'userId', as: 'sentRequests' });
     }
   }
   User.init({

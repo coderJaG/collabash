@@ -3,7 +3,8 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const { check, body } = require('express-validator');
 const { Sequelize, sequelize } = require('../../db/models'); // Import sequelize for transactions
-const { setTokenCookie, requireAuth } = require('../../utils/auth');
+const { setTokenCookie, requireAuth, requirePermission } = require('../../utils/auth');
+const { PERMISSIONS, ROLE_PERMISSIONS } = require('../../utils/roles');
 const { User, Pot, PotsUser } = require('../../db/models');
 const { handleValidationErrors } = require('../../utils/validation');
 const { logHistory } = require('../../utils/historyLogger'); // Import the logger
@@ -100,24 +101,26 @@ const validateUserUpdate = [
 // --- Read-Only Routes (unchanged) ---
 // GET all users
 router.get('/', requireAuth, async (req, res) => {
-    // ... existing code ...
     const currUser = req.user;
     let usersToReturn = [];
 
     const includePotsJoinedWithUsers = {
         model: Pot,
         as: 'PotsJoined',
-        attributes: ['id', 'name'], // Only fetch what the frontend needs (name for the tooltip)
+        attributes: ['id', 'name'],
         through: { attributes: [] }
     };
 
     try {
-        if (currUser.role === 'banker') {
+        // A banker or super admin can see everyone
+        if ((ROLE_PERMISSIONS[currUser.role] || []).includes(PERMISSIONS.VIEW_ALL_USERS)) {
             usersToReturn = await User.findAll({
                 attributes: ['id', 'firstName', 'lastName', 'email', 'username', 'mobile', 'role'],
                 include: [includePotsJoinedWithUsers]
             });
-        } else if (currUser.role === 'standard') {
+        } 
+        // A standard user sees only users they share a pot with
+        else if (currUser.role === 'standard') {
             const userPots = await PotsUser.findAll({
                 where: { userId: currUser.id },
                 attributes: ['potId']
@@ -142,6 +145,7 @@ router.get('/', requireAuth, async (req, res) => {
                     include: [includePotsJoinedWithUsers]
                 });
             } else {
+                // If they are in no pots, they only see themselves
                 const selfUser = await User.findByPk(currUser.id, {
                     attributes: ['id', 'firstName', 'lastName', 'email', 'username', 'mobile', 'role'],
                     include: [includePotsJoinedWithUsers]
@@ -149,7 +153,8 @@ router.get('/', requireAuth, async (req, res) => {
                 if (selfUser) usersToReturn = [selfUser];
             }
         } else {
-            return res.status(403).json({ "message": "Forbidden: Role not authorized." });
+            // Fallback for any other case or unhandled role
+             return res.status(403).json({ "message": "Forbidden: You do not have permission to view users." });
         }
 
         const usersData = usersToReturn.map(user => user.toJSON ? user.toJSON() : user);
@@ -160,9 +165,10 @@ router.get('/', requireAuth, async (req, res) => {
         return res.status(500).json({ message: "Internal server error while fetching users." });
     }
 });
+
 // GET user by ID
 router.get('/:userId', requireAuth, async (req, res) => {
-    // ... existing code ...
+
     const targetUserId = parseInt(req.params.userId, 10);
     const currUser = req.user;
 
@@ -244,7 +250,7 @@ router.get('/:userId', requireAuth, async (req, res) => {
     }
 });
 
-// --- Create/Update/Delete Routes (UPDATED with History Logging) ---
+
 
 // Sign up a user endpoint
 router.post('/', validateSignupInputs, async (req, res) => {
@@ -309,7 +315,8 @@ router.put('/:userId', requireAuth, validateUserUpdate, async (req, res) => {
         return res.status(400).json({ message: "Invalid user ID format." });
     }
 
-    if (currUser.role !== 'banker' && currUser.id !== targetUserId) {
+    const hasPermissionToEditAny = (ROLE_PERMISSIONS[currUser.role] || []).includes(PERMISSIONS.EDIT_ANY_USER);
+    if (currUser.id !== targetUserId && !hasPermissionToEditAny) {
         return res.status(403).json({ "message": "Forbidden: You are not authorized to edit this user." });
     }
 
@@ -363,14 +370,14 @@ router.put('/:userId', requireAuth, validateUserUpdate, async (req, res) => {
         console.error(`Error updating user ${targetUserId}:`, error);
         if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
             const errors = {};
-             if (Array.isArray(error.errors)) {
+            if (Array.isArray(error.errors)) {
                 error.errors.forEach(e => errors[e.path || 'general'] = e.message);
             } else if (typeof error.errors === 'object' && error.errors !== null) {
                 for (const key in error.errors) {
                     errors[key] = error.errors[key].message || error.errors[key];
                 }
             } else {
-                 errors.general = error.message || "Validation error occurred during update.";
+                errors.general = error.message || "Validation error occurred during update.";
             }
             return res.status(400).json({ message: "Validation error", errors });
         }
@@ -383,14 +390,16 @@ router.delete('/:userId', requireAuth, async (req, res) => {
     const currUser = req.user;
     const targetUserId = parseInt(req.params.userId, 10);
 
-    if (isNaN(targetUserId)) {
-        return res.status(400).json({ message: "Invalid user ID format." });
+    const canDeleteSelf = currUser.id === targetUserId && (ROLE_PERMISSIONS[currUser.role] || []).includes(PERMISSIONS.DELETE_OWN_ACCOUNT);
+    const canDeleteAny = (ROLE_PERMISSIONS[currUser.role] || []).includes(PERMISSIONS.DELETE_ANY_USER);
+    
+    // Authorization check
+    if (!canDeleteSelf && !canDeleteAny) {
+        return res.status(403).json({ 'message': 'Forbidden: You do not have permission to delete this user.' });
     }
-    if (currUser.role !== 'banker' && currUser.id !== targetUserId) {
-        return res.status(403).json({ 'message': 'Forbidden: You are not authorized to delete this user.' });
-    }
-    if (currUser.role === 'banker' && currUser.id === targetUserId) {
-        return res.status(400).json({ 'message': 'Bankers cannot delete their own account.' });
+    // Prevent super admin from deleting themselves through this route if that's a desired rule
+    if (canDeleteAny && currUser.id === targetUserId) {
+        return res.status(400).json({ 'message': 'Admins cannot delete their own account from this panel.' });
     }
 
     const t = await sequelize.transaction();
@@ -401,7 +410,6 @@ router.delete('/:userId', requireAuth, async (req, res) => {
             return res.status(404).json({ 'message': 'User not found!' });
         }
 
-        // Prevent deletion if user is in any pots
         const userPots = await PotsUser.findOne({ where: { userId: targetUserId }, transaction: t });
         if (userPots) {
             await t.rollback();
@@ -417,7 +425,7 @@ router.delete('/:userId', requireAuth, async (req, res) => {
             entityType: 'User',
             entityId: targetUserId,
             changes: { deletedUser: deletedUserInfo },
-            description: `User ${currUser.username} (ID: ${currUser.id}) deleted user ${deletedUserInfo.username} (ID: ${targetUserId}).`,
+            description: `User ${currUser.username} deleted user ${deletedUserInfo.username} (ID: ${targetUserId}).`,
             transaction: t
         });
 
@@ -433,5 +441,6 @@ router.delete('/:userId', requireAuth, async (req, res) => {
         return res.status(500).json({ message: "Internal server error while deleting user." });
     }
 });
+
 
 module.exports = router;

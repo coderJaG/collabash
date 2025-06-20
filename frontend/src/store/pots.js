@@ -1,3 +1,5 @@
+// store/pots.js
+
 import { csrfFetch } from "./csrf";
 import { removeTransaction } from "./transactions";
 
@@ -70,7 +72,7 @@ const removeUserFromPotStart = () => ({ type: REMOVE_USER_FROM_POT_START });
 const removeUserFromPotSuccess = (potUserData) => ({ type: REMOVE_USER_FROM_POT_SUCCESS, payload: potUserData });
 const removeUserFromPotFailure = (error) => ({ type: REMOVE_USER_FROM_POT_FAILURE, payload: error });
 
-// New Action Creators for Reordering
+
 const reorderPotUsersStart = () => ({ type: REORDER_POT_USERS_START });
 const reorderPotUsersSuccess = (updatedPot) => ({ type: REORDER_POT_USERS_SUCCESS, payload: updatedPot });
 const reorderPotUsersFailure = (error) => ({ type: REORDER_POT_USERS_FAILURE, payload: error });
@@ -140,12 +142,8 @@ export const getPots = () => async (dispatch) => {
     } catch (caughtError) {
         let errorToDispatch;
         if (caughtError instanceof Response) {
-            // This case handles if csrfFetch itself throws the raw Response (e.g., network error before !res.ok)
-            // or if processErrorResponse was somehow bypassed and raw Response was thrown.
             errorToDispatch = await processErrorResponse(caughtError, 'Failed to fetch pots (processed in catch)');
         } else {
-            // Assumes caughtError is already a structured error object (from processErrorResponse)
-            // or a standard JavaScript Error object.
             errorToDispatch = {
                 message: caughtError.message || String(caughtError) || 'An unknown error occurred while fetching pots.',
                 status: caughtError.status, // Preserve status if it exists

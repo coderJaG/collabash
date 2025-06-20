@@ -13,25 +13,25 @@ module.exports = {
         potId: 1,
         userId: 2,
         displayOrder: 1,
-        drawDate: '05/25/2025'
+        drawDate: '2025-05-25'
       },
       {
         potId: 2,
         userId: 3,
         displayOrder: 1,
-        drawDate: '05/25/2025'
+        drawDate: '2025-05-25'
       },
       {
         potId: 3,
         userId: 2,
         displayOrder: 1,
-        drawDate: '05/25/2025'
+        drawDate: '2025-12-01'
       },
       {
         potId: 1,
         userId: 3,
         displayOrder: 2,
-        drawDate: '06/01/2025'
+        drawDate: '2025-06-01'
       }
     ], options)
   },

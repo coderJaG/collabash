@@ -11,11 +11,7 @@ import "./LandingPage.css";
 
 
 const LandingPage = () => {
-    // const dispacth = useDispatch();
     const currUser = useSelector(state => state.session.user);
-    // const role = currUser?.role
-
-
 
     const landingPage = currUser && currUser ? (
 

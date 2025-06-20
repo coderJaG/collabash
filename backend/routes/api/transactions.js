@@ -1,7 +1,8 @@
 //routes/api/transactions.js
 const express = require('express');
-const { requireAuth } = require('../../utils/auth');
-const { WeeklyPayment, Pot, User, sequelize } = require('../../db/models'); // Import sequelize
+const { requireAuth, requirePermission } = require('../../utils/auth');
+const { PERMISSIONS } = require('../../utils/roles');
+const { WeeklyPayment, sequelize } = require('../../db/models'); // Import sequelize
 const { logHistory } = require('../../utils/historyLogger'); // Import the logger
 const { Op } = require('sequelize');
 
@@ -10,7 +11,7 @@ const router = express.Router();
 
 // GET /api/transactions/pot/:potId?weekNumber=<value> - Fetch weekly statuses
 router.get('/pot/:potId', requireAuth, async (req, res) => {
-    // ... existing, unchanged code ...
+    
     const { potId } = req.params;
     const { weekNumber } = req.query;
 
@@ -54,14 +55,10 @@ router.get('/pot/:potId', requireAuth, async (req, res) => {
 
 
 // PUT /api/transactions - updates and creates transactions
-router.put('/', requireAuth, async (req, res) => {
+router.put('/', requireAuth, requirePermission(PERMISSIONS.MANAGE_POT_MEMBERS), async (req, res) => {
     const currUser = req.user;
-    if (currUser.role !== 'banker') {
-        return res.status(403).json({ message: "Forbidden: Only bankers can update payments." });
-    }
     const { potId, userId, weekNumber, paymentType, isPaid } = req.body;
-    
-    if (potId == null || userId == null || weekNumber == null || paymentType == null || isPaid == null) {
+    if (potId === null || userId === null || weekNumber === null || paymentType === null || isPaid === null) {
         return res.status(400).json({ message: "Missing required fields (potId, userId, weekNumber, paymentType, isPaid)" });
     }
     if (typeof isPaid !== 'boolean') {
@@ -77,7 +74,7 @@ router.put('/', requireAuth, async (req, res) => {
     if (isNaN(numPotId) || isNaN(numUserId) || isNaN(numWeekNumber)) {
         return res.status(400).json({ message: "Invalid ID or week number provided." });
     }
-
+    
     const t = await sequelize.transaction();
     try {
         const [transactionRecord, created] = await WeeklyPayment.findOrCreate({
@@ -107,7 +104,6 @@ router.put('/', requireAuth, async (req, res) => {
                 changes = { gotDraw: { old: oldValues.gotDraw, new: isPaid } };
                 description = `Banker ${currUser.username} updated 'gotDraw' to ${isPaid} for user ID ${numUserId}, pot ID ${numPotId}, week ${numWeekNumber}.`;
             } else {
-                // No actual change, so we can decide not to log
                 await t.commit(); // Commit the transaction even if no log is made
                 return res.json(transactionRecord.toJSON());
             }
@@ -135,11 +131,8 @@ router.put('/', requireAuth, async (req, res) => {
 });
 
 // DELETE /api/transactions - deletes all transactions for a user in a pot
-router.delete('/', requireAuth, async (req, res) => {
+router.delete('/', requireAuth, requirePermission(PERMISSIONS.MANAGE_POT_MEMBERS), async (req, res) => {
     const currUser = req.user;
-    if (currUser.role !== 'banker') {
-        return res.status(403).json({ message: "Forbidden: Only bankers can delete payments." });
-    }
     const { potId, userId } = req.body;
 
     if (potId == null || userId == null) {

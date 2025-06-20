@@ -50,8 +50,8 @@ const AddUsersToPot = ({
 
     const handleCancel = () => {
         closeModal();
-        setError(null); //reset error when modal is closed
-        setSelectedUserById(''); //reset selected user when modal is closed
+        setError(null); 
+        setSelectedUserById(''); 
     };
 
     //convert allUsers to an array

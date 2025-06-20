@@ -1,19 +1,21 @@
-// frontend/src/components/TransactionHistoryPage/TransactionHistoryPage.jsx
-import { useEffect} from 'react';
+import { useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getHistory } from '../../store/history';
-import './TransactionHistoryPage.css'; // Create this CSS file
+import './TransactionHistoryPage.css'; 
 
 const TransactionHistoryPage = () => {
     const dispatch = useDispatch();
     const { items, isLoading, error, currentPage, totalPages } = useSelector(state => state.history);
     const currUser = useSelector(state => state.session.user);
 
+    // Check for permission from the user object
+    const canViewHistory = useMemo(() => currUser?.permissions?.includes('history:view_all'), [currUser]);
+
     useEffect(() => {
-        if (currUser?.role === 'banker') { // Only fetch if banker for this basic setup
+        if (canViewHistory) {
             dispatch(getHistory(currentPage));
         }
-    }, [dispatch, currentPage, currUser]);
+    }, [dispatch, currentPage, canViewHistory]);
 
     const handlePageChange = (newPage) => {
         if (newPage >= 1 && newPage <= totalPages) {
@@ -21,7 +23,8 @@ const TransactionHistoryPage = () => {
         }
     };
 
-    if (currUser?.role !== 'banker') {
+    
+    if (!canViewHistory) {
         return (
             <div className="transaction-history-page unauthorized">
                 <h1>Access Denied</h1>
@@ -48,7 +51,6 @@ const TransactionHistoryPage = () => {
                                 <th>Action</th>
                                 <th>Entity</th>
                                 <th>Description</th>
-                                {/* <th>Details</th> */}
                             </tr>
                         </thead>
                         <tbody>
@@ -63,7 +65,6 @@ const TransactionHistoryPage = () => {
                                         {item.relatedPot ? ` - Pot: ${item.relatedPot.name}` : ''}
                                     </td>
                                     <td>{item.description || '-'}</td>
-                                    {/* <td>{item.changes ? <pre>{JSON.stringify(item.changes, null, 2)}</pre> : '-'}</td> */}
                                 </tr>
                             ))}
                         </tbody>

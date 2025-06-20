@@ -1,12 +1,3 @@
-/* GetAllPotsPage.css */
-
-/* General link styling */
-a,
-a:visited {
-    text-decoration: none;
-    color: inherit;
-}
-
 /* Overall Page Container */
 .all-pots-page-container {
     padding: 20px 30px;
@@ -14,12 +5,10 @@ a:visited {
     margin: 30px auto;
     background-color: #e8f8f5;
     border-radius: 8px;
-    /* box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08); */
     text-align: center;
 }
 
-
-.all-pots-page-container>h1 {
+.all-pots-page-container > h1 {
     text-align: center;
     color: white;
     margin-bottom: 25px;
@@ -37,43 +26,67 @@ a:visited {
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
 }
 
+/* View Toggle Buttons */
+.view-toggle-buttons {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+    background-color: #d1f2eb;
+    padding: 5px;
+    border-radius: 30px;
+    width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+}
+.view-toggle-buttons button {
+    background: none;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 25px;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #16a085;
+}
+.view-toggle-buttons button.active {
+    background-color: #1abc9c;
+    color: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
 
 .list-controls {
     display: flex;
-    justify-content: flex-end;
+    justify-content: flex-start;
     align-items: center;
     margin-bottom: 25px;
-    gap: 20px;
+    gap: 15px;
     flex-wrap: wrap;
-    text-align: left;
 }
-
 
 .create-pot-button {
     background-color: #5cb85c;
     color: white;
-    padding: 10px 18px;
+    padding: 10px;
     border: none;
     border-radius: 5px;
-    font-weight: bold;
     cursor: pointer;
     transition: background-color 0.2s ease;
-    font-size: 0.95em;
+    font-size: 1.2em;
     display: flex;
     align-items: center;
 }
-
 .create-pot-button:hover {
     background-color: #4cae4c;
 }
 
-/* Search input styling */
 .list-search-input {
     padding: 10px 14px;
     border: 1px solid #ccc;
     border-radius: 5px;
     font-size: 1em;
     min-width: 280px;
+    margin-left: auto;
 }
 
 .list-search-input:focus {
@@ -84,19 +97,13 @@ a:visited {
 
 /* Container for the table */
 .pots-container {
-    display: flex;
-    flex-direction: column;
     margin: 20px auto;
-    max-width: 1024px;
-    overflow: hidden;
-    /* border-radius: 8px;  */
-    /* box-shadow: 0 1px 5px rgba(0,0,0,0.07);  */
+    overflow-x: auto;
 }
 
 .pots-container table {
     border-collapse: collapse;
     width: 100%;
-    table-layout: fixed;
     background-color: #ffffff;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
@@ -108,7 +115,6 @@ a:visited {
     font-weight: 600;
     text-transform: uppercase;
     font-size: 0.85em;
-    /* Matched to users table */
     letter-spacing: 0.5px;
 }
 
@@ -120,107 +126,63 @@ a:visited {
     border: 1px solid #d0e0e3;
 }
 
+.pots-container tbody tr:nth-child(even) { background-color: #f0fff0; }
+.pots-container tbody tr:nth-child(odd) { background-color: #e8f8f5; }
 
-.pots-container th:first-child,
-.pots-container td:first-child {
-    /* padding-left: 20px; */
-    /* border-left: none; */
-}
-
-.pots-container th:last-child,
-.pots-container td:last-child {
-    /* padding-right: 20px; */
-    /* border-right: none; */
-}
-
-/* Row striping matched to users table */
-.pots-container tbody tr:nth-child(even) {
-    background-color: #f0fff0;
-}
-
-.pots-container tbody tr:nth-child(odd) {
-    background-color: #e8f8f5;
-}
-
-/* Optional: Rounded corners for table - users table doesn't have these */
-
-/* .pots-container th:first-child {
-    border-top-left-radius: 6px; 
-}
-.pots-container th:last-child { 
-    border-top-right-radius: 6px; 
-}
-.pots-container tbody tr:last-child td:first-child {
-    border-bottom-left-radius: 6px;
-}
-.pots-container tbody tr:last-child td:last-child {
-    border-bottom-right-radius: 6px;
-} */
-
-
-.finger-pointer {
+.pots-container tr.clickable-pot-row {
     cursor: pointer;
 }
-
-.pots-container tbody tr.finger-pointer:hover {
+.pots-container tr.clickable-pot-row:hover {
     background-color: #d1f2eb;
-    /* Matched to users table hover */
-    /* color: #00796b; */
-    /* Users table hover doesn't change text color directly */
 }
 
-.pots-container tbody tr.finger-pointer:hover td {
-    /* color: #004d40; */
-    /* Users table hover doesn't change td text color */
-}
-
-/* Error message styling (Matched to GetAllUsersPage.css) */
-.error-container {
-    margin: 20px auto;
-    width: 100%;
-    max-width: 600px;
-    border-radius: 5px;
-    padding: 15px;
+/* Styles for Action cell and button */
+.pots-container .action-cell {
     text-align: center;
+    width: 100px;
 }
-
-.error-container p {
+.request-join-button {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 6px 12px;
+    font-size: 1.2em;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+}
+.request-join-button:hover:not(:disabled) {
+    background-color: #2980b9;
+}
+.request-join-button:disabled {
+    background-color: #bdc3c7;
+    cursor: not-allowed;
+}
+.member-badge {
+    background-color: #1abc9c;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.8em;
     font-weight: bold;
-    color: #e74c3c;
-    background-color: #f8d7da;
-    border: 1px solid #f5c6cb;
-    border-radius: 4px;
-    /* Consistent with button/input radius */
-    margin: 0;
 }
 
-/* Message for no pots/search results (Styled like GetAllUsersPage.css > p) */
-.all-pots-page-container>p {
+/* Messages */
+.error-container p, .no-results-message, .loading-refresh-message {
     text-align: center;
     color: #666;
     font-size: 1.1em;
-    padding: 20px;
-    /* Matched */
-    /* Removed extra background, shadow from original pots page for simplicity */
-}
-
-
-.loading-spinner-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
     padding: 40px 20px;
-    text-align: center;
+    background-color: #fff;
+    border-radius: 8px;
+    border: 1px dashed #d1f2eb;
+    margin-top: 20px;
 }
+.error-container p { color: #e74c3c; }
+.loading-refresh-message { border-style: solid; background: #e8f8f5; padding: 10px; }
 
-.loading-spinner-container p {
-    margin-top: 15px;
-    color: #555;
-    font-size: 1.1em;
-}
-
-/* Pagination controls (Copied and adapted from GetAllUsersPage.css) */
 .pagination-controls {
     display: flex;
     justify-content: center;
@@ -230,7 +192,6 @@ a:visited {
     gap: 8px;
     flex-wrap: wrap;
 }
-
 .pagination-controls button,
 .pagination-controls .page-number {
     padding: 9px 15px;
@@ -239,35 +200,30 @@ a:visited {
     color: #1abc9c;
     cursor: pointer;
     border-radius: 4px;
-    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    transition: all 0.2s ease;
     font-size: 0.9em;
     min-width: 40px;
     text-align: center;
 }
-
 .pagination-controls button:hover:not(:disabled),
 .pagination-controls .page-number:hover:not(.active) {
     background-color: #e0f2f1;
     border-color: #1abc9c;
 }
-
 .pagination-controls button:disabled {
     background-color: #f0f0f0;
     color: #aaa;
     cursor: not-allowed;
     border-color: #eee;
 }
-
 .pagination-controls .page-number.active {
     background-color: #1abc9c;
     color: white;
     border-color: #1abc9c;
     font-weight: bold;
 }
-
 .pagination-controls .page-ellipsis {
     padding: 8px 5px;
     color: #777;
-    display: flex;
-    align-items: center;
+    align-self: center;
 }

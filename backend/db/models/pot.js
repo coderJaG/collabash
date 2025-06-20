@@ -15,16 +15,17 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'potId',
         otherKey: 'userId',
         as: 'Users'
-      }); 
+      });
       Pot.hasMany(models.WeeklyPayment, { foreignKey: 'potId' });
       Pot.hasMany(models.TransactionHistory, { foreignKey: 'potIdContext', as: 'relatedHistory' });
+      Pot.hasMany(models.JoinRequest, { foreignKey: 'potId', as: 'joinRequests' });
     }
   }
   Pot.init({
     ownerId: {
       type: DataTypes.INTEGER,
       allowNull: false
-      
+
     },
     ownerName: {
       type: DataTypes.STRING,
@@ -48,7 +49,7 @@ module.exports = (sequelize, DataTypes) => {
     startDate: {
       type: DataTypes.DATEONLY,
       allowNull: true
-      
+
     },
     endDate: {
       type: DataTypes.DATEONLY,
@@ -58,7 +59,12 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
       defaultValue: 'Not Started'
-    }
+    },
+    frequency: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: 'weekly'
+    },
   }, {
     sequelize,
     modelName: 'Pot',

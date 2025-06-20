@@ -7,10 +7,10 @@ import * as sessionActions from '../../store/session';
 import LoadingSpinner from '../LoadingSpinner';
 import OpenModalButton from '../OpenModalButton';
 import SignUpFormModal from '../SignUpFormModal';
-import DeleteConfirmationModal from '../DeleteConfirmationModal'; // Ensure this path is correct
+import DeleteConfirmationModal from '../DeleteConfirmationModal';
 import './GetAllUsersPage.css';
 
-const USERS_PER_PAGE = 2; // will increase for production, but 2 is good for testing
+const USERS_PER_PAGE = 5; // Adjusted for better viewing
 
 const GetAllUsersPage = () => {
     const dispatch = useDispatch();
@@ -22,7 +22,13 @@ const GetAllUsersPage = () => {
 
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
-    // const [userToDelete, setUserToDelete] = useState(null); // Not strictly needed if modal gets ID directly
+
+    // Check for permissions from the user object
+    const userPermissions = useMemo(() => new Set(currUser?.permissions || []), [currUser]);
+    const canCreateUser = userPermissions.has('user:create');
+    const canViewAllUsers = userPermissions.has('user:view_all');
+    const canDeleteAnyUser = userPermissions.has('user:delete_any');
+    const canDeleteSelf = userPermissions.has('user:delete_self');
 
     useEffect(() => {
         dispatch(usersActions.getAllUsers());
@@ -39,7 +45,6 @@ const GetAllUsersPage = () => {
             (user.firstName?.toLowerCase().includes(lowerSearchTerm)) ||
             (user.lastName?.toLowerCase().includes(lowerSearchTerm)) ||
             (`${user.firstName} ${user.lastName}`.toLowerCase().includes(lowerSearchTerm)) ||
-            (`${user.lastName} ${user.firstName}`.toLowerCase().includes(lowerSearchTerm)) ||
             (user.username?.toLowerCase().includes(lowerSearchTerm)) ||
             (user.email?.toLowerCase().includes(lowerSearchTerm)) ||
             (user.mobile?.toLowerCase().includes(lowerSearchTerm)) ||
@@ -66,11 +71,10 @@ const GetAllUsersPage = () => {
 
     const handleUserNameClick = (targetUser) => {
         if (!currUser) return;
-
-        if (currUser.role === 'banker' || currUser.id === targetUser.id) {
+        if (canViewAllUsers || currUser.id === targetUser.id) {
             navigate(`/users/${targetUser.id}`);
         } else {
-            console.log("Standard users can only view their own profile page directly from this list.");
+            console.log("Standard users can only view profiles of users they share a pot with.");
         }
     };
 
@@ -82,7 +86,7 @@ const GetAllUsersPage = () => {
                 dispatch(sessionActions.logout());
                 navigate('/');
             }
-            if (currentUsersOnPage.length === 1 && currentPage > 1 && filteredUsers.length - 1 <= (currentPage - 1) * USERS_PER_PAGE) {
+            if (currentUsersOnPage.length === 1 && currentPage > 1) {
                 setCurrentPage(currentPage - 1);
             }
         } catch (err) {
@@ -112,11 +116,11 @@ const GetAllUsersPage = () => {
         <div className="user-list-page-container">
             <h1>ALL USERS</h1>
             <div className="user-list-controls">
-                {currUser?.role === 'banker' && (
+                {canCreateUser && (
                     <OpenModalButton
                         buttonText="Create New User"
+                        className="create-user-button"
                         modalComponent={<SignUpFormModal createdByBanker={true} />}
-                        // Add a specific class if needed for this button, or use general .user-list-controls button styles
                     />
                 )}
                 <input
@@ -146,44 +150,33 @@ const GetAllUsersPage = () => {
                         {currentUsersOnPage.map(user => {
                             const potsJoined = user.PotsJoined || [];
                             const numPotsJoined = potsJoined.length;
-                            const isAssociatedWithPots = numPotsJoined > 0;
+                            const isOwnProfile = currUser?.id === user.id;
 
+                           
+                            const canViewProfile = canViewAllUsers || isOwnProfile;
+                            const canDeleteThisUser = (isOwnProfile && canDeleteSelf) || (!isOwnProfile && canDeleteAnyUser);
+                            
+                            const isDeleteDisabled = !canDeleteThisUser || numPotsJoined > 0 || (currUser?.role === 'banker' && isOwnProfile);
+
+                         
+                            let deleteButtonTitle = "";
+                            if (!canDeleteThisUser) {
+                                deleteButtonTitle = "You do not have permission to delete this user.";
+                            } else if (numPotsJoined > 0) {
+                                deleteButtonTitle = `Cannot delete: ${user.firstName} is associated with active pots.`;
+                            } else if (currUser?.role === 'banker' && isOwnProfile) {
+                                deleteButtonTitle = "Bankers cannot delete their own account from this panel.";
+                            } else {
+                                deleteButtonTitle = isOwnProfile ? "Delete your account" : `Delete user ${user.firstName}`;
+                            }
+                            
                             let displayPotsText = "None";
-                            let hoverTitlePots = "No pots joined";
-
                             if (numPotsJoined > 0) {
                                 displayPotsText = potsJoined[0].name;
                                 if (numPotsJoined > 1) {
                                     displayPotsText += ` (+${numPotsJoined - 1} more)`;
                                 }
-                                hoverTitlePots = potsJoined.map(pot => pot.name).join(', ');
                             }
-
-                            const canViewProfile = currUser?.role === 'banker' || currUser?.id === user.id;
-
-                            let canOperateDelete = false; // Can the current user potentially operate delete on this user
-                            let deleteButtonTitle = "";
-
-                            if (currUser) {
-                                if (currUser.role === 'banker' && currUser.id !== user.id) {
-                                    canOperateDelete = true;
-                                    deleteButtonTitle = `Delete user ${user.firstName}`;
-                                } else if (currUser.role === 'standard' && currUser.id === user.id) {
-                                    canOperateDelete = true;
-                                    deleteButtonTitle = "Delete your account";
-                                }
-
-                                if (canOperateDelete && isAssociatedWithPots) {
-                                    deleteButtonTitle = `Cannot delete: ${user.firstName} is associated with active pots.`;
-                                } else if (currUser.role === 'banker' && currUser.id === user.id) {
-                                     // Banker cannot delete self via this button
-                                    deleteButtonTitle = "Bankers cannot delete their own account from this panel.";
-                                } else if (!canOperateDelete && currUser.id !== user.id) {
-                                    deleteButtonTitle = "You do not have permission to delete this user.";
-                                }
-                            }
-                            
-                            const isDeleteDisabled = !canOperateDelete || isAssociatedWithPots || (currUser?.role === 'banker' && currUser?.id === user.id);
 
                             return (
                                 <tr key={user.id}>
@@ -196,43 +189,28 @@ const GetAllUsersPage = () => {
                                     </td>
                                     <td>{user.mobile}</td>
                                     <td>{user.role}</td>
-                                    <td title={hoverTitlePots} className={numPotsJoined > 0 ? "has-tooltip" : ""}>
+                                    <td title={potsJoined.map(p => p.name).join(', ')} className={numPotsJoined > 0 ? "has-tooltip" : ""}>
                                         {displayPotsText}
                                     </td>
                                     <td className="actions-cell">
-                                        {canOperateDelete ? ( 
-                                            isDeleteDisabled ? (
-                                                <div className="delete-button-container disabled">
-                                                    <button
-                                                        title={deleteButtonTitle}
-                                                        disabled 
-                                                    >
-                                                        <MdDelete style={{ color: "#666", marginLeft: '5px' }} />
-                                                    </button>
-                                                </div>
-                                            ) : (
-                                                <div className="delete-button-container">
+                                        {canDeleteThisUser && (
+                                            <div className={`delete-button-container ${isDeleteDisabled ? 'disabled' : ''}`} title={deleteButtonTitle}>
+                                                {isDeleteDisabled ? (
+                                                    <button disabled><MdDelete /></button>
+                                                ) : (
                                                     <OpenModalButton
-                                                        buttonText={<MdDelete style={{ color: "white", marginLeft: '5px' }} />}
-                                                        title={deleteButtonTitle}
+                                                        buttonText={<MdDelete />}
                                                         modalComponent={
                                                             <DeleteConfirmationModal
-                                                                message={`Are you sure you want to delete ${user.firstName} ${user.lastName}? This action cannot be undone.`}
+                                                                message={`Are you sure you want to delete ${user.firstName} ${user.lastName}?`}
                                                                 onConfirm={() => handleDeleteUser(user.id)}
                                                                 confirmButtonText="Yes, Delete User"
                                                             />
                                                         }
                                                     />
-                                                </div>
-                                            )
-                                        ) : (currUser?.id === user.id && currUser?.role === 'banker') ? ( // Banker trying to delete self
-                                             <div className="delete-button-container disabled">
-                                                <button title={deleteButtonTitle} disabled>
-                                                    <MdDelete style={{ color: "#666", marginLeft: '5px' }} />
-                                                </button>
+                                                )}
                                             </div>
-                                        ) : null /* No button if no permission at all */
-                                        }
+                                        )}
                                     </td>
                                 </tr>
                             );
@@ -245,34 +223,24 @@ const GetAllUsersPage = () => {
 
             {totalPages > 1 && (
                 <div className="pagination-controls">
-                    <button onClick={goToPrevPage} disabled={currentPage === 1} className="general-button">
-                        Previous
-                    </button>
+                    <button onClick={goToPrevPage} disabled={currentPage === 1}>Previous</button>
                     {Array.from({ length: totalPages }, (_, i) => i + 1)
                         .filter(pageNumber => {
                             if (totalPages <= 7) return true;
                             if (pageNumber === 1 || pageNumber === totalPages) return true;
                             if (pageNumber >= currentPage - 2 && pageNumber <= currentPage + 2) return true;
-                            if ((pageNumber === currentPage - 3 && currentPage > 4) || (pageNumber === currentPage + 3 && currentPage < totalPages - 3)) {
-                                return 'ellipsis';
-                            }
+                            if ((pageNumber === currentPage - 3 && currentPage > 4) || (pageNumber === currentPage + 3 && currentPage < totalPages - 3)) return 'ellipsis';
                             return false;
                         })
                         .map((pageNumber, index) => (
-                            pageNumber === 'ellipsis' ?
-                                <span key={`ellipsis-${index}`} className="page-ellipsis">...</span> :
-                                <button
-                                    key={pageNumber}
-                                    onClick={() => paginate(pageNumber)}
-                                    className={`page-number general-button ${currentPage === pageNumber ? 'active' : ''}`}
-                                >
-                                    {pageNumber}
-                                </button>
+                           pageNumber === 'ellipsis' ?
+                           <span key={`ellipsis-${index}`} className="page-ellipsis">...</span> :
+                           <button key={pageNumber} onClick={() => paginate(pageNumber)} className={`page-number ${currentPage === pageNumber ? 'active' : ''}`}>
+                               {pageNumber}
+                           </button>
                         ))
                     }
-                    <button onClick={goToNextPage} disabled={currentPage === totalPages} className="general-button">
-                        Next
-                    </button>
+                    <button onClick={goToNextPage} disabled={currentPage === totalPages}>Next</button>
                 </div>
             )}
         </div>

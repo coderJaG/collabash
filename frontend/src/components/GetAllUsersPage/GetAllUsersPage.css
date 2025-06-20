@@ -1,4 +1,3 @@
-/* Container for the whole page */
 .user-list-page-container {
     padding: 20px 30px;
     max-width: 1000px;
@@ -50,32 +49,21 @@
 }
 
 /* Styles for the "Create New User" button if it's an OpenModalButton */
-/* If OpenModalButton renders its own button, target it like this */
-.user-list-controls .open-modal-button {
+.create-user-button {
     background-color: #5cb85c;
-}
-
-.user-list-controls .open-modal-button:hover {
-    background-color: #4cae4c;
-}
-
-.user-list-controls>button {
     padding: 10px 18px;
     color: white;
-    background-color: #5cb85c;
-    text-decoration: none;
     border-radius: 5px;
     font-weight: bold;
     border: none;
     cursor: pointer;
-    transition: background-color 0.2s ease, opacity 0.2s ease;
+    transition: background-color 0.2s ease;
     font-size: 0.95em;
 }
 
-.user-list-controls>button:hover {
+.create-user-button:hover {
     background-color: #4cae4c;
 }
-
 
 .users-search-input {
     padding: 10px 14px;
@@ -130,7 +118,6 @@
     background-color: #d1f2eb;
 }
 
-/* Style for clickable user names */
 .users-table td.user-name-link {
     color: #1abc9c;
     font-weight: 500;
@@ -148,13 +135,6 @@
     cursor: help;
 }
 
-.users-table td.has-tooltip span.more-indicator {
-    font-style: italic;
-    color: #555;
-    margin-left: 4px;
-    font-size: 0.9em;
-}
-
 .error-container p {
     color: #e74c3c;
     font-weight: bold;
@@ -166,7 +146,6 @@
 }
 
 .user-list-page-container>p {
-    /* For "No users match..." message */
     text-align: center;
     color: #666;
     font-size: 1.1em;
@@ -193,19 +172,13 @@
     font-size: 0.9em;
     min-width: 40px;
     text-align: center;
-    /* Inherit from .general-button if applied, or define here */
     border-radius: 5px;
-    /* from general-button */
     font-weight: bold;
-    /* from general-button */
     cursor: pointer;
-    /* from general-button */
     transition: background-color 0.2s ease, opacity 0.2s ease;
-    /* from general-button */
 }
 
 .pagination-controls .general-button {
-    /* For Previous/Next specifically */
     background-color: #ffffff;
     color: #1abc9c;
     border: 1px solid #b2dfdb;
@@ -241,30 +214,32 @@
     align-items: center;
 }
 
-/* Styles for Actions column and Delete button */
-.users-table th:last-child,
-.users-table td:last-child {
-    text-align: center;
+/* --- ACTION CELL STYLES (UPDATED) --- */
+.users-table .actions-cell {
+    width: 100px; /* Provide a consistent width */
+    text-align: center; /* Center the content inside */
 }
 
-.actions-cell {
-    width: 120px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+/* A placeholder to maintain cell height and alignment when no button is shown */
+.action-placeholder {
+    display: inline-block;
+    height: 32px; /* Match the button's height */
+    width: 44px; /* Match the button's width */
+    vertical-align: middle;
 }
 
-/* Container for the delete button (OpenModalButton or static button) */
 .delete-button-container {
     display: inline-block;
+    vertical-align: middle;
 }
 
-/* Styles for the button rendered by OpenModalButton OR the static disabled button */
+/* A single, unified style for the delete button, whether it's an OpenModalButton or a static <button> */
+.delete-button-container .open-modal-button,
 .delete-button-container button {
     background-color: #e74c3c;
     color: white;
     padding: 6px 12px;
-    font-size: 0.9em;
+    font-size: 1.2em; /* Makes the icon a bit larger */
     border: none;
     border-radius: 4px;
     cursor: pointer;
@@ -273,23 +248,19 @@
     justify-content: center;
     line-height: 1;
     transition: background-color 0.2s ease, opacity 0.2s ease;
+    height: 32px; /* Explicit height */
+    width: 44px; /* Explicit width */
+    box-sizing: border-box;
 }
 
-/* Hover state for the active (non-disabled) button */
+.delete-button-container .open-modal-button:hover,
 .delete-button-container button:hover:not(:disabled) {
     background-color: #c0392b;
 }
 
-/* Styles for when the container has the 'disabled' class, affecting the button inside */
-.delete-button-container.disabled button,
-.delete-button-container button:disabled {
+.delete-button-container.disabled button {
     background-color: #ccc !important;
     color: #666 !important;
     cursor: not-allowed !important;
     opacity: 0.6 !important;
-}
-
-/* Ensure no hover effect on the icon or button when it's meant to be disabled */
-.delete-button-container.disabled button:hover {
-    background-color: #ccc !important;
 }
