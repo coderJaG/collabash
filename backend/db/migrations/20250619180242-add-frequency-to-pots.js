@@ -8,9 +8,10 @@ if (process.env.NODE_ENV === 'production') {
 
 module.exports = {
   async up(queryInterface, Sequelize) {
+    const tableName = { tableName: 'Pots', schema: options.schema };
     await queryInterface.addColumn(
-      options.tableName = 'Pots',
-      options.columnName = 'frequency',
+      process.env.NODE_ENV === 'production' ? tableName : 'Pots',
+      'frequency',
       {
         type: Sequelize.STRING,
         allowNull: false,
@@ -19,9 +20,10 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
+    const tableName = { tableName: 'Pots', schema: options.schema };
     await queryInterface.removeColumn(
-      options.tableName = 'Pots',
-      options.columnName = 'frequency'
+      process.env.NODE_ENV === 'production' ? tableName : 'Pots',
+      'frequency'
     );
   }
 };

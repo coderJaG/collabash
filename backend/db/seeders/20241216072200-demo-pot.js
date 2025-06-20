@@ -18,7 +18,8 @@ module.exports = {
         amount: 40.00,
         startDate: '2024-12-01',
         endDate: '2026-06-02',
-        Status: 'Not Started'
+        status: 'Not Started',
+        frequency: 'monthly',
       },
       {
         ownerId: 1,
@@ -28,7 +29,8 @@ module.exports = {
         amount: 100.00,
         startDate: '2023-11-10',
         endDate: '2025-10-10',
-        Status: 'Active'
+        status: 'Active',
+        frequency: 'weekly'
       },
       {
         ownerId: 1,
@@ -38,7 +40,8 @@ module.exports = {
         amount: 150.00,
         startDate: '2024-11-10',
         endDate: '2025-11-10',
-        Status: 'Ended'
+        status: 'Ended',
+        frequency: 'every-2-weeks'
       }
     ], options);
 
