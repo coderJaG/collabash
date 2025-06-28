@@ -23,7 +23,7 @@ const GetAllPotsPage = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
 
-    // ✅ NEW: Check for permissions from the user object
+  // Check for permissions from the user object
     const userPermissions = useMemo(() => new Set(currUser?.permissions || []), [currUser]);
     const canCreatePots = userPermissions.has('pot:create');
     const canRequestToJoin = userPermissions.has('request:create');
@@ -70,8 +70,7 @@ const GetAllPotsPage = () => {
                 return [];
             }
         }
-        // No changes needed for 'findPots' logic, it shows all pots by default
-        // and is filtered by the search term below.
+   
 
         if (searchTerm.trim()) {
             const lowerSearchTerm = searchTerm.toLowerCase();

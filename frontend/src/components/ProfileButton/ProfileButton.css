@@ -1,4 +1,4 @@
-/* ProfileButton.css */
+/* Modern ProfileButton.css */
 
 .profile-button-container {
     position: relative;
@@ -265,17 +265,21 @@
 
 /* Mobile optimizations */
 @media (max-width: 768px) {
+    .profile-button-container {
+        position: static; /* Change from relative to static on mobile */
+    }
+    
     .profile-dropdown {
-        width: clamp(180px, 80vw, 220px);
-        right: -10px;
+        position: fixed; /* Use fixed positioning to break out of container bounds */
+        top: 60px; /* Position below the navigation bar */
+        right: 10px; /* Align to right edge with some margin */
+        width: calc(100vw - 20px); /* Full width minus margins */
+        max-width: 250px;
+        max-height: calc(100vh - 80px); /* Ensure it doesn't exceed viewport */
     }
     
     .profile-dropdown::after {
-        right: 25px;
-    }
-    
-    .profile-dropdown > div {
-        padding: 12px 16px;
+        display: none; /* Hide arrow on mobile since positioning is different */
     }
     
     .profile-dropdown > div button {
