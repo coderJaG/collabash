@@ -7,7 +7,8 @@ function OpenModalButton({
   buttonText,
   onButtonClick,
   onModalClose,
-  className
+  className,
+  disabled
 }) {
   const { setModalContent, setOnModalClose } = useModal();
 
@@ -22,7 +23,9 @@ function OpenModalButton({
   const combinedClassName = `modal-button ${className || ''}`.trim();
 
   return (
-    <button className={combinedClassName} onClick={handleClick}>
+    <button className={combinedClassName}
+    onClick={handleClick}
+    disabled={disabled}>
       {buttonText}
     </button>
   );

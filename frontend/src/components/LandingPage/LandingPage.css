@@ -1,23 +1,32 @@
 /* LandingPage.css */
 
+/* Base Styles */
 .landing-page-wrapper {
+    position: relative; 
+    height: 100vh;
+    width: 100vw;
     display: flex;
+    overflow: hidden;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 100vh; 
-    width: 100vw; 
+    padding: clamp(15px, 4vw, 20px);
+    box-sizing: border-box;
+    color: white;
+    text-align: center;
     background-image: url('/images/landing-splash.png'); 
     background-size: cover; 
     background-position: center center; 
     background-repeat: no-repeat;
-    position: relative; 
-    padding: 20px;
-    box-sizing: border-box;
-    color: white; 
-    text-align: center;
+    background-attachment: fixed;
+    min-height: 100vh;
 }
 
+@media (max-width: 768px) {
+    .landing-page-wrapper {
+        background-attachment: scroll;
+    }
+}
 
 .landing-page-wrapper::before {
     content: '';
@@ -30,28 +39,30 @@
     z-index: 1; 
 }
 
-.landing-page-header {
-    position: relative; /* To ensure it's above the overlay */
-    z-index: 2;
+.landing-page-content { 
+    position: relative; 
+    z-index: 2; 
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    max-width: 800px; /* Limit width of the header content */
+    max-width: min(90%, 800px);
+    width: 100%;
+    padding: clamp(20px, 5vw, 40px);
 }
 
 .landing-page-header h1 {
-    font-size: 3.5em; 
+    font-size: clamp(1.8em, 6vw, 3.5em);
     font-weight: 700;
-    color: white;
-    margin-bottom: 30px;
+    margin-bottom: clamp(15px, 4vw, 20px);
     text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7); 
     line-height: 1.2;
+    word-break: break-word;
+    max-width: 100%;
 }
 
-
 .get-started-button {
-    margin-top: 20px; 
+    margin-top: clamp(15px, 4vw, 20px); 
 }
 
 .get-started-button a, 
@@ -59,80 +70,49 @@
     display: inline-block;
     background-color: #1abc9c; 
     color: white;
-    padding: 15px 35px;
-    font-size: 1.2em;
+    padding: clamp(10px, 2.5vw, 15px) clamp(20px, 5vw, 35px);
+    font-size: clamp(0.9em, 2.5vw, 1.2em);
     font-weight: 600;
     text-decoration: none;
     border-radius: 50px; 
     border: none;
     cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
+    transition: all 0.3s ease;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    min-height: 44px;
+    min-width: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
 }
 
 .get-started-button a:hover,
 .get-started-button button:hover {
     background-color: #16a085; 
     transform: translateY(-2px); 
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
 }
 
-.landing-page-wrapper > p { 
-    position: relative;
-    z-index: 2;
-    font-size: 1.2em;
-    margin-top: 40px;
+@media (max-width: 480px) {
+    .get-started-button a,
+    .get-started-button button {
+        width: 100%;
+        max-width: 250px;
+    }
+}
+
+.landing-page-content > p { 
+    font-size: clamp(0.9em, 2.5vw, 1.2em);
+    margin-top: clamp(20px, 5vw, 30px);
     max-width: 600px;
     line-height: 1.6;
     text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.6);
+    word-break: break-word;
 }
 
-
-/* .webm backgorund animation */
-/* In your LandingPage.css */
-.landing-page-wrapper {
-    position: relative; /* For positioning video and content */
-    height: 100vh;
-    width: 100vw;
-    overflow: hidden; /* To contain the video */
-    display: flex; /* To center content on top */
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-}
-
-.landing-page-video-bg {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 100%;
-    height: 100%;
-    /* object-fit: cover; */
-    transform: translate(-50%, -50%);
-    z-index: 0; /* Behind the content */
-}
-
-.landing-page-content { 
-    position: relative;
-    z-index: 2; 
-    color: white; 
-    
-}
-
-/* Optional: overlay for text legibility if the video is bright */
-.landing-page-wrapper::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5); 
-    z-index: 1; /* Between video and content */
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
+/* Enhanced responsive breakpoints */
+@media (min-width: 768px) and (max-width: 1023px) {
     .landing-page-header h1 {
         font-size: 2.8em;
     }
@@ -143,22 +123,116 @@
         padding: 12px 30px;
     }
 
-    .landing-page-wrapper > p {
+    .landing-page-content > p {
         font-size: 1.1em;
+        margin-top: 40px;
     }
 }
 
-@media (max-width: 480px) {
+@media (min-width: 1024px) {
     .landing-page-header h1 {
-        font-size: 2.2em;
+        font-size: 3.5em;
     }
 
     .get-started-button a,
     .get-started-button button {
-        font-size: 1em;
-        padding: 10px 25px;
+        font-size: 1.2em;
+        padding: 15px 35px;
     }
-    .landing-page-wrapper > p {
-        font-size: 1em;
+
+    .landing-page-content > p {
+        font-size: 1.2em;
     }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .landing-page-wrapper::before {
+        background-color: rgba(0, 0, 0, 0.8);
+    }
+    
+    .get-started-button a,
+    .get-started-button button {
+        border: 2px solid white;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .get-started-button a,
+    .get-started-button button {
+        transition: none;
+        transform: none !important;
+    }
+    
+    .landing-page-wrapper {
+        background-attachment: scroll;
+    }
+}
+
+/* Portrait orientation optimizations */
+@media (orientation: portrait) and (max-height: 600px) {
+    .landing-page-wrapper {
+        padding: 10px;
+    }
+    
+    .landing-page-content {
+        padding: 15px;
+    }
+    
+    .landing-page-header h1 {
+        margin-bottom: 10px;
+    }
+    
+    .landing-page-content > p {
+        margin-top: 15px;
+    }
+}
+
+/* Landscape orientation on mobile */
+@media (orientation: landscape) and (max-height: 500px) {
+    .landing-page-wrapper {
+        padding: 10px;
+    }
+    
+    .landing-page-content {
+        flex-direction: row;
+        text-align: left;
+        gap: 30px;
+        align-items: center;
+    }
+    
+    .landing-page-content > p {
+        margin-top: 0;
+        flex: 1;
+    }
+    
+    .get-started-button {
+        margin-top: 0;
+        flex-shrink: 0;
+    }
+}
+
+/* Loading and error states */
+.landing-loading,
+.landing-error {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 3;
+    background-color: rgba(0, 0, 0, 0.8);
+    padding: 20px;
+    border-radius: 8px;
+    color: white;
+    text-align: center;
+}
+
+.landing-loading {
+    color: #1abc9c;
+}
+
+.landing-error {
+    color: #e74c3c;
+    border: 1px solid #c0392b;
 }

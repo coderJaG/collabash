@@ -98,7 +98,7 @@ const validateUserUpdate = [
 ];
 
 
-// --- Read-Only Routes (unchanged) ---
+// --- Read-Only Routes ---
 // GET all users
 router.get('/', requireAuth, async (req, res) => {
     const currUser = req.user;
@@ -107,7 +107,7 @@ router.get('/', requireAuth, async (req, res) => {
     const includePotsJoinedWithUsers = {
         model: Pot,
         as: 'PotsJoined',
-        attributes: ['id', 'name'],
+        attributes: ['id', 'name', 'status'],
         through: { attributes: [] }
     };
 
@@ -226,7 +226,7 @@ router.get('/:userId', requireAuth, async (req, res) => {
             include: [{
                 model: Pot,
                 as: 'PotsJoined',
-                attributes: ['id', 'name', 'amount', 'ownerId'],
+                attributes: ['id', 'name', 'amount', 'ownerId', 'status'],
                 through: { attributes: [] },
                 include: [{
                     model: User,
@@ -409,11 +409,19 @@ router.delete('/:userId', requireAuth, async (req, res) => {
             await t.rollback();
             return res.status(404).json({ 'message': 'User not found!' });
         }
-
-        const userPots = await PotsUser.findOne({ where: { userId: targetUserId }, transaction: t });
-        if (userPots) {
+        const userPots = await PotsUser.findAll({ 
+            where: { userId: targetUserId },
+            include: [{ model: Pot, attributes: ['status']}],
+            transaction: t
+        });
+        console.log(`Attempting to delete user ${targetUserId} by ${currUser.username} (ID: ${currUser.id})`);
+        
+        const hasActiveOrPausedPot = userPots.some(p => ['active', 'paused'].includes(p.Pot.status?.toLowerCase()));
+        console.log(`User ${targetUserId} has active or paused pots: ${hasActiveOrPausedPot}`);
+        if (hasActiveOrPausedPot) {
+            
             await t.rollback();
-            return res.status(400).json({ message: "Cannot delete user. They are still a member of one or more pots." });
+            return res.status(400).json({ message: "Cannot delete user. They are still a member of an active or paused pot." });
         }
 
         const deletedUserInfo = { id: userToDelete.id, username: userToDelete.username, email: userToDelete.email, role: userToDelete.role };

@@ -1,14 +1,13 @@
-/* AddUserToPot.css */
-
+/* --- Base Mobile Styles --- */
 .add-user-to-pot-content {
     display: flex;
     flex-direction: column;
-    gap: 18px; 
-    padding: 25px 30px;
+    gap: 1rem; 
+    padding: 20px;
     background-color: #f4f7f6; 
     border-radius: 8px;
     width: 90%;
-    max-width: 450px; 
+    max-width: 400px; 
     margin: 20px auto; 
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
     max-height: 85vh;
@@ -22,17 +21,18 @@
     border-top-right-radius: 8px; 
     border-top-left-radius: 8px;
     text-align: center;
-    margin: -25px -30px 20px -30px; 
-    padding: 15px 0;
-    font-size: 1.6em;
+    margin: -20px -20px 15px -20px;
+    padding: 12px 0;
+    font-size: 1.3em; 
     font-weight: 600;
 }
 
 .add-user-to-pot-content label {
     font-weight: 600;
     color: #495057;
-    font-size: 0.95em;
-    margin-bottom: -10px; 
+    font-size: 0.9em;
+    display: block; 
+    margin-bottom: 5px; 
 }
 
 .user-select-dropdown {
@@ -66,39 +66,37 @@
 
 .modal-actions {
     display: flex;
-    justify-content: flex-end;
+    justify-content: flex-end; 
     gap: 12px; 
     margin-top: 15px; 
     padding-top: 15px; 
-    border-top: 1px solid #e9ecef; /* Light separator line */
+    border-top: 1px solid #e9ecef;
 }
 
 .modal-actions .modal-button {
-    padding: 10px 20px;
+    padding: 10px 15px; 
     border: none;
     border-radius: 5px;
     font-weight: 600;
-    font-size: 0.95em;
+    font-size: 0.9em;
     cursor: pointer;
     transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
 .modal-actions .modal-button.save {
-    background-color: #1abc9c; /* Main theme color */
+    background-color: #1abc9c;
     color: white;
 }
-
 .modal-actions .modal-button.save:hover:not(:disabled) {
-    background-color: #16a085; /* Darker shade */
+    background-color: #16a085;
     transform: translateY(-1px);
 }
 
 .modal-actions .modal-button.cancel {
-    background-color: #e0e0e0; /* Light grey for cancel */
+    background-color: #e0e0e0;
     color: #333;
     border: 1px solid #ccc;
 }
-
 .modal-actions .modal-button.cancel:hover:not(:disabled) {
     background-color: #d0d0d0;
 }
@@ -108,4 +106,27 @@
     color: #7f8c8d;
     cursor: not-allowed;
     opacity: 0.7;
+}
+
+/* --- Tablet and Desktop Styles --- */
+@media (min-width: 640px) {
+    .add-user-to-pot-content {
+        padding: 25px 30px; 
+        max-width: 450px;
+    }
+
+    .add-user-to-pot-content h1 {
+        margin: -25px -30px 20px -30px; 
+        padding: 15px 0;
+        font-size: 1.6em; 
+    }
+
+    .add-user-to-pot-content label {
+        font-size: 0.95em; 
+    }
+
+    .modal-actions .modal-button {
+        padding: 10px 20px; 
+        font-size: 0.95em; 
+    }
 }
