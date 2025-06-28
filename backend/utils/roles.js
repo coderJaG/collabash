@@ -12,6 +12,7 @@ const PERMISSIONS = {
   // Pot Management
   VIEW_ALL_POTS: 'pot:view_all',
   VIEW_OWNED_POTS: 'pot:view_owned',
+  VIEW_JOINED_POTS: 'pot:view_joined',
   CREATE_POT: 'pot:create',
   EDIT_POT: 'pot:edit',
   DELETE_POT: 'pot:delete',
@@ -32,14 +33,14 @@ const PERMISSIONS = {
   VIEW_TRANSACTION_HISTORY: 'history:view_all'
 };
 
-// Individually permission sets to avoid initialization errors.
+// Define permission sets for each role individually.
 const standardPermissions = [
   PERMISSIONS.CREATE_JOIN_REQUEST,
   PERMISSIONS.DELETE_OWN_ACCOUNT,
 ];
 
 const bankerPermissions = [
-  ...standardPermissions, // Inherit standard permissions
+  PERMISSIONS.CREATE_JOIN_REQUEST,
   PERMISSIONS.VIEW_ALL_POTS,
   PERMISSIONS.VIEW_ALL_USERS,
   PERMISSIONS.CREATE_POT,
@@ -49,16 +50,18 @@ const bankerPermissions = [
   PERMISSIONS.RESPOND_TO_JOIN_REQUEST,
   PERMISSIONS.CREATE_USER,
   PERMISSIONS.EDIT_ANY_USER,
-  PERMISSIONS.VIEW_TRANSACTION_HISTORY //
+  PERMISSIONS.VIEW_TRANSACTION_HISTORY,
+  PERMISSIONS.DELETE_ANY_USER 
 ];
 
 const superAdminPermissions = [
-  ...bankerPermissions, // Inherit banker permissions
-  PERMISSIONS.DELETE_ANY_USER,
+  ...bankerPermissions, // Super Admins can do everything a banker can.
+  // Any super-admin-only permissions would be added here.
+  // They already inherit DELETE_ANY_USER from the banker role.
 ];
 
 
-// Assign permissions to roles in a hierarchy
+// Assign permissions to roles in the final hierarchy
 const ROLE_PERMISSIONS = {
   [ROLES.STANDARD]: standardPermissions,
   [ROLES.BANKER]: bankerPermissions,

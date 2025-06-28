@@ -1,8 +1,11 @@
+/* getAllPots.css */
+
 /* Overall Page Container */
 .all-pots-page-container {
-    padding: 20px 30px;
-    max-width: 1000px;
-    margin: 30px auto;
+    padding: clamp(15px, 4vw, 30px);
+    max-width: 1000px; 
+    min-width: 320px; 
+    margin: clamp(15px, 3vw, 30px) auto;
     background-color: #e8f8f5;
     border-radius: 8px;
     text-align: center;
@@ -12,11 +15,11 @@
     text-align: center;
     color: white;
     margin-bottom: 25px;
-    font-size: 2em;
+    font-size: clamp(1.2em, 5vw, 2em);
     font-weight: 600;
     letter-spacing: 1px;
     background: linear-gradient(to bottom, #20c9a6, #1abc9c);
-    padding: 12px 30px;
+    padding: clamp(8px, 2vw, 12px) clamp(15px, 5vw, 30px);
     border-radius: 50px;
     border: 1px solid #16a085;
     display: inline-block;
@@ -24,6 +27,8 @@
     position: relative;
     box-shadow: 0 4px 12px rgba(26, 188, 156, 0.3);
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+    max-width: 95%;
+    word-break: break-word;
 }
 
 /* View Toggle Buttons */
@@ -32,198 +37,512 @@
     justify-content: center;
     margin-bottom: 20px;
     background-color: #d1f2eb;
-    padding: 5px;
+    padding: clamp(3px, 1vw, 5px);
     border-radius: 30px;
     width: fit-content;
     margin-left: auto;
     margin-right: auto;
+    max-width: 95%;
+    overflow: hidden;
 }
+
 .view-toggle-buttons button {
     background: none;
     border: none;
-    padding: 8px 20px;
+    padding: clamp(6px, 1.5vw, 8px) clamp(12px, 4vw, 20px);
     border-radius: 25px;
-    font-size: 1em;
+    font-size: clamp(0.85em, 2.2vw, 1em);
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
     color: #16a085;
+    white-space: nowrap;
+    flex: 1;
+    min-width: 0;
 }
+
 .view-toggle-buttons button.active {
     background-color: #1abc9c;
     color: white;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
+@media (max-width: 480px) {
+    .view-toggle-buttons {
+        width: 100%;
+        max-width: none;
+    }
+    
+    .view-toggle-buttons button {
+        font-size: 0.9em;
+        padding: 8px 12px;
+    }
+}
+
+/* List Controls */
 .list-controls {
     display: flex;
     justify-content: flex-start;
     align-items: center;
     margin-bottom: 25px;
-    gap: 15px;
+    gap: clamp(10px, 3vw, 15px);
     flex-wrap: wrap;
+}
+
+@media (max-width: 640px) {
+    .list-controls {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+    }
 }
 
 .create-pot-button {
     background-color: #5cb85c;
     color: white;
-    padding: 10px;
+    padding: clamp(8px, 2vw, 10px) clamp(12px, 3vw, 16px);
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.2s ease;
-    font-size: 1.2em;
+    transition: all 0.2s ease;
+    font-size: clamp(1em, 2.5vw, 1.2em);
     display: flex;
     align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    min-height: 44px;
+    font-weight: 500;
 }
+
 .create-pot-button:hover {
     background-color: #4cae4c;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+}
+
+@media (max-width: 640px) {
+    .create-pot-button {
+        width: 100%;
+        order: -1;
+    }
 }
 
 .list-search-input {
-    padding: 10px 14px;
+    padding: clamp(8px, 2vw, 10px) clamp(12px, 3vw, 14px);
     border: 1px solid #ccc;
     border-radius: 5px;
-    font-size: 1em;
-    min-width: 280px;
-    margin-left: auto;
+    font-size: clamp(0.9em, 2.2vw, 1em);
+    flex-grow: 1; 
+    min-width: 150px;
+    margin-left: 0;
+    transition: all 0.2s ease;
+    background-color: white;
 }
 
 .list-search-input:focus {
-    border-color: #3498db;
-    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+    border-color: #1abc9c;
+    box-shadow: 0 0 0 2px rgba(26, 188, 156, 0.2);
     outline: none;
+}
+
+@media (max-width: 640px) {
+    .list-search-input {
+        width: 100%;
+        min-width: auto;
+    }
+}
+
+@media (min-width: 641px) {
+    .list-search-input {
+        margin-left: auto;
+    }
 }
 
 /* Container for the table */
 .pots-container {
     margin: 20px auto;
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .pots-container table {
     border-collapse: collapse;
     width: 100%;
+    min-width: 600px;
     background-color: #ffffff;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+@media (max-width: 640px) {
+    .pots-container table {
+        min-width: 500px;
+        font-size: 0.85em;
+    }
 }
 
 .pots-container th {
     background-color: #1abc9c;
     color: white;
-    height: 40px;
+    height: clamp(35px, 8vw, 40px);
     font-weight: 600;
     text-transform: uppercase;
-    font-size: 0.85em;
+    font-size: clamp(0.75em, 1.8vw, 0.85em);
     letter-spacing: 0.5px;
+    position: sticky;
+    top: 0;
+    z-index: 1;
 }
 
 .pots-container th,
 .pots-container td {
     text-align: left;
     vertical-align: middle;
-    padding: 12px 15px;
+    padding: clamp(8px, 2vw, 12px) clamp(10px, 2.5vw, 15px);
     border: 1px solid #d0e0e3;
+    white-space: nowrap;
+    font-size: clamp(0.8em, 2vw, 0.9em);
 }
 
-.pots-container tbody tr:nth-child(even) { background-color: #f0fff0; }
-.pots-container tbody tr:nth-child(odd) { background-color: #e8f8f5; }
+.pots-container tbody tr:nth-child(even) { 
+    background-color: #f0fff0; 
+}
+
+.pots-container tbody tr:nth-child(odd) { 
+    background-color: #e8f8f5; 
+}
 
 .pots-container tr.clickable-pot-row {
     cursor: pointer;
+    transition: background-color 0.2s ease;
 }
+
 .pots-container tr.clickable-pot-row:hover {
     background-color: #d1f2eb;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Enhanced cell content styling */
+.pots-container td:first-child {
+    font-weight: 500;
+    color: #2c3e50;
+}
+
+.pots-container td {
+    word-break: break-word;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* Styles for Action cell and button */
 .pots-container .action-cell {
     text-align: center;
-    width: 100px;
+    width: clamp(80px, 15vw, 100px);
+    white-space: nowrap;
 }
+
 .request-join-button {
     background-color: #3498db;
     color: white;
     border: none;
     border-radius: 5px;
-    padding: 6px 12px;
-    font-size: 1.2em;
+    padding: clamp(4px, 1vw, 6px) clamp(8px, 2vw, 12px);
+    font-size: clamp(1em, 2.2vw, 1.2em);
     cursor: pointer;
-    transition: background-color 0.2s ease;
+    transition: all 0.2s ease;
     display: inline-flex;
     align-items: center;
+    justify-content: center;
+    min-width: 60px;
+    min-height: 32px;
+    font-weight: 500;
 }
+
 .request-join-button:hover:not(:disabled) {
     background-color: #2980b9;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
 }
+
 .request-join-button:disabled {
     background-color: #bdc3c7;
     cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
 }
+
 .member-badge {
     background-color: #1abc9c;
     color: white;
-    padding: 4px 8px;
+    padding: clamp(3px, 1vw, 4px) clamp(6px, 1.5vw, 8px);
     border-radius: 12px;
-    font-size: 0.8em;
+    font-size: clamp(0.7em, 1.8vw, 0.8em);
     font-weight: bold;
+    display: inline-block;
+    white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+    .request-join-button,
+    .member-badge {
+        min-width: 44px;
+        min-height: 44px;
+        font-size: 0.9em;
+    }
 }
 
 /* Messages */
-.error-container p, .no-results-message, .loading-refresh-message {
+.error-container p, 
+.no-results-message, 
+.loading-refresh-message {
     text-align: center;
     color: #666;
-    font-size: 1.1em;
-    padding: 40px 20px;
+    font-size: clamp(1em, 2.5vw, 1.1em);
+    padding: clamp(20px, 5vw, 40px) clamp(15px, 4vw, 20px);
     background-color: #fff;
     border-radius: 8px;
     border: 1px dashed #d1f2eb;
     margin-top: 20px;
+    line-height: 1.5;
 }
-.error-container p { color: #e74c3c; }
-.loading-refresh-message { border-style: solid; background: #e8f8f5; padding: 10px; }
 
+.error-container p { 
+    color: #e74c3c; 
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+    border-style: solid;
+}
+
+.loading-refresh-message { 
+    border-style: solid; 
+    background: #e8f8f5; 
+    padding: clamp(8px, 2vw, 10px);
+    color: #1abc9c;
+    font-weight: 500;
+}
+
+/* Pagination Controls */
 .pagination-controls {
     display: flex;
     justify-content: center;
     align-items: center;
     margin-top: 30px;
     margin-bottom: 20px;
-    gap: 8px;
+    gap: clamp(5px, 1.5vw, 8px);
     flex-wrap: wrap;
+    padding: 0 10px;
 }
+
 .pagination-controls button,
 .pagination-controls .page-number {
-    padding: 9px 15px;
+    padding: clamp(6px, 1.5vw, 9px) clamp(10px, 2.5vw, 15px);
     border: 1px solid #b2dfdb;
     background-color: #ffffff;
     color: #1abc9c;
     cursor: pointer;
     border-radius: 4px;
     transition: all 0.2s ease;
-    font-size: 0.9em;
-    min-width: 40px;
+    font-size: clamp(0.8em, 2vw, 0.9em);
+    min-width: clamp(35px, 8vw, 40px);
+    min-height: clamp(35px, 8vw, 40px);
     text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
 }
+
 .pagination-controls button:hover:not(:disabled),
 .pagination-controls .page-number:hover:not(.active) {
     background-color: #e0f2f1;
     border-color: #1abc9c;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
+
 .pagination-controls button:disabled {
     background-color: #f0f0f0;
     color: #aaa;
     cursor: not-allowed;
     border-color: #eee;
+    transform: none;
+    box-shadow: none;
 }
+
 .pagination-controls .page-number.active {
     background-color: #1abc9c;
     color: white;
     border-color: #1abc9c;
     font-weight: bold;
+    box-shadow: 0 2px 5px rgba(26, 188, 156, 0.3);
 }
+
 .pagination-controls .page-ellipsis {
-    padding: 8px 5px;
+    padding: clamp(6px, 1.5vw, 8px) clamp(3px, 1vw, 5px);
     color: #777;
     align-self: center;
+    font-size: clamp(0.8em, 2vw, 0.9em);
+}
+
+@media (max-width: 480px) {
+    .pagination-controls {
+        gap: 3px;
+    }
+    
+    .pagination-controls button,
+    .pagination-controls .page-number {
+        min-width: 44px;
+        min-height: 44px;
+        padding: 8px 10px;
+        font-size: 0.85em;
+    }
+}
+
+/* Enhanced scrollbar styling for webkit browsers */
+.pots-container::-webkit-scrollbar {
+    height: 8px;
+}
+
+.pots-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.pots-container::-webkit-scrollbar-thumb {
+    background: #1abc9c;
+    border-radius: 4px;
+}
+
+.pots-container::-webkit-scrollbar-thumb:hover {
+    background: #16a085;
+}
+
+/* Loading States */
+.loading-spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #1abc9c;
+    border-radius: 50%;
+    width: clamp(35px, 8vw, 40px);
+    height: clamp(35px, 8vw, 40px);
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Desktop optimizations */
+@media (min-width: 768px) {
+    .all-pots-page-container {
+        padding: 20px 30px;
+    }
+    
+    .all-pots-page-container > h1 {
+        font-size: 2em;
+        padding: 12px 30px;
+    }
+    
+    .view-toggle-buttons button {
+        padding: 8px 20px;
+        font-size: 1em;
+    }
+    
+    .list-controls {
+        flex-direction: row; 
+        align-items: center;
+        gap: 15px;
+    }
+    
+    .create-pot-button {
+        width: auto;
+        order: initial;
+    }
+    
+    .list-search-input {
+        width: auto; 
+        flex-grow: 1;
+        margin-left: auto; 
+    }
+    
+    .pots-container th,
+    .pots-container td {
+        padding: 12px 15px;
+        font-size: 0.9em;
+    }
+}
+
+/* Large screen optimizations */
+@media (min-width: 1280px) {
+    .all-pots-page-container {
+        max-width: 1400px;
+    }
+    
+    .pots-container table {
+        font-size: 1em;
+    }
+    
+    .pots-container th,
+    .pots-container td {
+        padding: 15px 18px;
+    }
+}
+
+/* Print styles */
+@media print {
+    .all-pots-page-container {
+        background-color: white;
+        box-shadow: none;
+        max-width: none;
+        margin: 0;
+        padding: 20px;
+    }
+    
+    .view-toggle-buttons,
+    .list-controls,
+    .pagination-controls {
+        display: none;
+    }
+    
+    .pots-container table {
+        min-width: auto;
+        font-size: 10pt;
+    }
+    
+    .pots-container th {
+        background-color: #1abc9c !important;
+        -webkit-print-color-adjust: exact;
+        color-adjust: exact;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .pots-container th,
+    .pots-container td {
+        border: 2px solid #000;
+    }
+    
+    .view-toggle-buttons button.active {
+        border: 2px solid #fff;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .pots-container tr.clickable-pot-row,
+    .request-join-button,
+    .pagination-controls button,
+    .create-pot-button,
+    .loading-spinner {
+        transition: none;
+        animation: none;
+        transform: none !important;
+    }
 }

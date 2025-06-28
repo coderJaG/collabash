@@ -2,10 +2,10 @@
 
 .delete-confirm-modal {
     padding: 25px 30px;
-    background-color: #fff; /* White background for the modal content */
+    background-color: #fff;
     border-radius: 8px;
     width: 90%;
-    max-width: 400px; /* Suitable width for a confirmation */
+    max-width: 400px; 
     text-align: center;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
@@ -27,12 +27,12 @@
 
 .delete-confirm-modal .confirm-actions { /* Wrapper for buttons */
     display: flex;
-    justify-content: center; /* Center buttons */
-    gap: 15px; /* Space between buttons */
+    justify-content: center; 
+    gap: 15px; 
 }
 
-.delete-confirm-modal .modal-button-confirm-delete, /* "Yes, Delete" button */
-.delete-confirm-modal .modal-button-cancel-delete {  /* "No, Cancel" button */
+.delete-confirm-modal .modal-button-confirm-delete, 
+.delete-confirm-modal .modal-button-cancel-delete {  
     padding: 10px 20px;
     border: none;
     border-radius: 5px;
@@ -40,23 +40,23 @@
     font-size: 0.95em;
     cursor: pointer;
     transition: background-color 0.2s ease, transform 0.1s ease;
-    min-width: 100px; /* Ensure buttons have some width */
+    min-width: 100px;
 }
 
 .delete-confirm-modal .modal-button-confirm-delete {
-    background-color: #e74c3c; /* Red for destructive action */
+    background-color: #e74c3c; 
     color: white;
 }
 .delete-confirm-modal .modal-button-confirm-delete:hover {
-    background-color: #c0392b; /* Darker red */
+    background-color: #c0392b; 
     transform: translateY(-1px);
 }
 
 .delete-confirm-modal .modal-button-cancel-delete {
-    background-color: #bdc3c7; /* Neutral grey for cancel */
+    background-color: #bdc3c7; 
     color: #34495e;
 }
 .delete-confirm-modal .modal-button-cancel-delete:hover {
-    background-color: #95a5a6; /* Darker grey */
+    background-color: #95a5a6; 
     transform: translateY(-1px);
 }

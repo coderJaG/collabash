@@ -154,6 +154,7 @@ const CreatePotsPage = () => {
                     <div className="cancel-button-wrapper">
                          <OpenModalButton
                             buttonText="Cancel"
+                            className={"cancel-button"}
                             modalComponent={
                                 <DeleteConfirmationModal
                                     message="Are you sure you want to cancel? Any unsaved changes will be lost."

@@ -1,94 +1,655 @@
-/* Navigation.css */
+/*  Navigation Bar CSS */
 
-/* Main navigation bar container */
+/* Base Navigation Styles */
 .main-nav-bar {
-    background-color: #1abc9c; /* Main theme color */
-    padding: 0 30px; /* Horizontal padding */
+    background: linear-gradient(135deg, #1abc9c 0%, #16a085 50%, #138f75 100%);
+    padding: 0 clamp(15px, 4vw, 30px);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    height: 70px; /* Standard height for a nav bar */
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-    position: sticky; /* Make it sticky to the top */
+    height: clamp(60px, 12vw, 70px);
+    box-shadow: 
+        0 4px 20px rgba(26, 188, 156, 0.15),
+        0 2px 8px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    position: sticky;
     top: 0;
-    z-index: 1000; /* Ensure it's above other content */
+    z-index: 1000;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    min-height: 60px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.main-nav-bar h1 { /* Assuming the "NAVIGATION" h1 is part of the bar or a logo placeholder */
+.main-nav-bar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 100%);
+    pointer-events: none;
+}
+
+/* Scroll effect */
+.main-nav-bar.scrolled {
+    height: clamp(55px, 10vw, 65px);
+    box-shadow: 
+        0 8px 32px rgba(26, 188, 156, 0.2),
+        0 4px 16px rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(20px);
+}
+
+/* Navigation Left Section */
+.nav-left {
+    display: flex;
+    align-items: center;
+    gap: clamp(15px, 4vw, 20px);
+    flex-shrink: 0;
+}
+
+.nav-logo {
+    text-decoration: none;
     color: white;
-    font-size: 1.8em;
-    margin: 0; /* Reset margin */
-    font-weight: 600;
-    letter-spacing: 1px;
-    /* If you have a logo image, style it here */
+    font-size: clamp(1.3em, 4vw, 1.8em);
+    margin: 0;
+    font-weight: 700;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+    line-height: 1.2;
+    position: relative;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    letter-spacing: 0.5px;
 }
 
+.nav-logo::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, white, rgba(255,255,255,0.7));
+    transition: width 0.3s ease;
+}
+
+.nav-logo:hover::after {
+    width: 100%;
+}
+
+.nav-logo:hover {
+    transform: scale(1.05);
+    text-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.nav-logo h1 {
+    margin: 0;
+    font-size: inherit;
+    font-weight: inherit;
+    text-decoration: none;
+}
+
+/* Navigation Right Section */
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: clamp(10px, 3vw, 15px);
+    flex-shrink: 0;
+}
+
+/* Base List Styling */
 .main-nav-bar ul {
-    list-style-type: none;
+    list-style: none;
     margin: 0;
     padding: 0;
     display: flex;
     align-items: center;
-    gap: 15px; /* Spacing between nav items */
 }
 
-/* Styling for NavLink items */
-.main-nav-bar ul li a,
-.main-nav-bar ul li .nav-link-button { /* Class for button-like NavLinks if needed */
-    color: white;
+/* Base Link Styling */
+.main-nav-bar ul li a {
     text-decoration: none;
-    padding: 8px 15px;
-    border-radius: 5px;
-    font-weight: 500;
-    font-size: 1em;
-    transition: background-color 0.2s ease, color 0.2s ease;
-    display: inline-block; /* For padding and border-radius to apply correctly */
-}
-
-.main-nav-bar ul li a:hover,
-.main-nav-bar ul li a.active, /* Style for active NavLink */
-.main-nav-bar ul li .nav-link-button:hover {
-    background-color: rgba(255, 255, 255, 0.15); /* Subtle highlight */
-    color: #f1f1f1; /* Slightly lighter text on hover/active */
-}
-
-/* Specifically for OpenModalButton rendered buttons if they don't inherit well */
-.main-nav-bar .login button, /* Target button inside .login li */
-.main-nav-bar .signup button,
-.main-nav-bar ul li > div > button { /* More generic for OpenModalButton's button */
-    background-color: transparent;
     color: white;
-    border: 1px solid rgba(255, 255, 255, 0.7);
-    padding: 8px 15px;
-    border-radius: 5px;
     font-weight: 500;
-    font-size: 1em;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: block;
+    position: relative;
+}
+
+/* Desktop Navigation Links - Hidden on Mobile */
+.desktop-nav-links,
+.desktop-session-links {
+    display: none !important;
+}
+
+/* Ensure mobile-only visibility */
+@media (max-width: 767px) {
+    .desktop-nav-links,
+    .desktop-session-links {
+        display: none !important;
+    }
+    
+    .mobile-menu-icon {
+        display: flex !important;
+    }
+}
+
+/* Mobile Menu Icon */
+.mobile-menu-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(1.6em, 4vw, 1.8em);
+    color: white;
     cursor: pointer;
-    transition: background-color 0.2s ease, color 0.2s ease;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    padding: clamp(8px, 2vw, 10px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    min-width: 48px;
+    min-height: 48px;
+    backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
 }
 
-.main-nav-bar .login button:hover,
-.main-nav-bar .signup button:hover,
-.main-nav-bar ul li > div > button:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+.mobile-menu-icon::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+    transition: left 0.5s ease;
+}
+
+.mobile-menu-icon:hover::before {
+    left: 100%;
+}
+
+.mobile-menu-icon:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: scale(1.05);
+    box-shadow: 0 8px 25px rgba(255, 255, 255, 0.1);
+}
+
+.mobile-menu-icon:active {
+    transform: scale(0.95);
+}
+
+/* Mobile Menu Dropdown */
+.mobile-menu-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: linear-gradient(135deg, rgba(22, 160, 133, 0.98) 0%, rgba(19, 143, 117, 0.98) 100%);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.2),
+        0 4px 16px rgba(26, 188, 156, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    padding: clamp(20px, 5vw, 25px);
+    z-index: 999;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    border-bottom: 3px solid rgba(26, 188, 156, 0.3);
+    animation: mobileMenuSlide 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+@keyframes mobileMenuSlide {
+    0% {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.mobile-menu-dropdown::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 100%);
+    pointer-events: none;
+}
+
+.mobile-menu-dropdown ul {
+    list-style-type: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    gap: 0;
+    position: relative;
+    z-index: 1;
+}
+
+.mobile-menu-dropdown ul li {
+    width: 100%;
+    text-align: center;
+    margin-bottom: clamp(8px, 2vw, 10px);
+}
+
+.mobile-menu-dropdown ul li:last-child {
+    margin-bottom: 0;
+}
+
+.mobile-menu-dropdown ul li a {
+    text-decoration: none;
+    color: white;
+    display: block;
+    padding: clamp(12px, 3vw, 15px) clamp(16px, 4vw, 20px);
+    border-radius: 12px;
+    font-weight: 500;
+    font-size: clamp(0.9em, 2.2vw, 1em);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+}
+
+.mobile-menu-dropdown ul li a::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+    transition: left 0.4s ease;
+}
+
+.mobile-menu-dropdown ul li a:hover::before,
+.mobile-menu-dropdown ul li a.active::before {
+    left: 100%;
+}
+
+.mobile-menu-dropdown ul li a:hover,
+.mobile-menu-dropdown ul li a.active {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.mobile-menu-divider {
+    border: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    margin: clamp(15px, 4vw, 20px) 0;
+    border-radius: 1px;
+}
+
+/* Mobile Session Links */
+.mobile-session-links {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    gap: clamp(12px, 3vw, 15px);
+    margin-top: 10px;
+}
+
+.mobile-session-links .login button,
+.mobile-session-links .signup button {
+    width: 100%;
+    max-width: 280px;
+    margin: 0 auto;
+    padding: clamp(12px, 3vw, 15px) clamp(20px, 5vw, 25px);
+    font-size: clamp(0.9em, 2.2vw, 1em);
+    font-weight: 600;
+    border-radius: 12px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    min-height: 48px;
+    backdrop-filter: blur(10px);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    position: relative;
+    overflow: hidden;
+}
+
+.mobile-session-links .login button::before,
+.mobile-session-links .signup button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.mobile-session-links .login button:hover::before,
+.mobile-session-links .signup button:hover::before {
+    left: 100%;
+}
+
+.mobile-session-links .login button:hover,
+.mobile-session-links .signup button:hover {
+    background: rgba(255, 255, 255, 0.2);
     border-color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
-/* Ensure ProfileButton list item aligns well */
-.main-nav-bar ul li:has(.profile-button-icon) { /* Targets li containing ProfileButton */
-    display: flex; /* Helps with alignment if ProfileButton itself is complex */
-    align-items: center;
+.mobile-session-links .signup button {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.1) 100%);
+    border-color: rgba(255, 255, 255, 0.4);
+    font-weight: 700;
 }
 
-/* Separating left and right sections of the navbar */
-.nav-left {
-    display: flex;
-    align-items: center;
-    gap: 20px; /* Space between logo/title and home link */
+/* Tablet and Desktop Styles */
+@media (min-width: 768px) {
+    .main-nav-bar {
+        height: clamp(65px, 8vw, 70px);
+        padding: 0 clamp(25px, 5vw, 30px);
+    }
+
+    .nav-logo {
+        font-size: clamp(1.5em, 3vw, 1.8em);
+    }
+
+    .nav-left {
+        gap: clamp(20px, 4vw, 30px);
+    }
+
+    .nav-right {
+        gap: clamp(15px, 3vw, 20px);
+    }
+
+    /* Show Desktop Navigation */
+    .desktop-nav-links,
+    .desktop-session-links {
+        display: flex !important;
+        align-items: center;
+        gap: clamp(12px, 2.5vw, 15px);
+    }
+
+    /* Hide Mobile Elements */
+    .mobile-menu-icon,
+    .mobile-menu-dropdown {
+        display: none !important;
+    }
+
+    /* Desktop Link Styles */
+    .desktop-nav-links ul {
+        gap: clamp(8px, 2vw, 12px);
+    }
+
+    .main-nav-bar ul li a {
+        text-decoration: none;
+        padding: clamp(8px, 2vw, 10px) clamp(15px, 3vw, 18px);
+        font-size: clamp(0.9em, 2vw, 1em);
+        font-weight: 500;
+        border-radius: 12px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: inline-block;
+        position: relative;
+        overflow: hidden;
+        white-space: nowrap;
+        backdrop-filter: blur(10px);
+    }
+
+    .main-nav-bar ul li a::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+        transition: left 0.4s ease;
+    }
+
+    .main-nav-bar ul li a::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        width: 0;
+        height: 2px;
+        background: white;
+        transition: all 0.3s ease;
+        transform: translateX(-50%);
+    }
+
+    .main-nav-bar ul li a:hover::before,
+    .main-nav-bar ul li a.active::before {
+        left: 100%;
+    }
+
+    .main-nav-bar ul li a:hover::after,
+    .main-nav-bar ul li a.active::after {
+        width: 80%;
+    }
+
+    .main-nav-bar ul li a:hover,
+    .main-nav-bar ul li a.active {
+        background: rgba(255, 255, 255, 0.15);
+        color: #f1f1f1;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Desktop Session Buttons */
+    .main-nav-bar .login button,
+    .main-nav-bar .signup button {
+        width: auto;
+        min-width: clamp(80px, 15vw, 100px);
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        padding: clamp(8px, 2vw, 10px) clamp(15px, 3vw, 18px);
+        font-size: clamp(0.85em, 2vw, 0.95em);
+        font-weight: 600;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        white-space: nowrap;
+        min-height: 40px;
+        backdrop-filter: blur(10px);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .main-nav-bar .login button::before,
+    .main-nav-bar .signup button::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s ease;
+    }
+
+    .main-nav-bar .login button:hover::before,
+    .main-nav-bar .signup button:hover::before {
+        left: 100%;
+    }
+
+    .main-nav-bar .login button:hover,
+    .main-nav-bar .signup button:hover {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .main-nav-bar .signup button {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.1) 100%);
+        border-color: rgba(255, 255, 255, 0.4);
+        font-weight: 700;
+    }
+
+    .main-nav-bar .signup button:hover {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.2) 100%);
+    }
 }
 
-.nav-right {
-    display: flex;
-    align-items: center;
-    gap: 15px; /* Space between profile/login/signup */
+/* Large Desktop Optimizations */
+@media (min-width: 1200px) {
+    .main-nav-bar {
+        padding: 0 50px;
+    }
+
+    .nav-left {
+        gap: 40px;
+    }
+
+    .nav-right {
+        gap: 25px;
+    }
+
+    .desktop-nav-links,
+    .desktop-session-links {
+        gap: 20px;
+    }
+
+    .main-nav-bar ul li a {
+        padding: 10px 18px;
+        font-size: 1em;
+    }
+
+    .main-nav-bar .login button,
+    .main-nav-bar .signup button {
+        padding: 10px 20px;
+        font-size: 0.95em;
+    }
+}
+
+/* Scroll animations */
+@media (min-width: 768px) {
+    .main-nav-bar.scrolled .nav-logo {
+        transform: scale(0.95);
+    }
+    
+    .main-nav-bar.scrolled ul li a {
+        padding: clamp(6px, 1.5vw, 8px) clamp(12px, 2.5vw, 15px);
+    }
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+    .main-nav-bar {
+        background: #1abc9c;
+        border-bottom: 2px solid white;
+        backdrop-filter: none;
+    }
+
+    .main-nav-bar ul li a,
+    .main-nav-bar .login button,
+    .main-nav-bar .signup button,
+    .mobile-menu-icon {
+        border: 2px solid white;
+        backdrop-filter: none;
+    }
+
+    .mobile-menu-dropdown {
+        background: #16a085;
+        border: 2px solid white;
+        backdrop-filter: none;
+    }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+    .nav-logo,
+    .mobile-menu-icon,
+    .mobile-menu-dropdown ul li a,
+    .main-nav-bar ul li a,
+    .main-nav-bar .login button,
+    .main-nav-bar .signup button,
+    .mobile-session-links button,
+    .mobile-menu-dropdown {
+        transition: none;
+        animation: none;
+        transform: none !important;
+    }
+
+    .mobile-menu-dropdown ul li a::before,
+    .main-nav-bar ul li a::before,
+    .main-nav-bar ul li a::after,
+    .nav-logo::after,
+    .mobile-menu-icon::before,
+    .main-nav-bar .login button::before,
+    .main-nav-bar .signup button::before {
+        display: none;
+    }
+}
+
+/* Focus Styles for Accessibility */
+.mobile-menu-icon:focus,
+.main-nav-bar ul li a:focus,
+.main-nav-bar .login button:focus,
+.main-nav-bar .signup button:focus,
+.mobile-session-links button:focus {
+    outline: 2px solid white;
+    outline-offset: 2px;
+}
+
+/* Print Styles */
+@media print {
+    .main-nav-bar {
+        background: white !important;
+        color: black !important;
+        box-shadow: none;
+        border-bottom: 1px solid black;
+        position: static;
+    }
+
+    .nav-logo,
+    .main-nav-bar ul li a {
+        color: black !important;
+    }
+
+    .mobile-menu-icon,
+    .mobile-menu-dropdown,
+    .desktop-session-links,
+    .mobile-session-links {
+        display: none !important;
+    }
+}
+
+/* Loading States */
+.nav-loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.nav-loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.1) 50%, transparent 100%);
+    animation: navShimmer 1.5s infinite;
+}
+
+@keyframes navShimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
 }
