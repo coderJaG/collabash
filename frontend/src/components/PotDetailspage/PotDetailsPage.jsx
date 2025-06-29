@@ -1,3 +1,5 @@
+// PotDetailsPage.jsx
+
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState, useMemo, useCallback } from "react";
 import {
@@ -96,6 +98,35 @@ const PotDetailsPage = () => {
         }
     }, [potDetails, dispatch, numPotId]);
 
+    // Updated drag handling to prevent page jumping
+    const handleDragStart = () => {
+        setIsUserActuallyDragging(true);
+        // Only prevent scrolling on mobile devices for touch events
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        if (isMobile) {
+            document.body.style.overflow = 'hidden';
+            document.body.style.position = 'fixed';
+            document.body.style.width = '100%';
+        }
+    };
+
+    const handleDragEnd = (didDrop) => {
+        setIsUserActuallyDragging(false);
+        // Re-enable scrolling
+        document.body.style.overflow = '';
+        document.body.style.position = '';
+        document.body.style.width = '';
+        
+        if (didDrop) { 
+            handleReorderUsersSubmit(); 
+        } else { 
+            // Reset to original order if drag was cancelled
+            if (potDetails?.Users) { 
+                setOrderedUsers([...potDetails.Users].sort((a, b) => (a.potMemberDetails?.displayOrder || 0) - (b.potMemberDetails?.displayOrder || 0))); 
+            } 
+        }
+    };
+
     const totalWeeks = orderedUsers.length || 0;
     const weeksForSelect = useMemo(() => Array.from({ length: totalWeeks }, (_, i) => i + 1), [totalWeeks]);
     const weeklyStatusMap = useSelector(state => state.transactions.weeklyStatusByPot[numPotId]?.[currentWeek] || STABLE_EMPTY_OPJECT);
@@ -123,6 +154,10 @@ const PotDetailsPage = () => {
         return () => {
             dispatch(potsActions.clearPotReorderError());
             dispatch(potsActions.clearPotDetailsError());
+            // Clean up any drag-related styles on unmount
+            document.body.style.overflow = '';
+            document.body.style.position = '';
+            document.body.style.width = '';
         };
     }, [dispatch, numPotId]);
     
@@ -216,7 +251,7 @@ const PotDetailsPage = () => {
     };
 
     if (isLoading && !potDetails) return <LoadingSpinner message="Loading Pot Details..." />;
-    if (error) return <div className="pot-details-page-wrapper"><h1>Error</h1><p>{error.message}</p></div>
+    if (error) return <div className="pot-details-page-wrapper error"><h1>Error</h1><p>{error.message}</p></div>
     if (!potDetails) return null;
 
     const potLifecycle = getPotLifecycle(potDetails.status);
@@ -348,18 +383,18 @@ const PotDetailsPage = () => {
                 {(isLoadingWeek || (isReordering && !isLoading)) && totalWeeks > 0 && <LoadingSpinner message={isReordering ? "Saving order..." : "Loading weekly status..."} />}
                 {!isLoadingWeek && !isReordering && totalWeeks > 0 && (
                     <div className="members-table-container">
-                        {canEditOrder && (<div className="reorder-hint"><FaBars /> Drag rows to reorder draw sequence.</div>)}
+                        {canEditOrder && (<div className="reorder-hint"><FaBars /> Drag rows to reorder draw sequence. (Touch and hold on mobile)</div>)}
                         <table className={`members-table ${isReordering ? 'reordering-active' : ''}`}>
                             <thead><tr>{canEditOrder ? <th className="drag-handle-header"></th> : <th></th>}<th>#</th><th>Name</th><th>Draw Date</th><th>Paid (Wk {currentWeek})</th><th>Draw (Wk {currentWeek})</th><th>Actions</th></tr></thead>
                             <tbody>
                                 {orderedUsers.map((user, index) => (
-                                    <DraggableUserRow key={user.id.toString()} index={index} user={user} moveRow={moveRow}
-                                        onDragBegin={() => setIsUserActuallyDragging(true)}
-                                        onDragOperationEnd={(didDrop) => {
-                                            setIsUserActuallyDragging(false);
-                                            if (didDrop) { handleReorderUsersSubmit(); } 
-                                            else { if (potDetails?.Users) { setOrderedUsers([...potDetails.Users].sort((a, b) => (a.potMemberDetails?.displayOrder || 0) - (b.potMemberDetails?.displayOrder || 0))); } }
-                                        }}
+                                    <DraggableUserRow 
+                                        key={user.id.toString()} 
+                                        index={index} 
+                                        user={user} 
+                                        moveRow={moveRow}
+                                        onDragBegin={handleDragStart}
+                                        onDragOperationEnd={handleDragEnd}
                                         canBankerEditOrder={canEditOrder}
                                         currentWeek={currentWeek}
                                         weeklyStatusMap={weeklyStatusMap}

@@ -19,6 +19,7 @@ const GetAllUsersPage = () => {
     const isLoading = useSelector(state => state.users.isLoadingAllUsers);
     const error = useSelector(state => state.users.errorAllUsers);
     const currUser = useSelector(state => state.session.user);
+    
 
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
@@ -29,6 +30,7 @@ const GetAllUsersPage = () => {
     const canViewAllUsers = userPermissions.has('user:view_all');
     // const canDeleteAnyUser = userPermissions.has('user:delete_any');
     const canDeleteSelf = userPermissions.has('user:delete_self');
+    
 
     useEffect(() => {
         dispatch(usersActions.getAllUsers());
@@ -164,7 +166,7 @@ const GetAllUsersPage = () => {
                                     deleteButtonTitle = isDeleteDisabled ? "Cannot delete: You are in an active or paused pot." : "Delete your account";
                                 } 
                                 else if (!isOwnProfile) {
-                                    if (currUser.role === 'super admin' && user.role !== 'super admin') {
+                                    if (currUser.role === 'superadmin' && user.role !== 'super admin') {
                                         canAttemptDelete = true;
                                         isDeleteDisabled = hasActiveOrPausedPot;
                                         deleteButtonTitle = isDeleteDisabled ? `Cannot delete: ${user.firstName} is in an active or paused pot.` : `Delete user ${user.firstName}`;

@@ -1,3 +1,5 @@
+//DraggableUserRow.jsx
+
 import { useRef } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 import { MdDelete } from 'react-icons/md';
@@ -14,8 +16,8 @@ const DraggableUserRow = ({
     user,
     index,
     moveRow,
-    canBankerEditOrder, // This prop controls the drag handle and reordering
-    currentWeek,
+    canBankerEditOrder,
+    currentWeek, // Added this prop that was missing
     weeklyStatusMap,
     handlePaymentChange,
     handleRemoveUserFromPot,
@@ -23,7 +25,6 @@ const DraggableUserRow = ({
     onDragBegin, 
     onDragOperationEnd,
     formatDate,
-    // ✅ NEW: Props for permission-based control
     canManagePayments,
     canManageMembers 
 }) => {
@@ -82,12 +83,23 @@ const DraggableUserRow = ({
 
     const rowStyle = {
         opacity: isDragging ? 0.4 : 1,
+        // touch-action for better mobile support
+        touchAction: canBankerEditOrder ? 'none' : 'auto',
     };
 
     return (
         <tr ref={rowRef} style={rowStyle} className={`member-row ${isDragging ? 'is-dragging-react-dnd' : ''}`}>
             {canBankerEditOrder ? (
-                <td ref={dragHandleRef} className="drag-handle-cell" title="Drag to reorder">
+                <td 
+                    ref={dragHandleRef} 
+                    className="drag-handle-cell" 
+                    title="Drag to reorder"
+                    style={{ 
+                        touchAction: 'none',
+                        cursor: 'grab',
+                        userSelect: 'none'
+                    }}
+                >
                     <FaBars />
                 </td>
             ) : (
@@ -101,7 +113,6 @@ const DraggableUserRow = ({
                     type="checkbox"
                     checked={userStatus.paidHand}
                     onChange={(e) => handlePaymentChange(user.id, currentWeek, "paidHand", e.target.checked)}
-                    // ✅ UPDATED: Use canManagePayments prop for disabled logic
                     disabled={!canManagePayments}
                 />
                 {userStatus.paidHand ? <FaCheck style={{ color: "green", marginLeft: '5px' }} /> : <FaTimes style={{ color: "red", marginLeft: '5px' }} />}
@@ -111,13 +122,11 @@ const DraggableUserRow = ({
                     type="checkbox"
                     checked={userStatus.gotDraw}
                     onChange={(e) => handlePaymentChange(user.id, currentWeek, "gotDraw", e.target.checked)}
-                    // ✅ UPDATED: Use canManagePayments prop and other conditions
                     disabled={!canManagePayments || displayOrder !== currentWeek}
                 />
                 {userStatus.gotDraw ? <FaCheck style={{ color: "green", marginLeft: '5px' }} /> : <FaTimes style={{ color: "red", marginLeft: '5px' }} />}
             </td>
             <td>
-                {/* ✅ UPDATED: Use canManageMembers prop */}
                 {canManageMembers && (potDetailsStatus === 'Not Started' || potDetailsStatus === 'Paused') && (
                     <OpenModalButton
                         buttonText={<MdDelete />}

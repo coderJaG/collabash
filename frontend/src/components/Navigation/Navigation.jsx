@@ -3,9 +3,6 @@ import { useSelector } from "react-redux";
 import { useMemo, useState } from "react";
 import { FaBars, FaTimes } from 'react-icons/fa';
 import ProfileButton from "../ProfileButton";
-import OpenModalButton from "../OpenModalButton";
-import LoginFormModal from "../LoginFormModal";
-import SignUpFormModal from "../SignUpFormModal";
 import Notifications from "../Notifications/Notifications";
 import './Navigation.css'; 
 
@@ -34,18 +31,6 @@ const Navigation = ({ isLoaded }) => {
         </>
     ) : (
         <>
-            <li className="login">
-                <OpenModalButton
-                    buttonText="Log In"
-                    modalComponent={<LoginFormModal />}
-                />
-            </li>
-            <li className="signup">
-                <OpenModalButton
-                    buttonText="Sign Up"
-                    modalComponent={<SignUpFormModal />}
-                />
-            </li>
         </>
     );
 
@@ -75,7 +60,7 @@ const Navigation = ({ isLoaded }) => {
                 <div className="mobile-menu-dropdown">
                     <ul>
                         <li><NavLink to={'/'} onClick={closeMenu}>HOME</NavLink></li>
-                        <li><NavLink to={'/pots'} onClick={closeMenu}>POTS</NavLink></li>
+                        {currUser && (<li><NavLink to={'/pots'} onClick={closeMenu}>POTS</NavLink></li>)}
                         {currUser && (<li><NavLink to={'/users'} onClick={closeMenu}>USERS</NavLink></li>)}
                         {currUser && canViewHistory && (<li><NavLink to={'/history'} onClick={closeMenu}>HISTORY</NavLink></li>)}
                     </ul>

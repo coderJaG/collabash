@@ -76,11 +76,12 @@ router.get('/:potId', requireAuth, async (req, res) => {
             return res.status(404).json({ "message": "Pot not found!!" });
         }
 
+        const isOwner = pot.ownerId === currUser.id;
         const isMember = pot.Users && pot.Users.some(user => user.id === currUser.id);
-        const isAuthorized = currUser.role === 'banker' || (currUser.role === 'standard' && isMember);
+        const isAuthorized = isOwner || (currUser.role === 'standard' && isMember);
 
         if (!isAuthorized) {
-            return res.status(403).json({ "message": "Forbidden, you must be a banker or a member of the pot." });
+            return res.status(403).json({ "message": "Forbidden, you must be the banker or a member of the pot." });
         }
         return res.json(pot);
     } catch (error) {
@@ -350,9 +351,7 @@ router.post('/:potId/addusers', requireAuth, requirePermission(PERMISSIONS.MANAG
     const numPotId = parseInt(potId);
     const numUserId = parseInt(userId);
 
-    if (currUser.role !== 'banker') {
-        return res.status(403).json({ 'message': 'Forbidden. Only banker can add users.' });
-    }
+
     if (isNaN(numPotId) || isNaN(numUserId)) {
         return res.status(400).json({ 'message': 'Invalid Pot ID or User ID.' });
     }
@@ -363,6 +362,9 @@ router.post('/:potId/addusers', requireAuth, requirePermission(PERMISSIONS.MANAG
         if (!pot) {
             await t.rollback();
             return res.status(404).json({ 'message': 'Pot not found.' });
+        }
+        if (currUser.id !== pot.ownerId) {
+            return res.status(403).json({ 'message': 'Forbidden. Only the banker can add users.' });
         }
         if (pot.status !== 'Not Started' && pot.status !== 'Paused') {
             await t.rollback();
@@ -421,9 +423,7 @@ router.delete('/:potId/removeusers', requireAuth, requirePermission(PERMISSIONS.
     const numPotId = parseInt(potId);
     const numUserId = parseInt(userId);
 
-    if (currUser.role !== 'banker') {
-        return res.status(403).json({ 'message': 'Forbidden. Only banker can remove users.' });
-    }
+
     if (isNaN(numPotId) || isNaN(numUserId)) {
         return res.status(400).json({ 'message': 'Invalid Pot ID or User ID.' });
     }
@@ -434,6 +434,9 @@ router.delete('/:potId/removeusers', requireAuth, requirePermission(PERMISSIONS.
         if (!pot) {
             await t.rollback();
             return res.status(404).json({ 'message': 'Pot not found.' });
+        }
+        if (currUser.id !== pot.ownerId) {
+            return res.status(403).json({ 'message': 'Forbidden. Only the banker can remove users.' });
         }
         if (pot.status !== 'Not Started' && pot.status !== 'Paused') {
             await t.rollback();
@@ -495,9 +498,7 @@ router.put('/:potId/reorderusers', requireAuth, requirePermission(PERMISSIONS.MA
     const { orderedUserIds } = req.body;
     const numPotId = parseInt(potId);
 
-    if (currUser.role !== 'banker') {
-        return res.status(403).json({ message: 'Forbidden. Only bankers can reorder users.' });
-    }
+    
     if (!Array.isArray(orderedUserIds)) {
         return res.status(400).json({ message: 'orderedUserIds must be an array.' });
     }
@@ -512,6 +513,10 @@ router.put('/:potId/reorderusers', requireAuth, requirePermission(PERMISSIONS.MA
             await t.rollback();
             return res.status(404).json({ message: 'Pot not found.' });
         }
+        
+        if (currUser.id !== pot.ownerId) {
+        return res.status(403).json({ message: 'Forbidden. Only the banker can reorder users.' });
+    }
         if (pot.status !== 'Not Started' && pot.status !== 'Paused') {
             await t.rollback();
             return res.status(400).json({ message: 'Users can only be reordered in a pot that is \'Not Started\' or \'Paused\'.' });

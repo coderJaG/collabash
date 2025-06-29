@@ -11,7 +11,7 @@ module.exports = {
     options.tableName = 'Pots';
     await queryInterface.bulkInsert(options, [
       {
-        ownerId: 1, 
+        ownerId: 2, 
         ownerName: 'Demo lition',
         name: 'Community Fund',
         hand: 250.00,
@@ -34,7 +34,7 @@ module.exports = {
     
       },
       {
-        ownerId: 1,
+        ownerId: 2,
         ownerName: 'Demo Lition',
         name: 'Friends and Family',
         hand: 150.00,

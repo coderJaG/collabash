@@ -1,6 +1,6 @@
 import { csrfFetch } from "./csrf";
 import { toast } from "react-toastify";
-import { getAPotById } from "./pots"; // To refresh pot details after approval
+import { getAPotById } from "./pots";
 
 // --- ACTION TYPES ---
 const CREATE_JOIN_REQUEST_START = 'requests/CREATE_JOIN_REQUEST_START';
@@ -39,7 +39,17 @@ const respondToRequestFailure = (error) => ({ type: RESPOND_TO_REQUEST_FAILURE, 
 
 
 // --- THUNKS ---
-export const createJoinRequest = (potId) => async (dispatch) => {
+export const createJoinRequest = (potId) => async (dispatch, getState) => {
+    // ✅ NEW: Client-side check to prevent duplicate requests
+    const { requests } = getState();
+    const existingSentRequest = Object.values(requests.sentRequests).find(
+        req => req.potId === potId && req.status === 'pending'
+    );
+    if (existingSentRequest) {
+        toast.info("You already have a pending request for this pot.");
+        return; // Stop the dispatch if request already exists
+    }
+
     dispatch(createJoinRequestStart());
     try {
         const res = await csrfFetch('/api/requests', {
@@ -48,9 +58,10 @@ export const createJoinRequest = (potId) => async (dispatch) => {
         });
         const data = await res.json();
         if (!res.ok) throw data;
+        
         dispatch(createJoinRequestSuccess(data));
         toast.success("Your request to join the pot has been sent!");
-        dispatch(fetchSentRequests()); // ✅ Refresh the user's sent requests list
+        dispatch(fetchSentRequests()); // Refresh the user's sent requests list
         return data;
     } catch (error) {
         const errorMessage = error.message || "Failed to send join request.";
@@ -98,7 +109,6 @@ export const respondToRequest = (requestId, status) => async (dispatch) => {
         
         dispatch(respondToRequestSuccess());
         toast.success(`Request has been ${status}.`);
-
         dispatch(fetchReceivedRequests());
 
         if (status === 'approved' && data.potId) {
@@ -119,7 +129,7 @@ const initialState = {
     isLoading: false,
     error: null,
     receivedRequests: {},
-    sentRequests: {}, // ✅ NEW: State for user's sent requests
+    sentRequests: {}, // Store sent requests by their ID for easy lookup
     loadingRequests: false,
     errorRequests: null
 };
@@ -129,7 +139,12 @@ const requestsReducer = (state = initialState, action) => {
         case CREATE_JOIN_REQUEST_START:
             return { ...state, isLoading: true, error: null };
         case CREATE_JOIN_REQUEST_SUCCESS:
-            return { ...state, isLoading: false };
+            // Add new request to the sentRequests state
+            return { 
+                ...state, 
+                isLoading: false,
+                sentRequests: { ...state.sentRequests, [action.payload.id]: action.payload }
+            };
         case CREATE_JOIN_REQUEST_FAILURE:
             return { ...state, isLoading: false, error: action.payload };
 
@@ -143,7 +158,6 @@ const requestsReducer = (state = initialState, action) => {
         case GET_RECEIVED_REQUESTS_FAILURE:
             return { ...state, loadingRequests: false, errorRequests: action.payload };
         
-        // ✅ NEW: Cases for sent requests
         case GET_SENT_REQUESTS_START:
             return { ...state, loadingRequests: true, errorRequests: null };
         case GET_SENT_REQUESTS_SUCCESS: {

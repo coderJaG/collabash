@@ -1,7 +1,7 @@
 import { useSelector } from "react-redux";
 import UserProfilePage from "../UserProfilePage";
 import OpenModalButton from "../OpenModalButton";
-import SignUpFormModal from "../SignUpFormModal";
+import LoginFormModal from "../LoginFormModal";
 import "./LandingPage.css";
 
 const LandingPage = () => {
@@ -22,7 +22,7 @@ const LandingPage = () => {
                 <div className="get-started-button">
                     <OpenModalButton
                         buttonText="Get Started"
-                        modalComponent={<SignUpFormModal />}
+                        modalComponent={<LoginFormModal />}
                     />
                 </div>
             </div>

@@ -1,3 +1,5 @@
+// GetSingleUserPage.jsx
+
 import { useState, useEffect, useMemo } from 'react';
 import { useParams, NavLink } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
@@ -29,7 +31,6 @@ const GetSingleUserPage = () => {
     const [editError, setEditError] = useState("");
     const [editSuccess, setEditSuccess] = useState("");
 
-    // Check for permissions from the user object
     const userPermissions = useMemo(() => new Set(currUser?.permissions || []), [currUser]);
     const canEditAnyUser = userPermissions.has('user:edit_any');
     const canEditThisProfile = useMemo(() => {
@@ -107,7 +108,6 @@ const GetSingleUserPage = () => {
             mobile: formData.mobile,
         };
         
-      
         if (canEditAnyUser) {
             userDataToUpdate.role = formData.role;
         }
@@ -129,8 +129,19 @@ const GetSingleUserPage = () => {
                 dispatch(userActions.getUserById(viewedUserId));
             }
         } catch (error) {
-            const errorMessage = error?.errors?.message || error?.message || "Failed to update profile. Please try again.";
-            setEditError(errorMessage);
+            let messages = [];
+            if (error.message) {
+                messages.push(error.message);
+            }
+            if (error.errors && typeof error.errors === 'object') {
+                messages = [...messages, ...Object.values(error.errors)];
+            }
+            
+            if(messages.length === 0) {
+                messages.push("Failed to update profile. Please try again.");
+            }
+            
+            setEditError(messages.join('. '));
         }
     };
 
@@ -171,11 +182,7 @@ const GetSingleUserPage = () => {
             <div className="pot-item">
                 <table>
                     <thead>
-                        <tr>
-                            <th>POT NAME</th>
-                            <th>POT VALUE</th>
-                            <th>TOTAL MEMBERS</th>
-                        </tr>
+                        <tr><th>POT NAME</th><th>POT VALUE</th><th>TOTAL MEMBERS</th></tr>
                     </thead>
                     <tbody>
                         {pots.map(pot => (
@@ -193,7 +200,7 @@ const GetSingleUserPage = () => {
 
     return (
         <div className="single-user-page-wrapper">
-            <div className="single-user-page-header"><h1>{selectedUser.firstName?.toUpperCase()} PROFILE</h1></div>
+            <div className="single-user-page-header"><h1>{`${selectedUser.firstName?.toUpperCase()}'S PROFILE`}</h1></div>
 
             <div className="single-user-info-card">
                 {editError && <p className="form-error-message">{editError}</p>}
@@ -219,7 +226,6 @@ const GetSingleUserPage = () => {
                         <div className="form-input-group"><label htmlFor="email">Email:</label><input type="email" id="email" name="email" value={formData.email} onChange={handleInputChange} required /></div>
                         <div className="form-input-group"><label htmlFor="mobile">Mobile (e.g., 999-999-9999):</label><input type="tel" id="mobile" name="mobile" value={formData.mobile} onChange={handleInputChange} pattern="\d{3}-\d{3}-\d{4}" placeholder="999-999-9999" required /></div>
                         
-                       
                         {canEditAnyUser ? (
                             <div className="form-input-group">
                                 <label htmlFor="role">Role:</label>

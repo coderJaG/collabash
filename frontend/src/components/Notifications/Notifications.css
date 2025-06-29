@@ -78,11 +78,10 @@
 
 .notifications-dropdown {
     position: absolute;
-    top: calc(100% + 8px);
-    right: -10px; /* Slight offset to align top-right of dropdown with bottom-left of button */
-    margin-top: 0;
+    top: calc(100% + 8px); /* Position below the bell with small gap */
+    right: 0; /* Align with right edge of bell */
     width: clamp(280px, 80vw, 320px);
-    max-height: clamp(300px, 60vh, 400px);
+    max-height: calc(100vh - 80px); /* Leave space for bell and margins */
     overflow-y: auto;
     background: rgba(255, 255, 255, 0.98);
     backdrop-filter: blur(20px);
@@ -92,8 +91,59 @@
         0 20px 60px rgba(0, 0, 0, 0.15),
         0 8px 30px rgba(52, 152, 219, 0.08),
         inset 0 1px 0 rgba(255, 255, 255, 0.8);
-    z-index: 1000;
+    z-index: 1001;
     border: 1px solid rgba(52, 152, 219, 0.2);
+}
+
+/* Mobile positioning adjustments */
+@media (max-width: 768px) {
+    .notifications-container {
+        position: static; 
+    }
+    
+    .notifications-dropdown {
+        position: fixed;
+        top: 200px; 
+        left: 100px; 
+        width: min(95vw, 320px); 
+        max-height: calc(100vh - 220px); 
+        z-index: 1002; 
+    }
+}
+
+@media (max-width: 480px) {
+    .notifications-dropdown {
+        position: fixed;
+        top: 150px;
+        right: 5px;
+        left: 5px;
+        width: auto;
+        max-height: calc(100vh - 170px); 
+        z-index: 1002;
+    }
+}
+
+/* Arrow pointing to the bell (optional enhancement) */
+.notifications-dropdown::after {
+    content: '';
+    position: absolute;
+    top: -8px;
+    right: 20px;
+    width: 16px;
+    height: 16px;
+    background: rgba(255, 255, 255, 0.98);
+    border: 1px solid rgba(52, 152, 219, 0.2);
+    border-bottom: none;
+    border-right: none;
+    transform: rotate(45deg);
+    z-index: 1001;
+}
+
+/* Hide arrow on mobile since positioning changes */
+@media (max-width: 768px) {
+    .notifications-dropdown::after {
+        display: none;
+    }
 }
 
 .notifications-dropdown::before {
@@ -361,25 +411,6 @@
     color: #2c3e50;
     transform: scale(1.1);
     box-shadow: 0 4px 12px rgba(127, 140, 141, 0.2);
-}
-
-/* Mobile optimizations */
-@media (max-width: 480px) {
-    .notifications-dropdown {
-        width: 95vw;
-        right: -10px;
-        max-height: 70vh;
-    }
-    
-    .notification-actions {
-        flex-direction: column;
-        gap: 8px;
-    }
-    
-    .notification-actions button {
-        width: 100%;
-        min-height: 44px;
-    }
 }
 
 /* High contrast mode support */

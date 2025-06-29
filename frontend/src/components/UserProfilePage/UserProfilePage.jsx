@@ -1,3 +1,5 @@
+// UserProfilePage.jsx
+
 import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { NavLink } from "react-router-dom";
@@ -232,7 +234,6 @@ const UserProfilePage = () => {
                         </div>
                         <div className="form-input-group">
                             <label htmlFor="mobile">Mobile (e.g., 999-999-9999):</label>
-                            {/* The onChange handler is set to handleMobileChange for automatic formatting */}
                             <input type="tel" id="mobile" name="mobile" value={formData.mobile} onChange={handleMobileChange} placeholder="999-999-9999" required />
                         </div>
                         <hr className="form-divider" />

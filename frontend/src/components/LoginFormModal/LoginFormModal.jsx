@@ -1,36 +1,42 @@
-// LoginFormModal.jsx
-import { useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { useModal } from '../context/Modal';
-import * as sessionActions from '../../store/session';
-import './LoginFormModal.css'; // Import the CSS
+//LoginFormModal.jsx
+import { useState, useRef } from "react";
+import * as sessionActions from "../../store/session";
+import { useDispatch } from "react-redux";
+import { useModal } from "../context/Modal";
+import SignUpFormModal from "../SignUpFormModal";
+import './LoginFormModal.css';
 
-const LoginFormModal = () => {
+function LoginFormModal() {
     const dispatch = useDispatch();
-    const [credential, setCredential] = useState('');
-    const [password, setPassword] = useState('');
+    const [credential, setCredential] = useState("");
+    const [password, setPassword] = useState("");
     const [errors, setErrors] = useState({});
-    const { closeModal } = useModal();
+    const [isTransitioning, setIsTransitioning] = useState(false);
+    const { closeModal, setModalContent } = useModal();
+    const modalRef = useRef(null);
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
         setErrors({});
-        try {
-            // The login thunk now throws a structured error on failure
-            await dispatch(sessionActions.login({ credential, password }));
-            closeModal(); // Only closes if login was successful (no error thrown)
-        } catch (caughtError) {
-            // caughtError should be the object thrown by the login thunk
-            console.error('Login modal caught error:', caughtError);
-            const newErrors = {};
-            if (caughtError && caughtError.errors && Object.keys(caughtError.errors).length > 0) {
-                Object.assign(newErrors, caughtError.errors);
-            }
-            // Use top-level message for general error, or a fallback.
-            // Backend validation for login often returns a single 'credential' error.
-            newErrors.credential = caughtError.message || 'The provided credentials were invalid.';
-            setErrors(newErrors);
+        dispatch(sessionActions.login({ credential, password }))
+            .then(closeModal)
+            .catch((data) => {
+                if (data && data.errors) {
+                    setErrors(data.errors);
+                } else if (data && data.message) {
+                    setErrors({ credential: data.message });
+                }
+            });
+    };
+    // Function to switch to the Sign Up form
+    const switchToSignup = () => {
+        setIsTransitioning(true);
+        if (modalRef.current) {
+            modalRef.current.classList.add('switching');
         }
+        setTimeout(() => {
+            setModalContent(<SignUpFormModal />);
+        }, 150);
     };
 
     const demoUserLogin = async (demoCredential, demoPassword) => {
@@ -39,7 +45,6 @@ const LoginFormModal = () => {
             await dispatch(sessionActions.login({ credential: demoCredential, password: demoPassword }));
             closeModal();
         } catch (caughtError) {
-            console.error('Error during demo user login:', caughtError);
             setErrors({ credential: caughtError.message || 'Demo login failed.' });
         }
     };
@@ -47,39 +52,78 @@ const LoginFormModal = () => {
     const disableButton = !(credential.length >= 4 && password.length >= 6);
 
     return (
-        <div className="login-modal-content"> {/* Wrapper div */}
-            <h2>LOG IN</h2>
+        <div
+            className={`login-modal-content ${isTransitioning ? 'switching' : ''}`}
+            ref={modalRef}
+        >
+            <h2>Log In</h2>
             <div className="demo-buttons-container">
-                <button className="demo-button" onClick={() => demoUserLogin('Demo-lition', 'password')}>Demo User 1</button>
-                <button className="demo-button" onClick={() => demoUserLogin('johnsmith', 'password2')}>Demo User 2</button>
+                <button
+                    className="demo-button"
+                    onClick={() => demoUserLogin('Demo-lition', 'password')}
+                    disabled={isTransitioning}
+                >
+                    Demo User 1
+                </button>
+                <button
+                    className="demo-button"
+                    onClick={() => demoUserLogin('johnsmith', 'password2')}
+                    disabled={isTransitioning}
+                >
+                    Demo User 2
+                </button>
+                 <button
+                    className="demo-button"
+                    onClick={() => demoUserLogin('coderjag', 'password')}
+                    disabled={isTransitioning}
+                >
+                    Demo User 3
+                </button>
             </div>
             <form onSubmit={handleSubmit} className="login-form">
                 {errors.credential && <p className="error-message">{errors.credential}</p>}
-                {/* If you have other specific error fields from backend, add them here */}
-                {/* {errors.password && <p className="error-message">{errors.password}</p>} */}
-
-                <label htmlFor="login-credential">Email or Username: </label>
-                <input
-                    id="login-credential"
-                    type='text'
-                    value={credential}
-                    onChange={e => setCredential(e.target.value)}
-                    placeholder='Enter email or username'
-                    required
-                />
-                <label htmlFor="login-password">Password: </label>
-                <input
-                    id="login-password"
-                    type='password' // Changed to password type
-                    value={password}
-                    onChange={e => setPassword(e.target.value)}
-                    placeholder='Enter password'
-                    required
-                />
-                <button type='submit' disabled={disableButton} className="login-submit-button">Log In</button>
+                <label>
+                    Username or Email
+                    <input
+                        type="text"
+                        value={credential}
+                        onChange={(e) => setCredential(e.target.value)}
+                        required
+                        disabled={isTransitioning}
+                        placeholder="Enter your username or email"
+                    />
+                </label>
+                <label>
+                    Password
+                    <input
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        disabled={isTransitioning}
+                        placeholder="Enter your password"
+                    />
+                </label>
+                <button
+                    type="submit"
+                    className="login-submit-button"
+                    disabled={disableButton || isTransitioning}
+                >
+                    {isTransitioning ? 'Switching...' : 'Log In'}
+                </button>
             </form>
+            <div className="form-switch-link">
+                <span>{"Don't have an account?"}</span>
+                <button
+                    className="signup-button"
+                    onClick={switchToSignup}
+                    disabled={isTransitioning}
+                >
+                    {isTransitioning ? 'Loading...' : 'Sign Up'}
+                </button>
+            </div>
         </div>
     );
-};
+}
 
 export default LoginFormModal;
