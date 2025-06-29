@@ -1,3 +1,6 @@
+// SignUpFormModal.jsx
+
+
 import { useState, useRef } from "react";
 import { useDispatch } from "react-redux";
 import { useModal } from "../context/Modal";
@@ -21,6 +24,23 @@ const SignUpFormModal = ({createdByBanker = false}) => {
     const [isTransitioning, setIsTransitioning] = useState(false);
     const modalRef = useRef(null);
 
+    const handleMobileChange = (e) => {
+        const rawValue = e.target.value.replace(/\D/g, '');
+        let formattedValue = '';
+
+        if (rawValue.length > 0) {
+            formattedValue = rawValue.substring(0, 3);
+        }
+        if (rawValue.length > 3) {
+            formattedValue += '-' + rawValue.substring(3, 6);
+        }
+        if (rawValue.length > 6) {
+            formattedValue += '-' + rawValue.substring(6, 10);
+        }
+        
+        setMobile(formattedValue);
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault()
 
@@ -40,7 +60,7 @@ const SignUpFormModal = ({createdByBanker = false}) => {
         };
 
         setErrors({});
-        return dispatch(sessionActions.signUp(user, createdByBanker)) 
+        return dispatch(sessionActions.signup(user, createdByBanker)) 
             .then(() => {
                 closeModal();
                 if (createdByBanker) {
@@ -83,19 +103,15 @@ const SignUpFormModal = ({createdByBanker = false}) => {
 
     const switchToLogin = () => {
         setIsTransitioning(true);
-        
-        // Add switching class for animation
         if (modalRef.current) {
             modalRef.current.classList.add('switching');
         }
         
-        // Delay the content switch to allow for smooth transition
         setTimeout(() => {
             setModalContent(<LoginFormModal />);
-        }, 200); // Half the animation duration
+        }, 100);
     };
 
-    // Helper to disable signup button if some criteria are not met
     let disableButton = false
     const requiredFields = [firstName, lastName, email, username, mobile, password, confirmPassword]
     if (requiredFields.some(field => field.trim().length === 0) || username.length < 4 || password.length < 6) {
@@ -168,10 +184,11 @@ const SignUpFormModal = ({createdByBanker = false}) => {
                     <input
                         type='tel'
                         value={mobile}
-                        onChange={e => setMobile(e.target.value)}
+                        onChange={handleMobileChange}
                         required
                         disabled={isTransitioning}
                         placeholder="Enter your mobile number"
+                        maxLength="12"
                     />
                     {errors.mobile && <p className="error-message">{errors.mobile}</p>}
                 </div>

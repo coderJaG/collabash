@@ -1,4 +1,4 @@
-/*PotDdetailsPage.css*/
+/*PotDetailsPage.css*/
 
 /* Overall Page Container */
 .pot-details-page-wrapper {
@@ -369,17 +369,20 @@
     width: 100%;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    position: relative;
 }
 
 .members-table {
     width: 100%;
     min-width: 600px;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
     margin-top: 10px;
     background-color: #ffffff;
     border-radius: 6px;
     overflow: hidden;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    table-layout: fixed;
 }
 
 @media (max-width: 640px) {
@@ -398,27 +401,120 @@
     font-size: clamp(0.8em, 2vw, 0.9em);
 }
 
+/* Enhanced header styling to ensure background shows */
 .members-table th {
-    background-color: #1abc9c;
-    color: white;
+    background-color: #1abc9c !important;
+    color: white !important;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     white-space: nowrap;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    border-bottom: 2px solid #16a085;
+}
+
+/* Ensure drag handle header gets the same styling */
+.members-table th.drag-handle-header {
+    background-color: #1abc9c !important;
+    color: white !important;
+    width: clamp(35px, 8vw, 40px);
+    padding: clamp(8px, 2vw, 12px) 5px;
+    text-align: center;
 }
 
 .members-table tbody tr {
     background-color: #e0f2f1;
+    transition: background-color 0.2s ease;
 }
 
 .members-table tbody tr:hover {
     background-color: #e8f8f5;
 }
 
+/* Enhanced drag and drop styles */
+.members-table tr.member-row {
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    will-change: transform;
+}
+
+.members-table tr.member-row.is-dragging-react-dnd {
+    opacity: 0.4 !important;
+    background-color: #c8f0e4 !important;
+    transform: rotate(2deg);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    position: relative;
+}
+
+.members-table tr.member-row.is-dragging-react-dnd td {
+    border-color: #b2dfdb;
+}
+
+/* Drag handle cell styling */
+.members-table td.drag-handle-cell {
+    cursor: grab;
+    text-align: center;
+    vertical-align: middle;
+    color: #777;
+    width: clamp(35px, 8vw, 40px);
+    padding: clamp(8px, 2vw, 12px) 5px;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+    position: relative;
+}
+
+.members-table td.drag-handle-cell:active {
+    cursor: grabbing;
+}
+
+.members-table td.drag-handle-cell:hover {
+    color: #1abc9c;
+    background-color: #f5f5f5;
+    transform: scale(1.02);
+    transition: all 0.1s ease;
+}
+
+/* Mobile-specific drag handle improvements */
+@media (max-width: 768px) {
+    .members-table td.drag-handle-cell {
+        padding: 12px 8px;
+        min-width: 44px;
+        min-height: 44px;
+    }
+    
+    .members-table td.drag-handle-cell::before {
+        content: '';
+        position: absolute;
+        top: -5px;
+        left: -5px;
+        right: -5px;
+        bottom: -5px;
+    }
+}
+
+/* Touch device specific styles */
+@media (hover: none) and (pointer: coarse) {
+    .members-table td.drag-handle-cell:active {
+        background-color: #e0e0e0;
+        transform: scale(1.05);
+        transition: all 0.1s ease;
+    }
+}
+
 .members-table td input[type="checkbox"] {
     margin-right: 8px;
     cursor: pointer;
     transform: scale(clamp(1, 2vw, 1.1));
+    touch-action: manipulation;
+    width: 20px;
+    height: 20px;
 }
 
 .members-table td button {
@@ -465,6 +561,7 @@
 
 .error p {
     margin: 0;
+    color: #721c24;
 }
 
 .success-message {
@@ -529,34 +626,6 @@
     justify-content: center;
     gap: 5px;
     flex-wrap: wrap;
-}
-
-.members-table th.drag-handle-header {
-    width: clamp(35px, 8vw, 40px);
-    padding: clamp(8px, 2vw, 12px) 5px;
-    text-align: center;
-}
-
-.members-table td.drag-handle-cell {
-    cursor: grab;
-    text-align: center;
-    vertical-align: middle;
-    color: #777;
-    width: clamp(35px, 8vw, 40px);
-    padding: 0 5px;
-}
-
-.members-table td.drag-handle-cell:hover {
-    color: #1abc9c;
-}
-
-.members-table tr.member-row.is-dragging {
-    background-color: #c8f0e4 !important;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.members-table tr.member-row.is-dragging td {
-    border-color: #b2dfdb;
 }
 
 /* Inline Editing Styles */
@@ -683,4 +752,22 @@
 
 .members-table-container::-webkit-scrollbar-thumb:hover {
     background: #16a085;
+}
+
+/* Ensure smooth scrolling when not dragging */
+html {
+    scroll-behavior: smooth;
+}
+
+/* React DnD specific styles */
+.react-dnd-preview {
+    pointer-events: none;
+    transform: rotate(5deg);
+    opacity: 0.8;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+.react-dnd-drag-layer {
+    pointer-events: none;
+    z-index: 100;
 }

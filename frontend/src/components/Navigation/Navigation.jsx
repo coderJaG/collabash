@@ -3,9 +3,6 @@ import { useSelector } from "react-redux";
 import { useMemo, useState } from "react";
 import { FaBars, FaTimes } from 'react-icons/fa';
 import ProfileButton from "../ProfileButton";
-// import OpenModalButton from "../OpenModalButton";
-// import LoginFormModal from "../LoginFormModal";
-// import SignUpFormModal from "../SignUpFormModal";
 import Notifications from "../Notifications/Notifications";
 import './Navigation.css'; 
 

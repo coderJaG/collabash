@@ -1,3 +1,4 @@
+//LoginFormModal.jsx
 import { useState, useRef } from "react";
 import * as sessionActions from "../../store/session";
 import { useDispatch } from "react-redux";
@@ -17,28 +18,25 @@ function LoginFormModal() {
     const handleSubmit = (e) => {
         e.preventDefault();
         setErrors({});
-        return dispatch(sessionActions.login({ credential, password }))
+        dispatch(sessionActions.login({ credential, password }))
             .then(closeModal)
-            .catch(async (res) => {
-                const data = await res.json();
+            .catch((data) => {
                 if (data && data.errors) {
                     setErrors(data.errors);
+                } else if (data && data.message) {
+                    setErrors({ credential: data.message });
                 }
             });
     };
-
+    // Function to switch to the Sign Up form
     const switchToSignup = () => {
         setIsTransitioning(true);
-        
-        // Add switching class for animation
         if (modalRef.current) {
             modalRef.current.classList.add('switching');
         }
-        
-        // Delay the content switch to allow for smooth transition
         setTimeout(() => {
             setModalContent(<SignUpFormModal />);
-        }, 200); // Half the animation duration
+        }, 150);
     };
 
     const demoUserLogin = async (demoCredential, demoPassword) => {
@@ -47,7 +45,6 @@ function LoginFormModal() {
             await dispatch(sessionActions.login({ credential: demoCredential, password: demoPassword }));
             closeModal();
         } catch (caughtError) {
-            console.error('Error during demo user login:', caughtError);
             setErrors({ credential: caughtError.message || 'Demo login failed.' });
         }
     };
@@ -55,25 +52,32 @@ function LoginFormModal() {
     const disableButton = !(credential.length >= 4 && password.length >= 6);
 
     return (
-        <div 
+        <div
             className={`login-modal-content ${isTransitioning ? 'switching' : ''}`}
             ref={modalRef}
         >
             <h2>Log In</h2>
             <div className="demo-buttons-container">
-                <button 
-                    className="demo-button" 
+                <button
+                    className="demo-button"
                     onClick={() => demoUserLogin('Demo-lition', 'password')}
                     disabled={isTransitioning}
                 >
                     Demo User 1
                 </button>
-                <button 
-                    className="demo-button" 
+                <button
+                    className="demo-button"
                     onClick={() => demoUserLogin('johnsmith', 'password2')}
                     disabled={isTransitioning}
                 >
                     Demo User 2
+                </button>
+                 <button
+                    className="demo-button"
+                    onClick={() => demoUserLogin('coderjag', 'password')}
+                    disabled={isTransitioning}
+                >
+                    Demo User 3
                 </button>
             </div>
             <form onSubmit={handleSubmit} className="login-form">
@@ -100,9 +104,9 @@ function LoginFormModal() {
                         placeholder="Enter your password"
                     />
                 </label>
-                <button 
-                    type="submit" 
-                    className="login-submit-button" 
+                <button
+                    type="submit"
+                    className="login-submit-button"
                     disabled={disableButton || isTransitioning}
                 >
                     {isTransitioning ? 'Switching...' : 'Log In'}
@@ -110,8 +114,8 @@ function LoginFormModal() {
             </form>
             <div className="form-switch-link">
                 <span>{"Don't have an account?"}</span>
-                <button 
-                    className="signup-button" 
+                <button
+                    className="signup-button"
                     onClick={switchToSignup}
                     disabled={isTransitioning}
                 >

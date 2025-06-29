@@ -498,9 +498,7 @@ router.put('/:potId/reorderusers', requireAuth, requirePermission(PERMISSIONS.MA
     const { orderedUserIds } = req.body;
     const numPotId = parseInt(potId);
 
-    if (currUser.role !== 'banker') {
-        return res.status(403).json({ message: 'Forbidden. Only bankers can reorder users.' });
-    }
+    
     if (!Array.isArray(orderedUserIds)) {
         return res.status(400).json({ message: 'orderedUserIds must be an array.' });
     }
@@ -515,6 +513,10 @@ router.put('/:potId/reorderusers', requireAuth, requirePermission(PERMISSIONS.MA
             await t.rollback();
             return res.status(404).json({ message: 'Pot not found.' });
         }
+        
+        if (currUser.id !== pot.ownerId) {
+        return res.status(403).json({ message: 'Forbidden. Only the banker can reorder users.' });
+    }
         if (pot.status !== 'Not Started' && pot.status !== 'Paused') {
             await t.rollback();
             return res.status(400).json({ message: 'Users can only be reordered in a pot that is \'Not Started\' or \'Paused\'.' });

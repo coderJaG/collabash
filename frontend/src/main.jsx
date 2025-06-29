@@ -2,9 +2,10 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
 import { DndProvider } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend';
-import { ToastContainer } from 'react-toastify'; // Import ToastContainer
-import 'react-toastify/dist/ReactToastify.css'; // Import the CSS
+import { MultiBackend } from 'react-dnd-multi-backend';
+import { HTML5toTouch } from 'rdndmb-html5-to-touch';
+import { ToastContainer } from 'react-toastify'; 
+import 'react-toastify/dist/ReactToastify.css'; 
 
 import App from './App';
 import './index.css';
@@ -13,7 +14,7 @@ import { restoreCSRF, csrfFetch } from './store/csrf';
 import * as sessionActions from './store/session';
 import * as potsActions from './store/pots';
 import { Modal, ModalProvider } from './components/context/Modal';
-import { SocketProvider } from './context/SocketContext'; // Import the SocketProvider
+import { SocketProvider } from './context/SocketContext'; 
 
 const store = configureStore();
 
@@ -26,7 +27,7 @@ if (import.meta.env.MODE !== 'production') {
 }
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <DndProvider backend={HTML5Backend}>
+  <DndProvider backend={MultiBackend} options={HTML5toTouch}>
     <React.StrictMode>
       <ModalProvider>
         <Provider store={store}>
