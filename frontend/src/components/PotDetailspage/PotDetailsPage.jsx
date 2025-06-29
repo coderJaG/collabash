@@ -371,7 +371,7 @@ const PotDetailsPage = () => {
                 {(isLoadingWeek || (isReordering && !isLoading)) && totalWeeks > 0 && <LoadingSpinner message={isReordering ? "Saving order..." : "Loading weekly status..."} />}
                 {!isLoadingWeek && !isReordering && totalWeeks > 0 && (
                     <div className="members-table-container">
-                        {canEditOrder && (<div className="reorder-hint"><FaBars /> Drag rows to reorder draw sequence. (Touch and hold on mobile)</div>)}
+                        {canEditOrder && (<div className="reorder-hint"><FaBars /> Touch and hold the grid icon to drag rows and reorder the draw sequence.</div>)}
                         <table className={`members-table ${isReordering ? 'reordering-active' : ''}`}>
                             <thead><tr>{canEditOrder ? <th className="drag-handle-header"></th> : <th></th>}<th>#</th><th>Name</th><th>Draw Date</th><th>Paid (Wk {currentWeek})</th><th>Draw (Wk {currentWeek})</th><th>Actions</th></tr></thead>
                             <tbody>
