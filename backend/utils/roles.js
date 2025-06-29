@@ -4,7 +4,7 @@
 const ROLES = {
   STANDARD: 'standard',
   BANKER: 'banker',
-  SUPER_ADMIN: 'super admin'
+  SUPER_ADMIN: 'superadmin'
 };
 
 // Define Permissions - These are the granular actions users can perform.
@@ -55,7 +55,7 @@ const bankerPermissions = [
 ];
 
 const superAdminPermissions = [
-  ...bankerPermissions, // Super Admins can do everything a banker can.
+  ...bankerPermissions, 
   // Any super-admin-only permissions would be added here.
   // They already inherit DELETE_ANY_USER from the banker role.
 ];

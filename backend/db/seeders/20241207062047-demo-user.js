@@ -8,6 +8,15 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 const demoUsersData = [
+    {
+    firstName: 'Coder',
+    lastName: 'Jag',
+    mobile: '888-999-9999',
+    email: 'coderjag@example.com',
+    username: 'coderjag',
+    hashedPassword: bcrypt.hashSync('password'),
+    role: 'superadmin'
+  },
   {
     firstName: 'Demo',
     lastName: 'Lition',

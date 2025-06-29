@@ -90,7 +90,7 @@ const validateUserUpdate = [
         .isLength({ min: 6 }).withMessage('New password must be 6 characters or more.'),
     body('role').optional()
         .custom((value, { req }) => {
-            if (value && req.user.role !== 'banker') throw new Error('You are not authorized to change user roles.');
+            if (value && (req.user.role !== 'banker' && req.user.role !== 'superadmin')) throw new Error('You are not authorized to change user roles.');
             if (value && !['standard', 'banker'].includes(value)) throw new Error('Invalid role specified.');
             return true;
         }),
@@ -189,7 +189,7 @@ router.get('/:userId', requireAuth, async (req, res) => {
 
         // Authorization check
         let isAuthorizedToView = false;
-        if (currUser.role === 'banker' || currUser.id === targetUserId) {
+        if (currUser.role === 'superadmin' || currUser.role === 'banker' || currUser.id === targetUserId) {
             isAuthorizedToView = true;
         } else {
             const currentUserPots = await PotsUser.findAll({
@@ -316,6 +316,7 @@ router.put('/:userId', requireAuth, validateUserUpdate, async (req, res) => {
     }
 
     const hasPermissionToEditAny = (ROLE_PERMISSIONS[currUser.role] || []).includes(PERMISSIONS.EDIT_ANY_USER);
+   
     if (currUser.id !== targetUserId && !hasPermissionToEditAny) {
         return res.status(403).json({ "message": "Forbidden: You are not authorized to edit this user." });
     }
