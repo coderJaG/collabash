@@ -31,14 +31,14 @@ const mobileOptimizedOptions = {
             backend: HTML5toTouch.backends[1].backend,
             options: {
                 enableMouseEvents: true,
-                delayTouchStart: 150, // Reduced delay for better responsiveness
+                delayTouchStart: 100, // Shorter delay for quicker drag recognition
                 delayMouseStart: 0,
-                touchSlop: 20, // Increased tolerance for slight movement
+                touchSlop: 8, // Much smaller tolerance - prioritize drag over scroll
                 ignoreContextMenu: true,
                 enableTouchEvents: true,
                 enableKeyboardEvents: false,
-                // Don't prevent default touch behaviors
-                preventScrolling: false,
+                // Allow the drag handle to capture touch events
+                preventScrolling: true, // Re-enable for better drag capture
             },
             preview: true,
             transition: HTML5toTouch.backends[1].transition,
@@ -61,7 +61,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <Provider store={store}>
           <SocketProvider>
             <App />
-            <ToastContainer //ToastContainer here for notifications
+            <ToastContainer // Add ToastContainer here for notifications
               position="top-right"
               autoClose={5000}
               hideProgressBar={false}

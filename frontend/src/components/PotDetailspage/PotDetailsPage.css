@@ -452,7 +452,7 @@
     border-color: #b2dfdb;
 }
 
-/* Drag handle cell styling - simplified for better mobile compatibility */
+/* Drag handle cell styling - optimized for mobile drag priority */
 .members-table td.drag-handle-cell {
     cursor: grab;
     text-align: center;
@@ -460,7 +460,7 @@
     color: #777;
     width: clamp(35px, 8vw, 40px);
     padding: clamp(8px, 2vw, 12px) 5px;
-    /* Only prevent text selection, allow normal touch behavior */
+    /* Prevent text selection but allow touch actions to be controlled via JS */
     user-select: none;
     -webkit-user-select: none;
     -moz-user-select: none;
@@ -480,40 +480,62 @@
 /* Mobile-specific drag handle improvements */
 @media (max-width: 768px) {
     .members-table td.drag-handle-cell {
-        padding: 12px 8px;
-        min-width: 44px;
-        min-height: 44px;
-        /* Remove restrictive touch-action and tap highlight */
-        -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
-        /* Increase touch target size */
+        padding: 15px 10px; /* Larger padding for easier touch */
+        min-width: 50px;    /* Larger minimum width */
+        min-height: 50px;   /* Larger minimum height */
+        /* More prominent visual cue on mobile */
+        background-color: #f8f9fa;
+        border: 2px dashed #1abc9c;
+        border-radius: 4px;
     }
     
+    /* Visual feedback for touch */
+    .members-table td.drag-handle-cell:active {
+        background-color: #e9ecef;
+        transform: scale(0.95);
+        transition: all 0.1s ease;
+    }
+    
+    /* Larger invisible touch area */
     .members-table td.drag-handle-cell::before {
         content: '';
         position: absolute;
-        top: -5px;
-        left: -5px;
-        right: -5px;
-        bottom: -5px;
-        /* Larger invisible touch area */
+        top: -8px;
+        left: -8px;
+        right: -8px;
+        bottom: -8px;
+        /* Even larger touch area */
     }
     
-    /* Allow normal scrolling behavior */
+    /* Ensure scrolling works everywhere except the drag handle */
     .members-table-container {
         -webkit-overflow-scrolling: touch;
         overflow-x: auto;
+        /* Allow scrolling on the container but drag handles will override */
     }
     
-    /* Simplify mobile table handling */
-    .members-table {
-        /* Remove aggressive transforms that can cause issues */
+    /* Make sure other table cells allow normal scrolling */
+    .members-table td:not(.drag-handle-cell) {
+        touch-action: auto;
     }
     
-    /* Simpler mobile row handling during drag */
+    /* Enhance drag feedback on mobile */
     .members-table tr.member-row.is-dragging-react-dnd {
-        /* Use simpler transforms for better compatibility */
-        transform: rotate(1deg);
-        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        transform: rotate(1deg) scale(1.02);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        z-index: 1000;
+        background-color: #e8f5e8 !important;
+    }
+    
+    /* Add a helpful hint for mobile users */
+    .reorder-hint {
+        background-color: #fff3cd;
+        border: 1px solid #ffeaa7;
+        border-radius: 4px;
+        padding: 8px 12px;
+        margin-bottom: 10px;
+        font-size: 0.85em;
+        color: #856404;
     }
 }
 

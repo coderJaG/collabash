@@ -95,7 +95,7 @@ const DraggableUserRow = ({
                     className="drag-handle-cell" 
                     title="Drag to reorder"
                     style={{ 
-                        touchAction: 'auto', // Allow normal touch behavior
+                        touchAction: canBankerEditOrder ? 'none' : 'auto', // Prevent ALL touch actions on drag handle when draggable
                         cursor: isDragging ? 'grabbing' : 'grab',
                         userSelect: 'none',
                         WebkitUserSelect: 'none'
