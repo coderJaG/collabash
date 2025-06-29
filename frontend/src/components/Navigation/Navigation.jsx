@@ -63,7 +63,7 @@ const Navigation = ({ isLoaded }) => {
                 <div className="mobile-menu-dropdown">
                     <ul>
                         <li><NavLink to={'/'} onClick={closeMenu}>HOME</NavLink></li>
-                        <li><NavLink to={'/pots'} onClick={closeMenu}>POTS</NavLink></li>
+                        {currUser && (<li><NavLink to={'/pots'} onClick={closeMenu}>POTS</NavLink></li>)}
                         {currUser && (<li><NavLink to={'/users'} onClick={closeMenu}>USERS</NavLink></li>)}
                         {currUser && canViewHistory && (<li><NavLink to={'/history'} onClick={closeMenu}>HISTORY</NavLink></li>)}
                     </ul>
