@@ -193,7 +193,7 @@ const GetSingleUserPage = () => {
 
     return (
         <div className="single-user-page-wrapper">
-            <div className="single-user-page-header"><h1>{selectedUser.firstName?.toUpperCase()} PROFILE</h1></div>
+            <div className="single-user-page-header"><h1>{`${selectedUser.firstName?.toUpperCase()}'S`} PROFILE</h1></div>
 
             <div className="single-user-info-card">
                 {editError && <p className="form-error-message">{editError}</p>}

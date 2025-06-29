@@ -250,7 +250,7 @@ const GetAllPotsPage = () => {
                             if ((pageNumber === currentPage - 3 && currentPage > 4) || (pageNumber === currentPage + 3 && currentPage < totalPages - 3)) return 'ellipsis';
                             return false;
                         })
-                        .map((pageNumber, index, arr) => (
+                        .map((pageNumber, index) => (
                            pageNumber === 'ellipsis' ?
                            <span key={`ellipsis-${index}`} className="page-ellipsis">...</span> :
                            <button key={pageNumber} onClick={() => paginate(pageNumber)} className={`page-number ${currentPage === pageNumber ? 'active' : ''}`}>

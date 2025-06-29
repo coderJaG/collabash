@@ -1,13 +1,14 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useDispatch } from "react-redux";
 import { useModal } from "../context/Modal";
+import LoginFormModal from "../LoginFormModal";
 import * as sessionActions from "../../store/session"
 import * as usersActions from "../../store/users";
 import './SignUpFormModal.css';
 
 const SignUpFormModal = ({createdByBanker = false}) => {
     const dispatch = useDispatch();
-    const { closeModal } = useModal();
+    const { closeModal, setModalContent } = useModal();
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [username, setUserName] = useState('');
@@ -15,11 +16,10 @@ const SignUpFormModal = ({createdByBanker = false}) => {
     const [mobile, setMobile] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [role, setRole] = useState('standard'); // Default role is 'standard' for new users
+    const [role, setRole] = useState('standard');
     const [errors, setErrors] = useState({});
-    
-
-
+    const [isTransitioning, setIsTransitioning] = useState(false);
+    const modalRef = useRef(null);
 
     const handleSubmit = async (e) => {
         e.preventDefault()
@@ -39,19 +39,16 @@ const SignUpFormModal = ({createdByBanker = false}) => {
             role 
         };
 
-        setErrors({}); // Clear previous errors
+        setErrors({});
         return dispatch(sessionActions.signUp(user, createdByBanker)) 
             .then(() => {
                 closeModal();
-                // If a banker created the user, refresh the list of all users
                 if (createdByBanker) {
                     dispatch(usersActions.getAllUsers());
                 }
             })
             .catch(async (res) => {
-                // res might be undefined if the error is caught before a response (e.g. network error)
-                // or if the thunk doesn't re-throw res but a custom error object.
-                let errorData = { general: "Signup failed. Please try again." }; // Default error
+                let errorData = { general: "Signup failed. Please try again." };
                 if (res && typeof res.json === 'function') {
                     try {
                         const data = await res.json();
@@ -84,8 +81,21 @@ const SignUpFormModal = ({createdByBanker = false}) => {
             });
     };
 
+    const switchToLogin = () => {
+        setIsTransitioning(true);
+        
+        // Add switching class for animation
+        if (modalRef.current) {
+            modalRef.current.classList.add('switching');
+        }
+        
+        // Delay the content switch to allow for smooth transition
+        setTimeout(() => {
+            setModalContent(<LoginFormModal />);
+        }, 200); // Half the animation duration
+    };
 
-    //helper to disable signup button if some creteria are not met
+    // Helper to disable signup button if some criteria are not met
     let disableButton = false
     const requiredFields = [firstName, lastName, email, username, mobile, password, confirmPassword]
     if (requiredFields.some(field => field.trim().length === 0) || username.length < 4 || password.length < 6) {
@@ -93,106 +103,156 @@ const SignUpFormModal = ({createdByBanker = false}) => {
     }
 
     return (
-        <>
+        <div 
+            className={`signup-form ${isTransitioning ? 'switching' : ''}`}
+            ref={modalRef}
+        >
             <h1 className="signup-form-header">{createdByBanker ? "CREATE NEW USER" : "SIGN UP"}</h1>
-            <form className="signup-form" onSubmit={handleSubmit}>
-                {errors.general && <p className="error-message">{errors.general}</p>}
-                <label>First Name: </label>
-                <input
-                    type='text'
-                    value={firstName}
-                    onChange={e => setFirstName(e.target.value)} 
-                    required
-                />
-                {errors.firstName && <p className="error-message">{errors.firstName}</p>}
+            <form onSubmit={handleSubmit}>
+                {errors.general && <p className="error-message general-error">{errors.general}</p>}
+                
+                <div className="form-input-group">
+                    <label>First Name</label>
+                    <input
+                        type='text'
+                        value={firstName}
+                        onChange={e => setFirstName(e.target.value)} 
+                        required
+                        disabled={isTransitioning}
+                        placeholder="Enter your first name"
+                    />
+                    {errors.firstName && <p className="error-message">{errors.firstName}</p>}
+                </div>
 
-                <label>Last Name: </label>
-                <input
-                    type='text'
-                    value={lastName}
-                    onChange={e => setLastName(e.target.value)}
-                    required
-                />
-                {errors.lastName && <p className="error-message">{errors.lastName}</p>}
+                <div className="form-input-group">
+                    <label>Last Name</label>
+                    <input
+                        type='text'
+                        value={lastName}
+                        onChange={e => setLastName(e.target.value)}
+                        required
+                        disabled={isTransitioning}
+                        placeholder="Enter your last name"
+                    />
+                    {errors.lastName && <p className="error-message">{errors.lastName}</p>}
+                </div>
 
-                <label>Username: </label>
-                <input
-                    type='text'
-                    value={username}
-                    onChange={e => setUserName(e.target.value)}
-                    required
-                />
-                {errors.username && <p className="error-message">{errors.username}</p>}
+                <div className="form-input-group">
+                    <label>Username</label>
+                    <input
+                        type='text'
+                        value={username}
+                        onChange={e => setUserName(e.target.value)}
+                        required
+                        disabled={isTransitioning}
+                        placeholder="Choose a username (min 4 characters)"
+                    />
+                    {errors.username && <p className="error-message">{errors.username}</p>}
+                </div>
 
-                <label>Email: </label>
-                <input
-                    type='email' 
-                    value={email}
-                    onChange={e => setEmail(e.target.value)}
-                    required
-                />
-                {errors.email && <p className="error-message">{errors.email}</p>}
+                <div className="form-input-group">
+                    <label>Email</label>
+                    <input
+                        type='email' 
+                        value={email}
+                        onChange={e => setEmail(e.target.value)}
+                        required
+                        disabled={isTransitioning}
+                        placeholder="Enter your email address"
+                    />
+                    {errors.email && <p className="error-message">{errors.email}</p>}
+                </div>
 
-                <label>Mobile: </label>
-                <input
-                    type='tel'
-                    value={mobile}
-                    onChange={e => setMobile(e.target.value)}
-                    required
-                />
-                {errors.mobile && <p className="error-message">{errors.mobile}</p>}
+                <div className="form-input-group">
+                    <label>Mobile</label>
+                    <input
+                        type='tel'
+                        value={mobile}
+                        onChange={e => setMobile(e.target.value)}
+                        required
+                        disabled={isTransitioning}
+                        placeholder="Enter your mobile number"
+                    />
+                    {errors.mobile && <p className="error-message">{errors.mobile}</p>}
+                </div>
 
-                <label>Password: </label>
-                <input
-                    type='password' 
-                    value={password}
-                    onChange={e => setPassword(e.target.value)}
-                    required
-                />
-                {errors.password && <p className="error-message">{errors.password}</p>}
+                <div className="form-input-group">
+                    <label>Password</label>
+                    <input
+                        type='password' 
+                        value={password}
+                        onChange={e => setPassword(e.target.value)}
+                        required
+                        disabled={isTransitioning}
+                        placeholder="Choose a password (min 6 characters)"
+                    />
+                    {errors.password && <p className="error-message">{errors.password}</p>}
+                </div>
 
-                <label>Confirm password: </label>
-                <input
-                    type='password'
-                    value={confirmPassword}
-                    onChange={e => setConfirmPassword(e.target.value)}
-                    required
-                />
-                {errors.confirmPassword && <p className="error-message">{errors.confirmPassword}</p>}
+                <div className="form-input-group">
+                    <label>Confirm Password</label>
+                    <input
+                        type='password'
+                        value={confirmPassword}
+                        onChange={e => setConfirmPassword(e.target.value)}
+                        required
+                        disabled={isTransitioning}
+                        placeholder="Confirm your password"
+                    />
+                    {errors.confirmPassword && <p className="error-message">{errors.confirmPassword}</p>}
+                </div>
 
-
-                {createdByBanker && ( // Only show role selection if created by banker
-                    <div>
-                        <label>Role: </label>
-                        <div>
+                {createdByBanker && (
+                    <div className="role-selection-container">
+                        <label className="role-label">User Role</label>
+                        <div className="radio-option">
                             <input
                                 id="standard"
                                 type='radio'
                                 value='standard'
                                 checked={role === 'standard'}
                                 onChange={e => setRole(e.target.value)}
+                                disabled={isTransitioning}
                             />
-                            <label htmlFor="standard"> Standard</label>
+                            <label htmlFor="standard">Standard User</label>
                         </div>
-                        <div>
+                        <div className="radio-option">
                             <input
                                 id="banker"
                                 type='radio'
                                 value='banker'
                                 checked={role === 'banker'}
                                 onChange={e => setRole(e.target.value)}
+                                disabled={isTransitioning}
                             />
-                            <label htmlFor="banker"> Banker</label>
+                            <label htmlFor="banker">Banker</label>
                         </div>
                     </div>
                 )}
-                <button className='signup-form-button' type="submit" disabled={disableButton}>
-                    {createdByBanker ? "Create Account" : "Sign Up"}
+
+                <button 
+                    className='signup-form-button' 
+                    type="submit" 
+                    disabled={disableButton || isTransitioning}
+                >
+                    {isTransitioning ? 'Switching...' : (createdByBanker ? "Create Account" : "Sign Up")}
                 </button>
             </form>
-        </>
+            
+            {!createdByBanker && (
+                <div className="form-switch-link">
+                    <span>Already have an account?</span>
+                    <button 
+                        className="login-button" 
+                        onClick={switchToLogin}
+                        disabled={isTransitioning}
+                    >
+                        {isTransitioning ? 'Loading...' : 'Log In'}
+                    </button>
+                </div>
+            )}
+        </div>
     )
 };
-
 
 export default SignUpFormModal;
