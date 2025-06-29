@@ -487,6 +487,9 @@
         padding: 12px 8px;
         min-width: 44px;
         min-height: 44px;
+        /* Prevent viewport issues during drag */
+        -webkit-user-drag: none;
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
     }
     
     .members-table td.drag-handle-cell::before {
@@ -496,6 +499,29 @@
         left: -5px;
         right: -5px;
         bottom: -5px;
+    }
+    
+    /* Prevent mobile browser zoom and viewport issues */
+    .members-table-container {
+        /* Disable momentum scrolling during drag */
+        -webkit-overflow-scrolling: auto;
+    }
+    
+    /* Enhanced mobile table handling */
+    .members-table {
+        /* Prevent layout shifts on mobile */
+        transform: translateZ(0);
+        -webkit-transform: translateZ(0);
+    }
+    
+    /* Better mobile row handling during drag */
+    .members-table tr.member-row.is-dragging-react-dnd {
+        /* Use 3D transforms for better mobile performance */
+        transform: translate3d(0, 0, 0) rotate(2deg);
+        -webkit-transform: translate3d(0, 0, 0) rotate(2deg);
+        /* Prevent text selection issues on mobile */
+        -webkit-user-select: none;
+        user-select: none;
     }
 }
 
