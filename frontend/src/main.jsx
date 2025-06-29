@@ -4,8 +4,8 @@ import { Provider } from 'react-redux';
 import { DndProvider } from 'react-dnd';
 import { MultiBackend } from 'react-dnd-multi-backend';
 import { HTML5toTouch } from 'rdndmb-html5-to-touch';
-import { ToastContainer } from 'react-toastify'; 
-import 'react-toastify/dist/ReactToastify.css'; 
+import { ToastContainer } from 'react-toastify'; // Import ToastContainer
+import 'react-toastify/dist/ReactToastify.css'; // Import the CSS
 
 import App from './App';
 import './index.css';
@@ -14,9 +14,37 @@ import { restoreCSRF, csrfFetch } from './store/csrf';
 import * as sessionActions from './store/session';
 import * as potsActions from './store/pots';
 import { Modal, ModalProvider } from './components/context/Modal';
-import { SocketProvider } from './context/SocketContext'; 
+import { SocketProvider } from './context/SocketContext'; // Import the SocketProvider
 
 const store = configureStore();
+
+// Custom mobile-friendly DnD configuration
+const mobileOptimizedOptions = {
+    backends: [
+        {
+            id: 'html5',
+            backend: HTML5toTouch.backends[0].backend,
+            transition: HTML5toTouch.backends[0].transition,
+        },
+        {
+            id: 'touch',
+            backend: HTML5toTouch.backends[1].backend,
+            options: {
+                enableMouseEvents: true,
+                delayTouchStart: 150, // Reduced delay for better responsiveness
+                delayMouseStart: 0,
+                touchSlop: 20, // Increased tolerance for slight movement
+                ignoreContextMenu: true,
+                enableTouchEvents: true,
+                enableKeyboardEvents: false,
+                // Don't prevent default touch behaviors
+                preventScrolling: false,
+            },
+            preview: true,
+            transition: HTML5toTouch.backends[1].transition,
+        },
+    ],
+};
 
 if (import.meta.env.MODE !== 'production') {
   restoreCSRF();
@@ -27,13 +55,13 @@ if (import.meta.env.MODE !== 'production') {
 }
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <DndProvider backend={MultiBackend} options={HTML5toTouch}>
+  <DndProvider backend={MultiBackend} options={mobileOptimizedOptions}>
     <React.StrictMode>
       <ModalProvider>
         <Provider store={store}>
           <SocketProvider>
             <App />
-            <ToastContainer // Add ToastContainer here for notifications
+            <ToastContainer //ToastContainer here for notifications
               position="top-right"
               autoClose={5000}
               hideProgressBar={false}

@@ -1,4 +1,4 @@
-// PotDetailsPage.jsx
+// PotDetailsPage.jsx - Updated drag handling to prevent page jumping
 
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState, useMemo, useCallback } from "react";
@@ -98,55 +98,15 @@ const PotDetailsPage = () => {
         }
     }, [potDetails, dispatch, numPotId]);
 
-    // Updated drag handling to prevent page jumping - mobile optimized
+    // Simplified drag handling - no scroll prevention on mobile
     const handleDragStart = () => {
         setIsUserActuallyDragging(true);
-        // For mobile devices, use a gentler approach to prevent scrolling
-        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        if (isMobile) {
-            // Store current scroll position
-            const scrollY = window.scrollY;
-            document.body.dataset.scrollY = scrollY;
-            
-            // Use a less aggressive approach for Android
-            document.documentElement.style.overflow = 'hidden';
-            document.documentElement.style.height = '100%';
-            document.body.style.overflow = 'hidden';
-            document.body.style.height = '100%';
-            document.body.style.touchAction = 'none';
-            
-            // Prevent default touch behaviors on the table container
-            const tableContainer = document.querySelector('.members-table-container');
-            if (tableContainer) {
-                tableContainer.style.touchAction = 'none';
-                tableContainer.style.overflowY = 'hidden';
-            }
-        }
+        // Don't prevent scrolling at all - let the drag library handle it
     };
 
     const handleDragEnd = (didDrop) => {
         setIsUserActuallyDragging(false);
-        
-        // Re-enable scrolling and restore scroll position
-        const scrollY = document.body.dataset.scrollY;
-        document.documentElement.style.overflow = '';
-        document.documentElement.style.height = '';
-        document.body.style.overflow = '';
-        document.body.style.height = '';
-        document.body.style.touchAction = '';
-        
-        // Restore table container
-        const tableContainer = document.querySelector('.members-table-container');
-        if (tableContainer) {
-            tableContainer.style.touchAction = '';
-            tableContainer.style.overflowY = '';
-        }
-        
-        // Restore scroll position if we stored it
-        if (scrollY) {
-            window.scrollTo(0, parseInt(scrollY));
-            delete document.body.dataset.scrollY;
-        }
+        // No scroll restoration needed since we don't prevent it
         
         if (didDrop) { 
             handleReorderUsersSubmit(); 
@@ -185,10 +145,7 @@ const PotDetailsPage = () => {
         return () => {
             dispatch(potsActions.clearPotReorderError());
             dispatch(potsActions.clearPotDetailsError());
-            // Clean up any drag-related styles on unmount
-            document.body.style.overflow = '';
-            document.body.style.position = '';
-            document.body.style.width = '';
+            // No cleanup needed since we don't modify scroll behavior
         };
     }, [dispatch, numPotId]);
     
