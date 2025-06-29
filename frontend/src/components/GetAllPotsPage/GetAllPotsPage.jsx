@@ -1,11 +1,11 @@
 import { useState, useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { MdPlusOne, MdSend } from "react-icons/md";
+import { MdPlusOne, MdSend, MdHourglassTop } from "react-icons/md";
 import { ClipLoader } from 'react-spinners';
 import { useNavigate } from "react-router-dom";
 import * as potsActions from '../../store/pots';
 import * as usersActions from '../../store/users';
-import { createJoinRequest } from '../../store/requests';
+import { createJoinRequest, fetchSentRequests } from '../../store/requests';
 import "./GetAllPotsPage.css";
 
 const POTS_PER_PAGE = 5;
@@ -18,37 +18,59 @@ const GetAllPotsPage = () => {
     const error = useSelector(state => state.pots.errorList);
     const allPotsMap = useSelector(state => state.pots.allById);
     const isRequestingJoin = useSelector(state => state.requests.isLoading);
+    const sentRequests = useSelector(state => state.requests.sentRequests);
+    const isLoadingRequests = useSelector(state => state.requests.loadingRequests);
 
     const [viewMode, setViewMode] = useState('myPots');
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
+    const [hasInitializedRequests, setHasInitializedRequests] = useState(false);
 
-  // Check for permissions from the user object
     const userPermissions = useMemo(() => new Set(currUser?.permissions || []), [currUser]);
     const canCreatePots = userPermissions.has('pot:create');
     const canRequestToJoin = userPermissions.has('request:create');
-
+    // Enhanced initialization effect
     useEffect(() => {
-        dispatch(potsActions.getPots());
-        dispatch(usersActions.getAllUsers()); 
-    }, [dispatch]);
+        const initializeData = async () => {
+            // Always fetch pots and users
+            dispatch(potsActions.getPots());
+            dispatch(usersActions.getAllUsers());
+            
+            // Fetch sent requests for any user who can create requests
+            if (canRequestToJoin) {
+                await dispatch(fetchSentRequests());
+                setHasInitializedRequests(true);
+            } else {
+                // For users who can't create requests, mark as initialized immediately
+                setHasInitializedRequests(true);
+            }
+        };
+
+        if (currUser) {
+            initializeData();
+        }
+    }, [dispatch, currUser, canRequestToJoin]);
 
     const allPotsArray = useMemo(() => allPotsMap ? Object.values(allPotsMap) : [], [allPotsMap]);
     
-    // const formatDate = (dateStr) => {
-    //     if (!dateStr) return 'N/A';
-    //     const dateObject = new Date(dateStr);
-    //     if (isNaN(dateObject.getTime())) return 'Invalid Date';
-    //     const month = dateObject.getUTCMonth() + 1;
-    //     const day = dateObject.getUTCDate();
-    //     const year = dateObject.getUTCFullYear();
-    //     return `${String(month).padStart(2, '0')}/${String(day).padStart(2, '0')}/${year}`;
-    // };
+    const pendingRequestPotIds = useMemo(() => {
+        return new Set(
+            Object.values(sentRequests)
+                .filter(req => req.status === 'pending')
+                .map(req => req.potId)
+        );
+    }, [sentRequests]);
 
-    const handleRequestToJoin = (potId, e) => {
+    const handleRequestToJoin = async (potId, e) => {
         e.stopPropagation();
         if (!potId) return;
-        dispatch(createJoinRequest(potId));
+        
+        try {
+            await dispatch(createJoinRequest(potId));
+            // The createJoinRequest thunk already calls fetchSentRequests()
+        } catch (error) {
+            console.error('Error creating join request:', error);
+        }
     };
     
     const handleViewModeChange = (mode) => {
@@ -61,7 +83,6 @@ const GetAllPotsPage = () => {
         let pots = allPotsArray;
         
         if (viewMode === 'myPots') {
-            // Use permission to check if the user can see all pots
             if (userPermissions.has('pot:view_all')) {
                 pots = allPotsArray;
             } else if (currUser) {
@@ -70,7 +91,6 @@ const GetAllPotsPage = () => {
                 return [];
             }
         }
-   
 
         if (searchTerm.trim()) {
             const lowerSearchTerm = searchTerm.toLowerCase();
@@ -100,11 +120,27 @@ const GetAllPotsPage = () => {
         setCurrentPage((prev) => (prev > 1 ? prev - 1 : prev));
     };
 
-    if (isLoading && allPotsArray.length === 0) {
-        return <div className="loading-spinner-container full-page-loader"><ClipLoader color={"#1abc9c"} loading={true} size={50} /><p>Loading Pots...</p></div>;
+    // Enhanced loading condition that accounts for requests initialization
+    const isInitialLoading = isLoading && allPotsArray.length === 0;
+    const isRequestsLoading = canRequestToJoin && !hasInitializedRequests;
+    const shouldShowLoading = isInitialLoading || isRequestsLoading;
+
+    if (shouldShowLoading) {
+        return (
+            <div className="loading-spinner-container full-page-loader">
+                <ClipLoader color={"#1abc9c"} loading={true} size={50} />
+                <p>Loading Pots...</p>
+            </div>
+        );
     }
+
     if (error) {
-        return <div className="all-pots-page-container error-container"><h1>Error Loading Pots</h1><p>{error.message || String(error)}</p></div>;
+        return (
+            <div className="all-pots-page-container error-container">
+                <h1>Error Loading Pots</h1>
+                <p>{error.message || String(error)}</p>
+            </div>
+        );
     }
     
     const renderPotsTable = (potsToRender) => {
@@ -113,6 +149,7 @@ const GetAllPotsPage = () => {
             if (viewMode === 'findPots') return <p className="no-results-message">No public pots available to join.</p>;
             return <p className="no-results-message">You are not currently a member of any pots.</p>;
         }
+        
         return (
             <div className="pots-container">
                 <table>
@@ -128,6 +165,8 @@ const GetAllPotsPage = () => {
                     <tbody>
                         {potsToRender.map(pot => {
                             const isMember = pot.Users && pot.Users.some(user => user.id === currUser?.id);
+                            const hasPendingRequest = pendingRequestPotIds.has(pot.id);
+
                             return (
                                 <tr key={pot.id} onClick={() => navigate(`/pots/${pot.id}`)} className="clickable-pot-row">
                                     <td>{pot.name}</td>
@@ -136,12 +175,24 @@ const GetAllPotsPage = () => {
                                     <td>{pot.status}</td>
                                     {viewMode === 'findPots' && canRequestToJoin && (
                                         <td className="action-cell">
-                                            {currUser && !isMember && (
-                                                <button className="request-join-button" title="Request to Join" onClick={(e) => handleRequestToJoin(pot.id, e)} disabled={isRequestingJoin}>
-                                                    <MdSend />
+                                            {isMember ? (
+                                                <span className="member-badge">Member</span>
+                                            ) : !hasInitializedRequests ? (
+                                                <ClipLoader color={"#1abc9c"} size={20} />
+                                            ) : hasPendingRequest ? (
+                                                <button className="request-join-button pending" disabled title="Request Pending">
+                                                    <MdHourglassTop />
+                                                </button>
+                                            ) : (
+                                                <button 
+                                                    className="request-join-button" 
+                                                    title="Request to Join" 
+                                                    onClick={(e) => handleRequestToJoin(pot.id, e)} 
+                                                    disabled={isRequestingJoin}
+                                                >
+                                                    {isRequestingJoin ? <ClipLoader color={"white"} size={16} /> : <MdSend />}
                                                 </button>
                                             )}
-                                            {isMember && <span className="member-badge">Member</span>}
                                         </td>
                                     )}
                                 </tr>
@@ -157,8 +208,12 @@ const GetAllPotsPage = () => {
         <div className="all-pots-page-container">
             <h1>POTS</h1>
             <div className="view-toggle-buttons">
-                <button onClick={() => handleViewModeChange('myPots')} className={viewMode === 'myPots' ? 'active' : ''}>My Pots</button>
-                <button onClick={() => handleViewModeChange('findPots')} className={viewMode === 'findPots' ? 'active' : ''}>Find New Pots</button>
+                <button onClick={() => handleViewModeChange('myPots')} className={viewMode === 'myPots' ? 'active' : ''}>
+                    My Pots
+                </button>
+                <button onClick={() => handleViewModeChange('findPots')} className={viewMode === 'findPots' ? 'active' : ''}>
+                    Find New Pots
+                </button>
             </div>
             <div className="list-controls">
                 {canCreatePots && (
@@ -168,17 +223,22 @@ const GetAllPotsPage = () => {
                 )}
                 <input 
                     type="text" 
-                    placeholder={viewMode === 'myPots' ? 'Search your pots...' : 'Search all pots by name, banker...'} 
+                    placeholder={viewMode === 'myPots' ? 'Search your pots...' : 'Search all pots...'} 
                     value={searchTerm} 
                     onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }} 
                     className="list-search-input" 
                 />
             </div>
-            {isLoading && allPotsArray.length > 0 && <p className="loading-refresh-message">Refreshing list...</p>}
+            
+            {/* Show loading message only when refreshing existing data */}
+            {(isLoading || isLoadingRequests) && allPotsArray.length > 0 && hasInitializedRequests && (
+                <p className="loading-refresh-message">Refreshing list...</p>
+            )}
+            
             {renderPotsTable(currentPotsOnPage)}
             
             {totalPages > 1 && (
-                <div className="pagination-controls">
+                 <div className="pagination-controls">
                     <button onClick={goToPrevPage} disabled={currentPage === 1}>
                         Previous
                     </button>
@@ -187,26 +247,18 @@ const GetAllPotsPage = () => {
                             if (totalPages <= 7) return true;
                             if (pageNumber === 1 || pageNumber === totalPages) return true;
                             if (pageNumber >= currentPage - 2 && pageNumber <= currentPage + 2) return true;
-                            if ((pageNumber === currentPage - 3 && currentPage > 4) || (pageNumber === currentPage + 3 && currentPage < totalPages - 3)) {
-                                return 'ellipsis';
-                            }
+                            if ((pageNumber === currentPage - 3 && currentPage > 4) || (pageNumber === currentPage + 3 && currentPage < totalPages - 3)) return 'ellipsis';
                             return false;
                         })
-                        .map((pageNumber, index) => (
-                            pageNumber === 'ellipsis' ?
-                                <span key={`ellipsis-${index}`} className="page-ellipsis">...</span> :
-                                <button
-                                    key={pageNumber}
-                                    onClick={() => paginate(pageNumber)}
-                                    className={`page-number ${currentPage === pageNumber ? 'active' : ''}`}
-                                >
-                                    {pageNumber}
-                                </button>
+                        .map((pageNumber, index, arr) => (
+                           pageNumber === 'ellipsis' ?
+                           <span key={`ellipsis-${index}`} className="page-ellipsis">...</span> :
+                           <button key={pageNumber} onClick={() => paginate(pageNumber)} className={`page-number ${currentPage === pageNumber ? 'active' : ''}`}>
+                               {pageNumber}
+                           </button>
                         ))
                     }
-                    <button onClick={goToNextPage} disabled={currentPage === totalPages}>
-                        Next
-                    </button>
+                    <button onClick={goToNextPage} disabled={currentPage === totalPages}>Next</button>
                 </div>
             )}
         </div>

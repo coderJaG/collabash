@@ -29,7 +29,7 @@ const Notifications = () => {
 
     const notificationsRef = useRef(null);
 
-    // ✅ NEW: Check for permissions from the user object
+    // Check for permissions from the user object
     const userPermissions = useMemo(() => new Set(currUser?.permissions || []), [currUser]);
     const canRespondToRequests = userPermissions.has('request:respond');
 

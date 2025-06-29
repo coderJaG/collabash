@@ -112,9 +112,9 @@ router.post('/', requireAuth, requirePermission(PERMISSIONS.CREATE_JOIN_REQUEST)
     }
 });
 
-// ✅ FIXED: --- PUT /api/requests/:requestId ---
+
 router.put('/:requestId', requireAuth, requirePermission(PERMISSIONS.RESPOND_TO_JOIN_REQUEST), async (req, res) => {
-    const { user: currUser, io, connectedUsers } = req; // Added io and connectedUsers back
+    const { user: currUser, io, connectedUsers } = req; 
     const { requestId } = req.params;
     const { status } = req.body;
 

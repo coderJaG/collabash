@@ -1,4 +1,4 @@
-/* Modern Notification CSS - Fixed Version */
+/* Notification CSS */
 
 .notifications-container {
     position: relative;
@@ -91,37 +91,35 @@
         0 20px 60px rgba(0, 0, 0, 0.15),
         0 8px 30px rgba(52, 152, 219, 0.08),
         inset 0 1px 0 rgba(255, 255, 255, 0.8);
-    z-index: 1001; /* Higher than navigation bar */
+    z-index: 1001;
     border: 1px solid rgba(52, 152, 219, 0.2);
 }
 
 /* Mobile positioning adjustments */
 @media (max-width: 768px) {
     .notifications-container {
-        position: static; /* Change positioning context */
+        position: static; 
     }
     
     .notifications-dropdown {
-        /* On mobile, use fixed positioning relative to viewport */
         position: fixed;
-        top: 200px; /* Below the navigation bar */
-        left: 100px; /* Small margin from edge */
-        width: min(95vw, 320px); /* Responsive width with max limit */
-        max-height: calc(100vh - 220px); /* Space for nav and margin */
-        z-index: 1002; /* Higher than mobile menu */
+        top: 200px; 
+        left: 100px; 
+        width: min(95vw, 320px); 
+        max-height: calc(100vh - 220px); 
+        z-index: 1002; 
     }
 }
 
 @media (max-width: 480px) {
     .notifications-dropdown {
-        /* For very small screens, use more of the viewport */
         position: fixed;
-        top: 150px; /* Slightly higher for smaller nav */
-        right: 5px; /* Closer to edge */
-        left: 5px; /* Full width approach */
-        width: auto; /* Let left/right define width */
-        max-height: calc(100vh - 170px); /* Space for nav and margins */
-        z-index: 1002; /* Ensure it's above mobile menu */
+        top: 150px;
+        right: 5px;
+        left: 5px;
+        width: auto;
+        max-height: calc(100vh - 170px); 
+        z-index: 1002;
     }
 }
 

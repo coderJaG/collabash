@@ -278,6 +278,11 @@
     transform: none;
     box-shadow: none;
 }
+.request-join-button.pending {
+    background-color: #f39c12; 
+    cursor: not-allowed;
+}
+
 
 .member-badge {
     background-color: #1abc9c;
