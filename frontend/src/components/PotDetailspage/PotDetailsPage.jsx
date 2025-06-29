@@ -98,24 +98,55 @@ const PotDetailsPage = () => {
         }
     }, [potDetails, dispatch, numPotId]);
 
-    // Updated drag handling to prevent page jumping
+    // Updated drag handling to prevent page jumping - mobile optimized
     const handleDragStart = () => {
         setIsUserActuallyDragging(true);
-        // Only prevent scrolling on mobile devices for touch events
+        // For mobile devices, use a gentler approach to prevent scrolling
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         if (isMobile) {
+            // Store current scroll position
+            const scrollY = window.scrollY;
+            document.body.dataset.scrollY = scrollY;
+            
+            // Use a less aggressive approach for Android
+            document.documentElement.style.overflow = 'hidden';
+            document.documentElement.style.height = '100%';
             document.body.style.overflow = 'hidden';
-            document.body.style.position = 'fixed';
-            document.body.style.width = '100%';
+            document.body.style.height = '100%';
+            document.body.style.touchAction = 'none';
+            
+            // Prevent default touch behaviors on the table container
+            const tableContainer = document.querySelector('.members-table-container');
+            if (tableContainer) {
+                tableContainer.style.touchAction = 'none';
+                tableContainer.style.overflowY = 'hidden';
+            }
         }
     };
 
     const handleDragEnd = (didDrop) => {
         setIsUserActuallyDragging(false);
-        // Re-enable scrolling
+        
+        // Re-enable scrolling and restore scroll position
+        const scrollY = document.body.dataset.scrollY;
+        document.documentElement.style.overflow = '';
+        document.documentElement.style.height = '';
         document.body.style.overflow = '';
-        document.body.style.position = '';
-        document.body.style.width = '';
+        document.body.style.height = '';
+        document.body.style.touchAction = '';
+        
+        // Restore table container
+        const tableContainer = document.querySelector('.members-table-container');
+        if (tableContainer) {
+            tableContainer.style.touchAction = '';
+            tableContainer.style.overflowY = '';
+        }
+        
+        // Restore scroll position if we stored it
+        if (scrollY) {
+            window.scrollTo(0, parseInt(scrollY));
+            delete document.body.dataset.scrollY;
+        }
         
         if (didDrop) { 
             handleReorderUsersSubmit(); 

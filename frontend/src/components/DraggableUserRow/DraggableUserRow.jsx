@@ -17,7 +17,7 @@ const DraggableUserRow = ({
     index,
     moveRow,
     canBankerEditOrder,
-    currentWeek, // Added this prop that was missing
+    currentWeek,
     weeklyStatusMap,
     handlePaymentChange,
     handleRemoveUserFromPot,
@@ -83,8 +83,11 @@ const DraggableUserRow = ({
 
     const rowStyle = {
         opacity: isDragging ? 0.4 : 1,
-        // touch-action for better mobile support
-        touchAction: canBankerEditOrder ? 'none' : 'auto',
+        // Add touch-action for better mobile support - but be more specific
+        touchAction: canBankerEditOrder ? 'pan-y' : 'auto',
+        // Prevent text selection during drag
+        WebkitUserSelect: isDragging ? 'none' : 'auto',
+        userSelect: isDragging ? 'none' : 'auto',
     };
 
     return (
@@ -95,9 +98,12 @@ const DraggableUserRow = ({
                     className="drag-handle-cell" 
                     title="Drag to reorder"
                     style={{ 
-                        touchAction: 'none',
-                        cursor: 'grab',
-                        userSelect: 'none'
+                        touchAction: 'pan-y', // Allow vertical scrolling but prevent horizontal pan
+                        cursor: isDragging ? 'grabbing' : 'grab',
+                        userSelect: 'none',
+                        WebkitUserSelect: 'none',
+                        WebkitTouchCallout: 'none',
+                        WebkitTapHighlightColor: 'transparent'
                     }}
                 >
                     <FaBars />
