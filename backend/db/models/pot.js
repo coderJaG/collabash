@@ -65,6 +65,11 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       defaultValue: 'weekly'
     },
+    subscriptionFee: {
+      type: DataTypes.DECIMAL,
+      allowNull: false,
+      defaultValue: 1
+    },
   }, {
     sequelize,
     modelName: 'Pot',

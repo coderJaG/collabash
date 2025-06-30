@@ -18,6 +18,7 @@ const PERMISSIONS = {
   DELETE_POT: 'pot:delete',
   MANAGE_POT_MEMBERS: 'pot:manage_members', // Covers add, remove, reorder
 
+
   // User Management
   VIEW_ALL_USERS: 'user:view_all',
   CREATE_USER: 'user:create', // A banker creating a user
@@ -28,9 +29,13 @@ const PERMISSIONS = {
   // Request Management
   CREATE_JOIN_REQUEST: 'request:create',
   RESPOND_TO_JOIN_REQUEST: 'request:respond',
-  
+
   // History Management
-  VIEW_TRANSACTION_HISTORY: 'history:view_all'
+  VIEW_TRANSACTION_HISTORY: 'history:view_all',
+
+  // Admin Specific
+  VIEW_ADMIN_REPORTS: 'admin:view_reports',
+  MANAGE_BANKER_STATUS: 'admin:manage_banker_status',
 };
 
 // Define permission sets for each role individually.
@@ -51,11 +56,13 @@ const bankerPermissions = [
   PERMISSIONS.CREATE_USER,
   PERMISSIONS.EDIT_ANY_USER,
   PERMISSIONS.VIEW_TRANSACTION_HISTORY,
-  PERMISSIONS.DELETE_ANY_USER 
+  PERMISSIONS.DELETE_ANY_USER
 ];
 
 const superAdminPermissions = [
-  ...bankerPermissions, 
+  ...bankerPermissions,
+  PERMISSIONS.VIEW_ADMIN_REPORTS,
+  PERMISSIONS.MANAGE_BANKER_STATUS
   // Any super-admin-only permissions would be added here.
   // They already inherit DELETE_ANY_USER from the banker role.
 ];
@@ -75,7 +82,7 @@ const ROLE_PERMISSIONS = {
  * @returns {boolean}
  */
 const hasPermission = (role, permission) => {
-    return ROLE_PERMISSIONS[role]?.includes(permission) || false;
+  return ROLE_PERMISSIONS[role]?.includes(permission) || false;
 };
 
 

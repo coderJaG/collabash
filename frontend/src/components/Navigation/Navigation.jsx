@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { FaBars, FaTimes } from 'react-icons/fa';
 import ProfileButton from "../ProfileButton";
 import Notifications from "../Notifications/Notifications";
-import './Navigation.css'; 
+import './Navigation.css';
 
 const Navigation = ({ isLoaded }) => {
     const currUser = useSelector(state => state.session.user);
@@ -13,6 +13,7 @@ const Navigation = ({ isLoaded }) => {
     const userPermissions = useMemo(() => new Set(currUser?.permissions || []), [currUser]);
     // const canViewUsers = currUser;
     const canViewHistory = userPermissions.has('history:view_all');
+    const canViewAdmin = userPermissions.has('admin:view_reports');
 
     const handleMenuToggle = () => {
         setIsMenuOpen(!isMenuOpen);
@@ -41,7 +42,8 @@ const Navigation = ({ isLoaded }) => {
                     <NavLink to="/" className="nav-logo"><h1>COLLABASH</h1></NavLink>
                     <ul className="desktop-nav-links">
                         <li><NavLink to={'/'}>HOME</NavLink></li>
-                       {currUser && (<li><NavLink to={'/pots'}>POTS</NavLink></li>)}
+                        {currUser && canViewAdmin && (<li><NavLink to={'/admin'}>ADMIN</NavLink></li>)}
+                        {currUser && (<li><NavLink to={'/pots'}>POTS</NavLink></li>)}
                         {currUser && (<li><NavLink to={'/users'}>USERS</NavLink></li>)}
                         {currUser && canViewHistory && (<li><NavLink to={'/history'}>HISTORY</NavLink></li>)}
                     </ul>
@@ -60,6 +62,7 @@ const Navigation = ({ isLoaded }) => {
                 <div className="mobile-menu-dropdown">
                     <ul>
                         <li><NavLink to={'/'} onClick={closeMenu}>HOME</NavLink></li>
+                        {currUser && canViewAdmin && (<li><NavLink to={'/admin'} onClick={closeMenu}>ADMIN</NavLink></li>)}
                         {currUser && (<li><NavLink to={'/pots'} onClick={closeMenu}>POTS</NavLink></li>)}
                         {currUser && (<li><NavLink to={'/users'} onClick={closeMenu}>USERS</NavLink></li>)}
                         {currUser && canViewHistory && (<li><NavLink to={'/history'} onClick={closeMenu}>HISTORY</NavLink></li>)}

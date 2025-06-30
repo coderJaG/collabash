@@ -1,4 +1,7 @@
-const formatDate = (dateStr) => {
+//frontend utils
+
+// date formatter
+export const formatDate = (dateStr) => {
     if (!dateStr) return 'N/A';
     const parts = dateStr.split('-');
     if (parts.length === 3) {
@@ -15,4 +18,3 @@ const formatDate = (dateStr) => {
 };
 
 
-module.exports = {formatDate};

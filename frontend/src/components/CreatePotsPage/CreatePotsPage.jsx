@@ -22,6 +22,8 @@ const CreatePotsPage = () => {
     const [hand, setHand] = useState('');
     const [startDate, setStartDate] = useState('');
     const [frequency, setFrequency] = useState('weekly');
+    const [subscriptionFee, setSubscriptionFee] = useState('1.00');
+
     const [selectedUserIds, setSelectedUserIds] = useState(new Set());
     const [searchTerm, setSearchTerm] = useState('');
     const [errors, setErrors] = useState({});
@@ -31,7 +33,7 @@ const CreatePotsPage = () => {
         if (duplicateData) {
             setName(duplicateData.name || '');
             setHand(duplicateData.hand !== undefined ? duplicateData.hand.toString() : '0');
-            setFrequency(duplicateData.frequency || 'weekly'); 
+            setFrequency(duplicateData.frequency || 'weekly');
             if (duplicateData.userIds) {
                 setSelectedUserIds(new Set(duplicateData.userIds));
             }
@@ -72,7 +74,7 @@ const CreatePotsPage = () => {
         const handNum = parseFloat(hand);
         if (isNaN(handNum) || handNum < 0) validationErrors.hand = 'Amount per hand must be a valid number (0 or greater).';
         if (selectedUserIds.size === 0) validationErrors.users = 'You must select at least one member.';
-        
+
         if (Object.keys(validationErrors).length > 0) {
             setErrors(validationErrors);
             return;
@@ -83,6 +85,7 @@ const CreatePotsPage = () => {
             hand: handNum,
             startDate,
             frequency,
+            subscriptionFee,
             userIds: Array.from(selectedUserIds),
         };
 
@@ -95,12 +98,12 @@ const CreatePotsPage = () => {
             console.error("Failed to create pot:", error);
         }
     };
-    
+
     return (
         <div className="create-pot-page-wrapper">
             <h1 className="create-pot-header">{location.state?.duplicateData ? 'DUPLICATE POT' : 'CREATE A NEW POT'}</h1>
             {createError && <p className="error-message">{createError.message || "An error occurred."}</p>}
-            
+
             <form onSubmit={handleSubmit} className="create-pot-form">
                 <div className="form-section">
                     <div className="form-group">
@@ -126,13 +129,22 @@ const CreatePotsPage = () => {
                             <option value="monthly">Monthly</option>
                         </select>
                     </div>
+                    <div className="form-group">
+                        <label htmlFor="subscriptionFee">Subscription Fee per User ($)</label>
+                        <input
+                            id="subscriptionFee" type="number"
+                            value={subscriptionFee}
+                            onChange={(e) => setSubscriptionFee(e.target.value)}
+                            placeholder="1.00" />
+                        {errors.subscriptionFee && <p className="validation-error">{errors.subscriptionFee}</p>}
+                    </div>
                 </div>
 
                 <div className="form-section members-selection">
                     <h3>Select Members ({selectedUserIds.size} selected)</h3>
                     {errors.users && <p className="validation-error">{errors.users}</p>}
-                    <input type="text" placeholder="Search for users..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="user-search-input"/>
-                    
+                    <input type="text" placeholder="Search for users..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="user-search-input" />
+
                     {isLoadingUsers ? <LoadingSpinner message="Loading users..." /> : (
                         <div className="user-list">
                             {filteredUsers.map(user => (
@@ -149,10 +161,10 @@ const CreatePotsPage = () => {
                         </div>
                     )}
                 </div>
-                
+
                 <div className="form-actions">
                     <div className="cancel-button-wrapper">
-                         <OpenModalButton
+                        <OpenModalButton
                             buttonText="Cancel"
                             className={"cancel-button"}
                             modalComponent={

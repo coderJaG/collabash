@@ -10,11 +10,13 @@ import * as potsActions from '../../store/pots';
 import * as usersActions from '../../store/users';
 import { fetchWeeklyStatus, updateWeeklyPayment } from '../../store/transactions';
 import { useNavigate, useParams } from "react-router-dom";
+import { formatDate } from "../../utils/formatDate";
 import OpenModalButton from "../OpenModalButton";
 import AddUsersToPot from "../AddUserToPot";
 import LoadingSpinner from "../LoadingSpinner";
 import DraggableUserRow from '../DraggableUserRow';
 import DeleteConfirmationModal from '../DeleteConfirmationModal';
+
 import './PotDetailsPage.css';
 
 const STABLE_EMPTY_OPJECT = Object.freeze({});
@@ -26,13 +28,7 @@ const getPotLifecycle = (status) => {
     return 'unknown';
 };
 
-const formatDate = (dateStr) => {
-    if (!dateStr) return 'N/A';
-    const dateObject = new Date(dateStr);
-    if (isNaN(dateObject.getTime())) return 'Invalid Date';
-    const options = { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'UTC' };
-    return dateObject.toLocaleDateString('en-US', options);
-};
+
 
 const PotDetailsPage = () => {
     const dispatch = useDispatch();
@@ -60,6 +56,8 @@ const PotDetailsPage = () => {
     const [editableStartDate, setEditableStartDate] = useState('');
     const [isEditingFrequency, setIsEditingFrequency] = useState(false);
     const [editableFrequency, setEditableFrequency] = useState('');
+    const [isEditingFee, setIsEditingFee] = useState(false);
+    const [editableFee, setEditableFee] = useState('');
 
     const userPermissions = useMemo(() => new Set(currUser?.permissions || []), [currUser]);
     const canEditPot = userPermissions.has('pot:edit');
@@ -78,13 +76,23 @@ const PotDetailsPage = () => {
         }
     }, [potDetails?.Users, isReordering, isUserActuallyDragging, orderedUsers]);
 
-    useEffect(() => {
-        if (potDetails) {
+  useEffect(() => {
+    if (potDetails) {
+        
+        if (!isEditingAmount) {
             setEditableAmount(potDetails.hand || '');
+        }
+        if (!isEditingStartDate) {
             setEditableStartDate(potDetails.startDate || '');
+        }
+        if (!isEditingFrequency) {
             setEditableFrequency(potDetails.frequency || 'weekly');
         }
-    }, [potDetails]);
+        if (!isEditingFee) {
+            setEditableFee(potDetails.subscriptionFee || '1.00');
+        }
+    }
+}, [potDetails, isEditingAmount, isEditingStartDate, isEditingFrequency, isEditingFee]);
 
     useEffect(() => {
         if (potDetails && potDetails.status === 'Active' && potDetails.endDate) {
@@ -145,7 +153,7 @@ const PotDetailsPage = () => {
         return () => {
             dispatch(potsActions.clearPotReorderError());
             dispatch(potsActions.clearPotDetailsError());
-            // No cleanup needed since we don't modify scroll behavior
+            
         };
     }, [dispatch, numPotId]);
     
@@ -176,12 +184,15 @@ const PotDetailsPage = () => {
     };
 
     const handleSavePotUpdate = async (field, value) => {
+        console.log('thissisisisisisisisisisis')
         setLocalUiError(null);
+        console.log(`Updating ${field} to:`, value);
         try {
             await dispatch(potsActions.updateAPot({ [field]: value }, numPotId));
             if (field === 'hand') setIsEditingAmount(false);
             if (field === 'startDate') setIsEditingStartDate(false);
             if (field === 'frequency') setIsEditingFrequency(false);
+            if (field === 'subscriptionFee') setIsEditingFee(false);
         } catch (updateError) {
             setLocalUiError(updateError.message || `Failed to update ${field}.`);
         }
@@ -306,6 +317,21 @@ const PotDetailsPage = () => {
             
             <div className="pot-container">
                 <div className="pot-name-div"><h2 className="pot-name">{potDetails.name?.toUpperCase()}</h2></div>
+                <div className="pot-detail-row">
+                    <span>Subscription Fee:</span>
+                    {isEditingFee && canEditDetails ? (
+                        <div className="inline-edit-container">
+                            <input type="number" value={editableFee} onChange={(e) => setEditableFee(e.target.value)} disabled={isUpdatingPot} step="0.50" min="0" />
+                            <FaSave className="save-icon" onClick={() => handleSavePotUpdate('subscriptionFee', editableFee)} />
+                            <FaTimesCircle className="cancel-icon" onClick={() => setIsEditingFee(false)} />
+                        </div>
+                    ) : (
+                        <div className="inline-display-container">
+                            <span className="amount-display">{`$${Number.parseFloat(potDetails.subscriptionFee || 0).toFixed(2)}`}</span>
+                            {canEditDetails && !isUpdatingPot && (<FaEdit className="edit-icon" onClick={() => setIsEditingFee(true)} />)}
+                        </div>
+                    )}
+                </div>
                 <div className='week-display-div'><span>Current Week:</span> <span>{currentWeek} / {totalWeeks > 0 ? totalWeeks : 'N/A'}</span></div>
                 <div className='banker-div'><span>Banker:</span> <span>{potDetails.ownerName}</span></div>
                 

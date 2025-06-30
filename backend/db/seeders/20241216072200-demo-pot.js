@@ -39,9 +39,9 @@ module.exports = {
         name: 'Friends and Family',
         hand: 150.00,
         amount: 150.00,
-        startDate: '2024-11-10',
-        endDate: '2025-11-10',
-        status: 'Ended',
+        startDate: '2025-06-29',
+        endDate: '2025-07-06',
+        status: 'Active',
         frequency: 'every-2-weeks'
       }
     ], {});

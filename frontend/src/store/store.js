@@ -6,6 +6,7 @@ import transactionsReducer from './transactions';
 import usersReducer from './users';
 import historyReducer from './history';
 import requestsReducer from './requests';
+import adminReducer from './admin';
 
 
 const rootReducer = combineReducers({
@@ -14,7 +15,8 @@ const rootReducer = combineReducers({
   transactions: transactionsReducer,
   users: usersReducer,
   history: historyReducer,
-  requests: requestsReducer
+  requests: requestsReducer,
+  admin: adminReducer
 });
 
 let enhancer;
