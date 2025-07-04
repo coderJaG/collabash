@@ -8,7 +8,7 @@ import * as usersActions from '../../store/users';
 import { createJoinRequest, fetchSentRequests } from '../../store/requests';
 import "./GetAllPotsPage.css";
 
-const POTS_PER_PAGE = 5;
+const POTS_PER_PAGE = 20;
 
 const GetAllPotsPage = () => {
     const dispatch = useDispatch();

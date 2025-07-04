@@ -65,6 +65,9 @@ const PotDetailsPage = () => {
     const canManageMembers = userPermissions.has('pot:manage_members');
     const canDuplicatePot = userPermissions.has('pot:create');
 
+    const isSuperAdmin = currUser?.role === 'superadmin';
+    const isBanker = currUser?.role === 'banker';
+
     useEffect(() => {
         if (!isUserActuallyDragging && !isReordering) {
             if (potDetails?.Users) {
@@ -317,21 +320,26 @@ const PotDetailsPage = () => {
             
             <div className="pot-container">
                 <div className="pot-name-div"><h2 className="pot-name">{potDetails.name?.toUpperCase()}</h2></div>
-                <div className="pot-detail-row">
-                    <span>Subscription Fee:</span>
-                    {isEditingFee && canEditDetails ? (
-                        <div className="inline-edit-container">
-                            <input type="number" value={editableFee} onChange={(e) => setEditableFee(e.target.value)} disabled={isUpdatingPot} step="0.50" min="0" />
-                            <FaSave className="save-icon" onClick={() => handleSavePotUpdate('subscriptionFee', editableFee)} />
-                            <FaTimesCircle className="cancel-icon" onClick={() => setIsEditingFee(false)} />
-                        </div>
-                    ) : (
-                        <div className="inline-display-container">
-                            <span className="amount-display">{`$${Number.parseFloat(potDetails.subscriptionFee || 0).toFixed(2)}`}</span>
-                            {canEditDetails && !isUpdatingPot && (<FaEdit className="edit-icon" onClick={() => setIsEditingFee(true)} />)}
-                        </div>
-                    )}
-                </div>
+                 {/* {(isSuperAdmin || isBanker) && (
+                    <div className="pot-detail-row">
+                        <span>Subscription Fee:</span>
+                        {isEditingFee && isSuperAdmin && canEditDetails ? (
+                            <div className="inline-edit-container">
+                                <input type="number" value={editableFee} onChange={(e) => setEditableFee(e.target.value)} disabled={isUpdatingPot} step="0.50" min="0" />
+                                <FaSave className="save-icon" onClick={() => handleSavePotUpdate('subscriptionFee', editableFee)} />
+                                <FaTimesCircle className="cancel-icon" onClick={() => setIsEditingFee(false)} />
+                            </div>
+                        ) : (
+                            <div className="inline-display-container">
+                                <span className="amount-display">{`$${Number.parseFloat(potDetails.subscriptionFee || 0).toFixed(2)}`}</span>
+                          
+                                {isSuperAdmin && canEditDetails && !isUpdatingPot && (
+                                    <FaEdit className="edit-icon" onClick={() => setIsEditingFee(true)} />
+                                )}
+                            </div>
+                        )}
+                    </div>
+                )} */}
                 <div className='week-display-div'><span>Current Week:</span> <span>{currentWeek} / {totalWeeks > 0 ? totalWeeks : 'N/A'}</span></div>
                 <div className='banker-div'><span>Banker:</span> <span>{potDetails.ownerName}</span></div>
                 

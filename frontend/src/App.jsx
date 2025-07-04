@@ -11,6 +11,7 @@ import GetAllUsersPage from "./components/GetAllUsersPage";
 import GetSingleUserPage from "./components/GetSingleUserPage";
 import TransactionHistoryPage from "./components/TransactionHistoryPage";
 import AdminDashboardPage from "./components/AdminDashboardPage";
+import BankerDashboardPage from "./components/BankerDashboardPage";
 import * as sessionActions from './store/session'
 
 
@@ -73,6 +74,10 @@ const router = createBrowserRouter([
       {
         path: '/admin',
         element: <AdminDashboardPage />
+      },
+      {
+        path: '/banker-dashboard',
+        element: <BankerDashboardPage />
       }
     ]
   }

@@ -1,0 +1,58 @@
+.suspend-modal-container {
+    background-color: white;
+    padding: 30px;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 450px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+.suspend-modal-container h2 {
+    color: #c0392b;
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 1.5em;
+}
+
+.suspend-modal-container p {
+    color: #34495e;
+    font-size: 1.1em;
+    line-height: 1.6;
+    margin-bottom: 25px;
+}
+
+.suspend-modal-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.suspend-modal-buttons button {
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.suspend-modal-buttons .cancel-button {
+    background-color: #ecf0f1;
+    color: #7f8c8d;
+}
+
+.suspend-modal-buttons .cancel-button:hover {
+    background-color: #bdc3c7;
+}
+
+.suspend-modal-buttons .confirm-suspend-button {
+    background-color: #e74c3c;
+    color: white;
+}
+
+.suspend-modal-buttons .confirm-suspend-button:hover {
+    background-color: #c0392b;
+    transform: translateY(-1px);
+}

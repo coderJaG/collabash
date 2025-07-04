@@ -11,9 +11,9 @@ const Navigation = ({ isLoaded }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     const userPermissions = useMemo(() => new Set(currUser?.permissions || []), [currUser]);
-    // const canViewUsers = currUser;
     const canViewHistory = userPermissions.has('history:view_all');
     const canViewAdmin = userPermissions.has('admin:view_reports');
+    const isBanker = currUser?.role === 'banker';
 
     const handleMenuToggle = () => {
         setIsMenuOpen(!isMenuOpen);
@@ -43,6 +43,7 @@ const Navigation = ({ isLoaded }) => {
                     <ul className="desktop-nav-links">
                         <li><NavLink to={'/'}>HOME</NavLink></li>
                         {currUser && canViewAdmin && (<li><NavLink to={'/admin'}>ADMIN</NavLink></li>)}
+                        {currUser && isBanker && (<li><NavLink to={'/banker-dashboard'}>BANKER</NavLink></li>)}
                         {currUser && (<li><NavLink to={'/pots'}>POTS</NavLink></li>)}
                         {currUser && (<li><NavLink to={'/users'}>USERS</NavLink></li>)}
                         {currUser && canViewHistory && (<li><NavLink to={'/history'}>HISTORY</NavLink></li>)}
@@ -63,6 +64,7 @@ const Navigation = ({ isLoaded }) => {
                     <ul>
                         <li><NavLink to={'/'} onClick={closeMenu}>HOME</NavLink></li>
                         {currUser && canViewAdmin && (<li><NavLink to={'/admin'} onClick={closeMenu}>ADMIN</NavLink></li>)}
+                        {currUser && isBanker && (<li><NavLink to={'/banker-dashboard'} onClick={closeMenu}>BANKER</NavLink></li>)}
                         {currUser && (<li><NavLink to={'/pots'} onClick={closeMenu}>POTS</NavLink></li>)}
                         {currUser && (<li><NavLink to={'/users'} onClick={closeMenu}>USERS</NavLink></li>)}
                         {currUser && canViewHistory && (<li><NavLink to={'/history'} onClick={closeMenu}>HISTORY</NavLink></li>)}

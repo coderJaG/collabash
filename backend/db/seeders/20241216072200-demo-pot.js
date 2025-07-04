@@ -23,7 +23,7 @@ module.exports = {
       },
       {
         ownerId: 1, 
-        ownerName: 'Demo lition',
+        ownerName: 'Coder Jag',
         name: 'Vacation Club',
         hand: 100.00,
         amount: 1200.00,

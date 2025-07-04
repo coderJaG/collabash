@@ -13,6 +13,8 @@ const CreatePotsPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
+    // Get the current user from the session state
+    const currUser = useSelector(state => state.session.user);
     const allUsers = useSelector(state => state.users.allUsers);
     const isLoadingUsers = useSelector(state => state.users.isLoadingAllUsers);
     const isCreatingPot = useSelector(state => state.pots.isCreating);
@@ -22,11 +24,14 @@ const CreatePotsPage = () => {
     const [hand, setHand] = useState('');
     const [startDate, setStartDate] = useState('');
     const [frequency, setFrequency] = useState('weekly');
-    const [subscriptionFee, setSubscriptionFee] = useState('1.00');
+    const [subscriptionFee, setSubscriptionFee] = useState('1.00'); // Superadmin can change this
 
     const [selectedUserIds, setSelectedUserIds] = useState(new Set());
     const [searchTerm, setSearchTerm] = useState('');
     const [errors, setErrors] = useState({});
+
+    // Create a boolean flag for easy access to the user's role
+    const isSuperAdmin = currUser?.role === 'superadmin';
 
     useEffect(() => {
         const duplicateData = location.state?.duplicateData;
@@ -85,7 +90,8 @@ const CreatePotsPage = () => {
             hand: handNum,
             startDate,
             frequency,
-            subscriptionFee,
+            // Use the fee from state if superadmin, otherwise default to 0.00
+            subscriptionFee: isSuperAdmin ? subscriptionFee : '0.00',
             userIds: Array.from(selectedUserIds),
         };
 
@@ -129,15 +135,19 @@ const CreatePotsPage = () => {
                             <option value="monthly">Monthly</option>
                         </select>
                     </div>
-                    <div className="form-group">
-                        <label htmlFor="subscriptionFee">Subscription Fee per User ($)</label>
-                        <input
-                            id="subscriptionFee" type="number"
-                            value={subscriptionFee}
-                            onChange={(e) => setSubscriptionFee(e.target.value)}
-                            placeholder="1.00" />
-                        {errors.subscriptionFee && <p className="validation-error">{errors.subscriptionFee}</p>}
-                    </div>
+
+                    {/* Only render this entire form group if the user is a superadmin */}
+                    {isSuperAdmin && (
+                        <div className="form-group">
+                            <label htmlFor="subscriptionFee">Subscription Fee per User ($)</label>
+                            <input
+                                id="subscriptionFee" type="number"
+                                value={subscriptionFee}
+                                onChange={(e) => setSubscriptionFee(e.target.value)}
+                                placeholder="1.00" />
+                            {errors.subscriptionFee && <p className="validation-error">{errors.subscriptionFee}</p>}
+                        </div>
+                    )}
                 </div>
 
                 <div className="form-section members-selection">

@@ -1,9 +1,9 @@
-/* AdminDashboardPage.css - Complete styles with Dashboard.css merged in */
+/* BankerDashboardPage.css */
 
 /* ============================================= */
 /* ==          MAIN DASHBOARD LAYOUT          == */
 /* ============================================= */
-.admin-dashboard {
+.banker-dashboard {
     padding: clamp(15px, 4vw, 30px);
     max-width: 1400px;
     min-width: 320px;
@@ -16,12 +16,12 @@
 /* ============================================= */
 /* ==             HEADER SECTION              == */
 /* ============================================= */
-.admin-header-section {
+.banker-header-section {
     text-align: center;
     margin-bottom: 30px;
 }
 
-.header-with-back {
+.banker-header-with-back {
     display: flex;
     align-items: center;
     gap: 20px;
@@ -29,7 +29,7 @@
     flex-wrap: wrap;
 }
 
-.back-button {
+.banker-back-button {
     background-color: #1abc9c;
     color: white;
     border: none;
@@ -45,13 +45,13 @@
     margin-top: 10px;
 }
 
-.back-button:hover {
+.banker-back-button:hover {
     background-color: #16a085;
     transform: translateY(-1px);
     box-shadow: 0 2px 8px rgba(26, 188, 156, 0.3);
 }
 
-.admin-header {
+.banker-header {
     color: white;
     margin-bottom: 8px;
     font-size: clamp(1.5em, 5vw, 2.5em);
@@ -66,7 +66,7 @@
     word-break: break-word;
 }
 
-.admin-subtitle {
+.banker-subtitle {
     color: #16a085;
     font-size: clamp(1em, 2.5vw, 1.2em);
     margin: 0;
@@ -76,11 +76,17 @@
 /* ============================================= */
 /* ==           CONTROLS & FILTERS            == */
 /* ============================================= */
-.admin-controls {
+.banker-controls {
     margin-bottom: 25px;
 }
 
-.admin-search-input {
+.banker-search-section {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.banker-search-input {
     padding: clamp(10px, 2.5vw, 14px) clamp(15px, 4vw, 20px);
     border: 1px solid #b2dfdb;
     border-radius: 25px;
@@ -90,17 +96,15 @@
     transition: all 0.2s ease;
     background-color: white;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    display: block;
-    margin: 0 auto;
 }
 
-.admin-search-input:focus {
+.banker-search-input:focus {
     border-color: #1abc9c;
     box-shadow: 0 0 0 3px rgba(26, 188, 156, 0.2);
     outline: none;
 }
 
-.filter-controls {
+.banker-filter-controls {
     display: flex;
     justify-content: center;
     margin-bottom: 25px;
@@ -113,7 +117,7 @@
     gap: 4px;
 }
 
-.filter-controls button {
+.banker-filter-controls button {
     background: none;
     border: none;
     padding: 10px 20px;
@@ -126,26 +130,26 @@
     white-space: nowrap;
 }
 
-.filter-controls button.active {
+.banker-filter-controls button.active {
     background-color: #1abc9c;
     color: white;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-.filter-controls button:hover:not(.active) {
+.banker-filter-controls button:hover:not(.active) {
     background-color: rgba(26, 188, 156, 0.1);
 }
 
 /* ============================================= */
 /* ==              POT CARDS GRID             == */
 /* ============================================= */
-.pots-grid {
+.banker-pots-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: clamp(15px, 3vw, 25px);
 }
 
-.pot-card {
+.banker-pot-card {
     background: white;
     border-radius: 12px;
     padding: 25px;
@@ -156,26 +160,27 @@
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    position: relative;
+    overflow: hidden;
 }
 
-.pot-card::before {
+.banker-pot-card::before {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
-    height: 5px;
+    height: 4px;
     background: linear-gradient(90deg, #1abc9c, #20c9a6);
-    opacity: 0.8;
 }
 
-.pot-card:hover {
-    transform: translateY(-5px);
+.banker-pot-card:hover {
+    transform: translateY(-4px);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-    border-color: #b2dfdb;
+    border-color: #1abc9c;
 }
 
-.pot-card-header {
+.banker-pot-card-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
@@ -183,7 +188,7 @@
     gap: 10px;
 }
 
-.pot-name {
+.banker-pot-name {
     font-size: 1.3em;
     font-weight: 600;
     color: #2c3e50;
@@ -192,13 +197,13 @@
     word-break: break-word;
 }
 
-.pot-status-indicators {
+.banker-pot-status-indicators {
     display: flex;
     gap: 8px;
     flex-shrink: 0;
 }
 
-.status-indicator {
+.banker-status-indicator {
     display: flex;
     align-items: center;
     gap: 4px;
@@ -209,22 +214,18 @@
     color: white;
 }
 
-.status-indicator.due {
+.banker-status-indicator.due {
     background-color: #e74c3c;
 }
 
-.status-indicator.paid {
+.banker-status-indicator.paid {
     background-color: #27ae60;
-}
-
-.status-indicator.pending {
-    background-color: #f39c12;
 }
 
 /* ============================================= */
 /* ==            POT CARD STATS               == */
 /* ============================================= */
-.pot-card-stats {
+.banker-pot-card-stats {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 15px 20px;
@@ -232,13 +233,13 @@
     padding-bottom: 20px;
 }
 
-.stat-item {
+.banker-stat-item {
     display: flex;
     flex-direction: column;
     gap: 4px;
 }
 
-.stat-label {
+.banker-stat-label {
     font-size: 0.85em;
     color: #7f8c8d;
     font-weight: 500;
@@ -246,151 +247,38 @@
     letter-spacing: 0.5px;
 }
 
-.stat-value {
+.banker-stat-value {
     font-size: 1.1em;
     font-weight: 600;
     color: #2c3e50;
 }
 
-.stat-value.amount-due {
+.banker-stat-value.amount-due {
     color: #e74c3c;
     font-size: 1.2em;
 }
 
-.stat-value.status-warning {
+.banker-stat-value.status-warning {
     color: #e74c3c;
 }
 
-.stat-value.status-good {
+.banker-stat-value.status-good {
     color: #27ae60;
 }
 
-/* ============================================= */
-/* ==           FEE MANAGEMENT                == */
-/* ============================================= */
-.stat-item.fee-management {
-    grid-column: 1 / -1;
-    margin-top: 10px;
-    padding-top: 15px;
-    border-top: 1px solid #ecf0f1;
-}
-
-.fee-display-container {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.fee-edit-btn {
-    background: none;
-    border: none;
-    color: #1abc9c;
-    cursor: pointer;
-    padding: 6px;
-    border-radius: 6px;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.1em;
-}
-
-.fee-edit-btn:hover {
-    background-color: rgba(26, 188, 156, 0.1);
-    color: #16a085;
-    transform: scale(1.1);
-}
-
-.fee-edit-container {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.fee-input {
-    padding: 8px 12px;
-    border: 2px solid #b2dfdb;
-    border-radius: 6px;
-    font-size: 1em;
-    font-weight: 600;
-    background-color: white;
-    transition: all 0.2s ease;
-    width: 100%;
-    max-width: 120px;
-}
-
-.fee-input:focus {
-    border-color: #1abc9c;
-    box-shadow: 0 0 0 3px rgba(26, 188, 156, 0.2);
-    outline: none;
-}
-
-.fee-actions {
-    display: flex;
-    gap: 6px;
-    justify-content: flex-start;
-}
-
-.fee-save-btn,
-.fee-cancel-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 8px;
-    border-radius: 6px;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2em;
-}
-
-.fee-save-btn {
-    color: #27ae60;
-}
-
-.fee-save-btn:hover {
-    background-color: rgba(39, 174, 96, 0.1);
-    color: #229954;
-    transform: scale(1.1);
-}
-
-.fee-cancel-btn {
-    color: #e74c3c;
-}
-
-.fee-cancel-btn:hover {
-    background-color: rgba(231, 76, 60, 0.1);
-    color: #c0392b;
-    transform: scale(1.1);
-}
-
-.fee-success-message,
-.fee-error-message {
-    font-size: 0.8em;
-    padding: 4px 8px;
-    border-radius: 4px;
-    margin-top: 4px;
-    font-weight: 500;
-    animation: fadeIn 0.3s ease-in;
-}
-
-.fee-success-message {
-    background-color: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
-}
-
-.fee-error-message {
-    background-color: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
+.fee-note {
+    display: block;
+    font-size: 0.75em;
+    color: #7f8c8d;
+    font-weight: 400;
+    font-style: italic;
+    margin-top: 2px;
 }
 
 /* ============================================= */
 /* ==           POT CARD FOOTER               == */
 /* ============================================= */
-.pot-card-footer {
+.banker-pot-card-footer {
     border-top: 1px solid #ecf0f1;
     padding-top: 15px;
     margin-top: 20px;
@@ -398,8 +286,8 @@
     gap: 10px;
 }
 
-.view-details-btn,
-.view-payments-btn {
+.banker-view-details-btn,
+.banker-view-payments-btn {
     flex: 1;
     color: white;
     border: none;
@@ -415,23 +303,23 @@
     gap: 8px;
 }
 
-.view-details-btn {
+.banker-view-details-btn {
     background: linear-gradient(135deg, #3498db, #2980b9);
 }
-.view-details-btn:hover {
+.banker-view-details-btn:hover {
     background: linear-gradient(135deg, #2980b9, #2471a3);
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
 }
 
-.view-payments-btn {
+.banker-view-payments-btn {
     background-color: #7f8c8d;
 }
-.view-payments-btn:hover {
+.banker-view-payments-btn:hover {
     background-color: #95a5a6;
 }
 
-.view-payments-btn.primary {
+.banker-view-payments-btn.primary {
     background: linear-gradient(135deg, #1abc9c, #16a085);
     margin-top: 20px;
     padding: 12px 24px;
@@ -439,7 +327,7 @@
     display: inline-flex;
 }
 
-.view-payments-btn.primary:hover {
+.banker-view-payments-btn.primary:hover {
     background: linear-gradient(135deg, #16a085, #138d75);
     box-shadow: 0 4px 12px rgba(26, 188, 156, 0.3);
 }
@@ -518,7 +406,7 @@
 .members-table-container table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 600px;
+    min-width: 700px;
     background-color: white;
 }
 
@@ -559,10 +447,31 @@
     color: #2c3e50;
 }
 
+.fee-status {
+    padding: 4px 10px;
+    border-radius: 15px;
+    font-size: 0.85em;
+    font-weight: 600;
+    display: inline-block;
+    text-transform: capitalize;
+}
+
+.fee-status.due {
+    background-color: #fdf2f2;
+    color: #e74c3c;
+    border: 1px solid #fadbd8;
+}
+
+.fee-status.paid {
+    background-color: #f0f9f4;
+    color: #27ae60;
+    border: 1px solid #d5f4e6;
+}
+
 /* ============================================= */
 /* ==           TABLES & REPORTS              == */
 /* ============================================= */
-.report-table-container,
+.banker-report-table-container,
 .members-table-container {
     overflow-x: auto;
     border: 1px solid #b2dfdb;
@@ -603,28 +512,28 @@ tbody tr:hover {
     background-color: #e8f8f5;
 }
 
-.amount-cell { 
+.banker-amount-cell { 
     font-weight: 600; 
     color: #e74c3c;
 }
 
-.banker-info {
+.banker-member-info {
     display: flex;
     flex-direction: column;
     gap: 2px;
 }
 
-.banker-name {
+.banker-member-name {
     font-weight: 600;
     color: #2c3e50;
 }
 
-.banker-real-name {
+.banker-member-real-name {
     font-size: 0.85em;
     color: #7f8c8d;
 }
 
-.no-data-cell { 
+.banker-no-data-cell { 
     text-align: center; 
     color: #7f8c8d; 
     padding: 40px; 
@@ -632,58 +541,47 @@ tbody tr:hover {
 }
 
 /* ============================================= */
-/* ==           STATUS BADGES                 == */
+/* ==           STATUS BADGES & ACTIONS      == */
 /* ============================================= */
+.banker-status-badge,
 .status-badge {
-    padding: 4px 12px;
+    padding: 5px 12px;
     border-radius: 15px;
     font-size: 0.85em;
-    font-weight: 600;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
+    font-weight: 700;
+    display: inline-block;
     text-transform: capitalize;
 }
 
+.banker-status-badge.status-due,
 .status-badge.status-due {
     background-color: #fdf2f2;
     color: #e74c3c;
     border: 1px solid #fadbd8;
 }
 
+.banker-status-badge.status-paid,
 .status-badge.status-paid {
     background-color: #f0f9f4;
     color: #27ae60;
     border: 1px solid #d5f4e6;
 }
 
+.banker-status-badge.status-pending,
 .status-badge.status-pending {
     background-color: #fef9e7;
     color: #f39c12;
     border: 1px solid #fcf3cf;
 }
 
-.status-badge.status-scheduled {
-    background-color: #e8f4f8;
-    color: #3498db;
-    border: 1px solid #d4e8fc;
-}
-
-/* ============================================= */
-/* ==           ACTION BUTTONS                == */
-/* ============================================= */
-.action-cell {
+.banker-action-cell {
     width: 1%;
     white-space: nowrap;
 }
 
-.action-buttons {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-
-.action-btn {
+.action-btn.request-approval {
+    background-color: #3498db;
+    color: white;
     border: none;
     padding: 8px 16px;
     border-radius: 6px;
@@ -697,62 +595,6 @@ tbody tr:hover {
     white-space: nowrap;
 }
 
-.action-btn.approve {
-    background-color: #27ae60;
-    color: white;
-}
-
-.action-btn.approve:hover {
-    background-color: #229954;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(39, 174, 96, 0.3);
-}
-
-.action-btn.deny {
-    background-color: #e74c3c;
-    color: white;
-}
-
-.action-btn.deny:hover {
-    background-color: #c0392b;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
-}
-
-.action-btn.paid {
-    background-color: #1abc9c;
-    color: white;
-}
-
-.action-btn.paid:hover {
-    background-color: #16a085;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(26, 188, 156, 0.3);
-}
-
-.action-btn.suspend {
-    background-color: #f39c12;
-    color: white;
-}
-
-.action-btn.suspend:hover {
-    background-color: #e67e22;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(243, 156, 18, 0.3);
-}
-
-.action-btn.suspended {
-    background-color: #95a5a6;
-    color: white;
-    cursor: not-allowed;
-    opacity: 0.7;
-}
-
-.action-btn.request-approval {
-    background-color: #3498db;
-    color: white;
-}
-
 .action-btn.request-approval:hover {
     background-color: #2980b9;
     transform: translateY(-1px);
@@ -762,7 +604,7 @@ tbody tr:hover {
 /* ============================================= */
 /* ==            MISC ELEMENTS                == */
 /* ============================================= */
-.no-pots-message {
+.banker-no-pots-message {
     grid-column: 1 / -1;
     text-align: center;
     padding: clamp(40px, 8vw, 60px) clamp(20px, 5vw, 30px);
@@ -772,19 +614,19 @@ tbody tr:hover {
     color: #7f8c8d;
 }
 
-.no-pots-message h3 {
+.banker-no-pots-message h3 {
     margin: 15px 0 10px 0;
     color: #2c3e50;
     font-size: clamp(1.2em, 3vw, 1.4em);
 }
 
-.no-pots-message p {
+.banker-no-pots-message p {
     margin: 0;
     font-size: clamp(0.9em, 2.2vw, 1em);
     line-height: 1.5;
 }
 
-.no-data-cell {
+.banker-no-data-cell {
     text-align: center;
     color: #7f8c8d;
     padding: 40px 20px;
@@ -794,7 +636,7 @@ tbody tr:hover {
 /* ============================================= */
 /* ==           LOADING & ERROR STATES        == */
 /* ============================================= */
-.admin-dashboard.loading {
+.banker-dashboard.loading {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -803,13 +645,13 @@ tbody tr:hover {
     gap: 15px;
 }
 
-.admin-dashboard.loading p {
+.banker-dashboard.loading p {
     color: #1abc9c;
     font-size: 1.1em;
     margin: 0;
 }
 
-.error-container {
+.banker-error-container {
     text-align: center;
     padding: clamp(30px, 6vw, 50px);
     background: white;
@@ -817,43 +659,29 @@ tbody tr:hover {
     border-left: 4px solid #e74c3c;
 }
 
-.error-container h1 {
+.banker-error-container h1 {
     color: #e74c3c;
     margin-bottom: 10px;
 }
 
-.error-container p {
+.banker-error-container p {
     color: #7f8c8d;
     font-size: 1.1em;
     margin: 0;
 }
 
 /* ============================================= */
-/* ==              ANIMATIONS                 == */
-/* ============================================= */
-@keyframes fadeIn {
-    from { 
-        opacity: 0; 
-        transform: translateY(-5px); 
-    }
-    to { 
-        opacity: 1; 
-        transform: translateY(0); 
-    }
-}
-
-/* ============================================= */
 /* ==           RESPONSIVE DESIGN             == */
 /* ============================================= */
 @media (max-width: 768px) {
-    .header-with-back {
+    .banker-header-with-back {
         flex-direction: column;
         align-items: center;
         text-align: center;
         gap: 15px;
     }
     
-    .pot-card-stats {
+    .banker-pot-card-stats {
         grid-template-columns: 1fr;
         gap: 10px;
     }
@@ -862,59 +690,49 @@ tbody tr:hover {
         grid-template-columns: 1fr;
     }
     
-    .pot-card-footer {
+    .banker-pot-card-footer {
         flex-direction: row;
         gap: 10px;
     }
     
-    .pot-card-footer button {
+    .banker-pot-card-footer button {
         flex: 1;
-    }
-    
-    .action-buttons {
-        flex-direction: column;
-        gap: 6px;
-    }
-    
-    .action-btn {
-        width: 100%;
-        justify-content: center;
     }
 }
 
 @media (max-width: 640px) {
-    .pots-grid {
+    .banker-pots-grid {
         grid-template-columns: 1fr;
     }
     
-    .pot-card-footer {
+    .banker-pot-card-footer {
         flex-direction: column;
         gap: 8px;
     }
     
-    .pot-card-footer button {
+    .banker-pot-card-footer button {
         width: 100%;
     }
 }
 
 @media (max-width: 480px) {
-    .admin-dashboard {
+    .banker-dashboard {
         padding: 10px;
         margin: 10px auto;
     }
     
-    .filter-controls {
+    .banker-filter-controls {
         padding: 3px;
         gap: 2px;
         flex-wrap: wrap;
     }
     
-    .filter-controls button {
+    .banker-filter-controls button {
         padding: 8px 12px;
         font-size: 0.85em;
     }
     
-    .report-table-container table,
+    .banker-report-table-container table,
     .members-table-container table {
         min-width: 500px;
         font-size: 0.85em;
@@ -925,14 +743,11 @@ tbody tr:hover {
 /* ==           ACCESSIBILITY                 == */
 /* ============================================= */
 @media (prefers-reduced-motion: reduce) {
-    .pot-card,
+    .banker-pot-card,
     .action-btn,
-    .back-button,
-    .view-details-btn,
-    .view-payments-btn,
-    .fee-save-btn,
-    .fee-cancel-btn,
-    .fee-edit-btn {
+    .banker-back-button,
+    .banker-view-details-btn,
+    .banker-view-payments-btn {
         transition: none;
         transform: none !important;
     }
@@ -940,30 +755,30 @@ tbody tr:hover {
 
 /* Enhanced scrollbar styling for tables */
 .members-table-container::-webkit-scrollbar,
-.report-table-container::-webkit-scrollbar {
+.banker-report-table-container::-webkit-scrollbar {
     height: 8px;
 }
 
 .members-table-container::-webkit-scrollbar-track,
-.report-table-container::-webkit-scrollbar-track {
+.banker-report-table-container::-webkit-scrollbar-track {
     background: #f1f1f1;
     border-radius: 4px;
 }
 
 .members-table-container::-webkit-scrollbar-thumb,
-.report-table-container::-webkit-scrollbar-thumb {
+.banker-report-table-container::-webkit-scrollbar-thumb {
     background: #1abc9c;
     border-radius: 4px;
 }
 
 .members-table-container::-webkit-scrollbar-thumb:hover,
-.report-table-container::-webkit-scrollbar-thumb:hover {
+.banker-report-table-container::-webkit-scrollbar-thumb:hover {
     background: #16a085;
 }
 
 /* Print styles */
 @media print {
-    .admin-dashboard {
+    .banker-dashboard {
         background-color: white;
         box-shadow: none;
         max-width: none;
@@ -971,20 +786,19 @@ tbody tr:hover {
         padding: 20px;
     }
     
-    .back-button,
-    .filter-controls,
-    .admin-controls,
-    .action-buttons {
+    .banker-back-button,
+    .banker-filter-controls,
+    .banker-controls {
         display: none;
     }
     
-    .pot-card {
+    .banker-pot-card {
         break-inside: avoid;
         box-shadow: none;
         border: 1px solid #ccc;
     }
     
-    .report-table-container table,
+    .banker-report-table-container table,
     .members-table-container table {
         min-width: auto;
         font-size: 10pt;

@@ -18,13 +18,14 @@ const PERMISSIONS = {
   DELETE_POT: 'pot:delete',
   MANAGE_POT_MEMBERS: 'pot:manage_members', // Covers add, remove, reorder
 
-
   // User Management
   VIEW_ALL_USERS: 'user:view_all',
   CREATE_USER: 'user:create', // A banker creating a user
   EDIT_ANY_USER: 'user:edit_any',
+  EDIT_USER_ROLE: 'user:edit:role',
   DELETE_ANY_USER: 'user:delete_any',
   DELETE_OWN_ACCOUNT: 'user:delete_self',
+
 
   // Request Management
   CREATE_JOIN_REQUEST: 'request:create',
@@ -36,6 +37,13 @@ const PERMISSIONS = {
   // Admin Specific
   VIEW_ADMIN_REPORTS: 'admin:view_reports',
   MANAGE_BANKER_STATUS: 'admin:manage_banker_status',
+
+  // Fee Management
+  VIEW_OWN_FEE_REPORTS: 'fee:view_own_reports',     // Bankers can see their own fee data
+  MANAGE_OWN_FEE_COLLECTION: 'fee:manage_own',      // Bankers can mark their fees as paid
+
+  // Payment Management
+  MANAGE_PAYMENTS: 'payments:manage',
 };
 
 // Define permission sets for each role individually.
@@ -55,18 +63,21 @@ const bankerPermissions = [
   PERMISSIONS.RESPOND_TO_JOIN_REQUEST,
   PERMISSIONS.CREATE_USER,
   PERMISSIONS.EDIT_ANY_USER,
+  PERMISSIONS.EDIT_USER_ROLE,
   PERMISSIONS.VIEW_TRANSACTION_HISTORY,
-  PERMISSIONS.DELETE_ANY_USER
+  PERMISSIONS.DELETE_ANY_USER,
+  // NEW: Fee management for bankers
+  PERMISSIONS.VIEW_OWN_FEE_REPORTS,
+  PERMISSIONS.MANAGE_OWN_FEE_COLLECTION
 ];
 
 const superAdminPermissions = [
   ...bankerPermissions,
   PERMISSIONS.VIEW_ADMIN_REPORTS,
-  PERMISSIONS.MANAGE_BANKER_STATUS
-  // Any super-admin-only permissions would be added here.
-  // They already inherit DELETE_ANY_USER from the banker role.
+  PERMISSIONS.MANAGE_BANKER_STATUS,
+  PERMISSIONS.MANAGE_PAYMENTS
+  // Superadmins inherit banker fee permissions + have admin powers
 ];
-
 
 // Assign permissions to roles in the final hierarchy
 const ROLE_PERMISSIONS = {
@@ -84,7 +95,6 @@ const ROLE_PERMISSIONS = {
 const hasPermission = (role, permission) => {
   return ROLE_PERMISSIONS[role]?.includes(permission) || false;
 };
-
 
 module.exports = {
   ROLES,

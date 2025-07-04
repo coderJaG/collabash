@@ -1,0 +1,579 @@
+/* Dashboard.css */
+
+/* ============================================= */
+/* ==          SHARED DASHBOARD STYLES        == */
+/* ============================================= */
+.admin-dashboard,
+.banker-dashboard {
+    padding: clamp(15px, 4vw, 30px);
+    max-width: 1400px;
+    min-width: 320px;
+    margin: clamp(15px, 3vw, 30px) auto;
+    background-color: #f4f7f6;
+    border-radius: 12px;
+    color: #34495e;
+}
+
+/* --- Header Section --- */
+.admin-header-section,
+.banker-header-section {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.header-with-back,
+.banker-header-with-back {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    text-align: left;
+}
+
+.admin-header,
+.banker-header {
+    color: white;
+    margin-bottom: 8px;
+    font-size: clamp(1.5em, 5vw, 2.5em);
+    font-weight: 600;
+    letter-spacing: 1px;
+    background: linear-gradient(to right, #1abc9c, #16a085);
+    padding: clamp(12px, 3vw, 18px) clamp(20px, 5vw, 40px);
+    border-radius: 50px;
+    display: inline-block;
+    box-shadow: 0 4px 12px rgba(26, 188, 156, 0.3);
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+    word-break: break-word;
+}
+
+.admin-subtitle,
+.banker-subtitle {
+    color: #16a085;
+    font-size: clamp(1em, 2.5vw, 1.2em);
+    margin: 0;
+    font-weight: 500;
+}
+
+/* --- Back Button --- */
+.back-button,
+.banker-back-button {
+    background-color: #1abc9c;
+    color: white;
+    border: none;
+    padding: clamp(8px, 2vw, 12px) clamp(15px, 3vw, 20px);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: clamp(0.9em, 2.2vw, 1em);
+    font-weight: 500;
+}
+
+.back-button:hover,
+.banker-back-button:hover {
+    background-color: #16a085;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(26, 188, 156, 0.3);
+}
+
+/* --- Controls: Search & Filters --- */
+.admin-controls,
+.banker-controls {
+    margin-bottom: 25px;
+}
+
+.admin-search-input,
+.banker-search-input {
+    padding: clamp(10px, 2.5vw, 14px) clamp(15px, 4vw, 20px);
+    border: 1px solid #b2dfdb;
+    border-radius: 25px;
+    font-size: clamp(0.9em, 2.2vw, 1.1em);
+    width: 100%;
+    max-width: 400px;
+    transition: all 0.2s ease;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    display: block;
+    margin: 0 auto 20px auto;
+}
+
+.admin-search-input:focus,
+.banker-search-input:focus {
+    border-color: #1abc9c;
+    box-shadow: 0 0 0 3px rgba(26, 188, 156, 0.2);
+    outline: none;
+}
+
+.filter-controls,
+.banker-filter-controls {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 25px;
+    background-color: #e8f8f5;
+    padding: 6px;
+    border-radius: 30px;
+    width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+    gap: 4px;
+}
+
+.filter-controls button,
+.banker-filter-controls button {
+    background: none;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 25px;
+    font-size: clamp(0.85em, 2.2vw, 1em);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #16a085;
+    white-space: nowrap;
+}
+
+.filter-controls button.active,
+.banker-filter-controls button.active {
+    background-color: #1abc9c;
+    color: white;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.filter-controls button:hover:not(.active),
+.banker-filter-controls button:hover:not(.active) {
+    background-color: rgba(26, 188, 156, 0.1);
+}
+
+/* --- Pot Cards Grid --- */
+.pots-grid,
+.banker-pots-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: clamp(15px, 3vw, 25px);
+}
+
+.pot-card,
+.banker-pot-card {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.pot-card::before,
+.banker-pot-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, #1abc9c, #20c9a6);
+    opacity: 0.8;
+}
+
+.pot-card:hover,
+.banker-pot-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    border-color: #b2dfdb;
+}
+
+.pot-card-header,
+.banker-pot-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 15px;
+    gap: 10px;
+}
+
+.pot-name,
+.banker-pot-name {
+    font-size: 1.3em;
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 0;
+    line-height: 1.3;
+    word-break: break-word;
+}
+
+.pot-status-indicators,
+.banker-pot-status-indicators {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.status-indicator,
+.banker-status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    font-weight: 700;
+    color: white;
+}
+
+.status-indicator.due,
+.banker-status-indicator.due {
+    background-color: #e74c3c;
+}
+
+.status-indicator.paid,
+.banker-status-indicator.paid {
+    background-color: #27ae60;
+}
+
+.pot-card-stats,
+.banker-pot-card-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px 20px;
+    margin-bottom: auto;
+    padding-bottom: 20px;
+}
+
+.stat-item,
+.banker-stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.stat-label,
+.banker-stat-label {
+    font-size: 0.85em;
+    color: #7f8c8d;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-value,
+.banker-stat-value {
+    font-size: 1.1em;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.stat-value.amount-due,
+.banker-stat-value.amount-due {
+    color: #e74c3c;
+    font-size: 1.2em;
+}
+
+.stat-value.status-warning,
+.banker-stat-value.status-warning {
+    color: #e74c3c;
+}
+
+.stat-value.status-good,
+.banker-stat-value.status-good {
+    color: #27ae60;
+}
+
+/* --- Pot Card Footer --- */
+.pot-card-footer,
+.banker-pot-card-footer {
+    border-top: 1px solid #ecf0f1;
+    padding-top: 15px;
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+}
+
+.view-details-btn,
+.view-payments-btn,
+.banker-view-details-btn,
+.banker-view-payments-btn {
+    flex: 1;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 0.9em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.view-details-btn,
+.banker-view-details-btn {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+}
+.view-details-btn:hover,
+.banker-view-details-btn:hover {
+    background: linear-gradient(135deg, #2980b9, #2471a3);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+}
+
+.view-payments-btn,
+.banker-view-payments-btn {
+    background-color: #7f8c8d;
+}
+.view-payments-btn:hover,
+.banker-view-payments-btn:hover {
+    background-color: #95a5a6;
+}
+
+.view-payments-btn.primary { /* For Details View */
+    background: linear-gradient(135deg, #1abc9c, #16a085);
+    margin-top: 20px;
+    padding: 12px 24px;
+    width: auto;
+    display: inline-flex;
+}
+.view-payments-btn.primary:hover {
+    box-shadow: 0 4px 12px rgba(26, 188, 156, 0.3);
+}
+
+/* --- Fee Management in Pot Card --- */
+.stat-item.fee-management {
+    grid-column: 1 / -1;
+    margin-top: 10px;
+    padding-top: 15px;
+    border-top: 1px solid #ecf0f1;
+}
+
+.fee-display-container,
+.fee-edit-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 5px;
+}
+
+.fee-edit-btn {
+    background: none; border: none; color: #1abc9c;
+    cursor: pointer; padding: 6px; border-radius: 50%;
+    display: flex;
+}
+.fee-edit-btn:hover {
+    background-color: #e8f8f5;
+}
+
+.fee-input {
+    padding: 8px 12px; border: 1px solid #b2dfdb;
+    border-radius: 6px; font-size: 1em; width: 100px;
+}
+
+.fee-actions {
+    display: flex; gap: 6px;
+}
+
+.fee-save-btn, .fee-cancel-btn {
+    background: none; border: none; cursor: pointer; padding: 8px;
+    border-radius: 50%; display: flex; font-size: 1.4em;
+}
+.fee-save-btn { color: #27ae60; }
+.fee-save-btn:hover { background-color: #eafaf1; }
+.fee-cancel-btn { color: #e74c3c; }
+.fee-cancel-btn:hover { background-color: #fdedec; }
+
+.fee-success-message, .fee-error-message {
+    font-size: 0.85em; padding: 6px 10px; border-radius: 4px;
+    font-weight: 500; animation: fadeIn 0.3s ease-in;
+    flex-grow: 1; text-align: center;
+}
+.fee-success-message { background-color: #d4edda; color: #155724; }
+.fee-error-message { background-color: #f8d7da; color: #721c24; }
+
+
+/* ============================================= */
+/* ==       POT & PAYMENT DETAILS VIEWS       == */
+/* ============================================= */
+.pot-details-container {
+    background: white;
+    border-radius: 12px;
+    padding: clamp(20px, 4vw, 30px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.pot-info-section, .members-section {
+    margin-bottom: 30px;
+}
+
+.pot-info-section h3, .members-section h3 {
+    color: #2c3e50;
+    font-size: clamp(1.2em, 3vw, 1.5em);
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #e8f8f5;
+}
+
+.pot-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+}
+
+.info-item, .banker-info, .member-info {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.info-label {
+    font-size: 0.9em;
+    color: #7f8c8d;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.info-value, .banker-name, .member-name {
+    font-size: 1.1em;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.banker-real-name {
+    font-size: 0.85em;
+    color: #7f8c8d;
+}
+
+/* --- Tables (Members & Payments) --- */
+.report-table-container,
+.members-table-container {
+    overflow-x: auto;
+    border: 1px solid #ecf0f1;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 650px;
+    background-color: white;
+}
+
+th {
+    background: linear-gradient(135deg, #34495e, #2c3e50);
+    color: white;
+    padding: 18px 20px;
+    text-align: left;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.8em;
+    letter-spacing: 0.5px;
+}
+
+td {
+    padding: 16px 20px;
+    border-bottom: 1px solid #ecf0f1;
+    font-size: 0.95em;
+}
+
+tbody tr:nth-child(even) {
+    background-color: #f8f9f9;
+}
+
+tbody tr:hover {
+    background-color: #e8f8f5;
+}
+
+.amount-cell { font-weight: 600; }
+
+.status-badge, .banker-status-badge {
+    padding: 5px 12px;
+    border-radius: 15px;
+    font-size: 0.85em;
+    font-weight: 700;
+    display: inline-block;
+    text-transform: capitalize;
+}
+.status-badge.status-due, .banker-status-badge.status-due {
+    background-color: #fdf2f2;
+    color: #e74c3c;
+}
+.status-badge.status-paid, .banker-status-badge.status-paid {
+    background-color: #f0f9f4;
+    color: #27ae60;
+}
+
+.action-cell, .banker-action-cell {
+    width: 1%;
+    white-space: nowrap;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.action-btn {
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.action-btn.paid { background-color: #27ae60; color: white; }
+.action-btn.paid:hover { background-color: #229954; }
+.action-btn.suspend { background-color: #e74c3c; color: white; }
+.action-btn.suspend:hover { background-color: #c0392b; }
+
+.no-data-cell { text-align: center; color: #7f8c8d; padding: 40px; }
+
+
+/* ============================================= */
+/* ==            MISC & RESPONSIVE            == */
+/* ============================================= */
+.loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 400px;
+}
+
+.error-container {
+    text-align: center;
+    padding: 50px;
+    background: white;
+    border-radius: 12px;
+    border-left: 4px solid #e74c3c;
+}
+
+.fee-note {
+    display: block;
+    font-size: 0.8em;
+    color: #7f8c8d;
+    font-weight: 400;
+    font-style: italic;
+    margin-top: 2px;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@media (max-width: 768px) {
+    .header-with-back, .banker-header-with-back {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 15px;
+    }
+    .pot-info-grid {
+        grid-template-columns: 1fr;
+    }
+}
