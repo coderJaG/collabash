@@ -2,6 +2,8 @@
 /** @type {import('sequelize-cli').Migration} */
 
 
+'use strict';
+
 let options = {};
 if (process.env.NODE_ENV === 'production') {
   options.schema = process.env.SCHEMA;
@@ -9,6 +11,10 @@ if (process.env.NODE_ENV === 'production') {
 
 module.exports = {
   async up(queryInterface, Sequelize) {
+    // Define schema-aware table names to reference
+    const usersTableName = { tableName: 'Users', schema: options.schema };
+    const potsTableName = { tableName: 'Pots', schema: options.schema };
+
     await queryInterface.createTable('BankerPayments', {
       id: {
         allowNull: false,
@@ -19,13 +25,13 @@ module.exports = {
       bankerId: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        references: { model: 'Users', key: 'id' },
+        references: { model: usersTableName, key: 'id' },
         onDelete: 'CASCADE'
       },
       potId: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        references: { model: 'Pots', key: 'id' },
+        references: { model: potsTableName, key: 'id' }, 
         onDelete: 'CASCADE'
       },
       drawDate: {
