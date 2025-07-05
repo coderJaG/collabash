@@ -8,7 +8,7 @@ import * as usersActions from '../../store/users';
 import { createJoinRequest, fetchSentRequests } from '../../store/requests';
 import "./GetAllPotsPage.css";
 
-const POTS_PER_PAGE = 5;
+const POTS_PER_PAGE = 20;
 
 const GetAllPotsPage = () => {
     const dispatch = useDispatch();
@@ -29,6 +29,11 @@ const GetAllPotsPage = () => {
     const userPermissions = useMemo(() => new Set(currUser?.permissions || []), [currUser]);
     const canCreatePots = userPermissions.has('pot:create');
     const canRequestToJoin = userPermissions.has('request:create');
+    // Only superadmins should see all pots in "My Pots" view, not bankers
+    const isSuperAdmin = currUser?.role === 'superadmin';
+    const isBanker = currUser?.role === 'banker';
+    const showOwnerStatus = isSuperAdmin || isBanker;
+    
     // Enhanced initialization effect
     useEffect(() => {
         const initializeData = async () => {
@@ -83,13 +88,24 @@ const GetAllPotsPage = () => {
         let pots = allPotsArray;
         
         if (viewMode === 'myPots') {
-            if (userPermissions.has('pot:view_all')) {
+            if (isSuperAdmin) {
+                // Superadmins can see all pots
                 pots = allPotsArray;
             } else if (currUser) {
-                pots = allPotsArray.filter(pot => pot.Users?.some(user => user.id === currUser.id));
+                // Bankers can only see pots they own OR are members of
+                pots = allPotsArray.filter(pot => 
+                    pot.ownerId === currUser.id || 
+                    pot.Users?.some(user => user.id === currUser.id)
+                );
             } else {
                 return [];
             }
+        } else if (viewMode === 'findPots') {
+            // All users see pots they're not already part of (not owner and not member)
+            pots = allPotsArray.filter(pot => 
+                pot.ownerId !== currUser.id && 
+                !pot.Users?.some(user => user.id === currUser.id)
+            );
         }
 
         if (searchTerm.trim()) {
@@ -102,7 +118,7 @@ const GetAllPotsPage = () => {
         }
 
         return pots;
-    }, [allPotsArray, viewMode, searchTerm, currUser, userPermissions]);
+    }, [allPotsArray, viewMode, searchTerm, currUser, isSuperAdmin]);
 
     const indexOfLastPot = currentPage * POTS_PER_PAGE;
     const indexOfFirstPot = indexOfLastPot - POTS_PER_PAGE;
@@ -144,11 +160,27 @@ const GetAllPotsPage = () => {
     }
     
     const renderPotsTable = (potsToRender) => {
+        console.log('renderPotsTable called with:', potsToRender?.length, 'pots');
+        console.log('potsToRender:', potsToRender);
+        
         if (!potsToRender || potsToRender.length === 0) {
+            console.log('No pots to render - showing empty message');
             if (searchTerm) return <p className="no-results-message">No pots match your search.</p>;
-            if (viewMode === 'findPots') return <p className="no-results-message">No public pots available to join.</p>;
-            return <p className="no-results-message">You are not currently a member of any pots.</p>;
+            if (viewMode === 'findPots') {
+                if (isSuperAdmin) {
+                    return <p className="no-results-message">No pots available.</p>;
+                } else {
+                    return <p className="no-results-message">No pots available to join.</p>;
+                }
+            }
+            if (isSuperAdmin) {
+                return <p className="no-results-message">No pots exist in the system.</p>;
+            } else {
+                return <p className="no-results-message">You are not currently a member or owner of any pots.</p>;
+            }
         }
+        
+        console.log('About to render table with pots');
         
         return (
             <div className="pots-container">
@@ -159,12 +191,14 @@ const GetAllPotsPage = () => {
                             <th>Banker</th>
                             <th>Pot Amount</th>
                             <th>Status</th>
-                            {viewMode === 'findPots' && canRequestToJoin && <th>Actions</th>}
+                            {showOwnerStatus && <th>Owner Status</th>}
+                            {viewMode === 'findPots' && <th>Actions</th>}
                         </tr>
                     </thead>
                     <tbody>
                         {potsToRender.map(pot => {
                             const isMember = pot.Users && pot.Users.some(user => user.id === currUser?.id);
+                            const isOwner = pot.ownerId === currUser?.id;
                             const hasPendingRequest = pendingRequestPotIds.has(pot.id);
 
                             return (
@@ -173,28 +207,41 @@ const GetAllPotsPage = () => {
                                     <td>{pot.ownerName}</td>
                                     <td>${Number(pot.amount || 0).toFixed(2)}</td>
                                     <td>{pot.status}</td>
+                                    {showOwnerStatus && (
+                                    <td>
+                                        {isOwner ? (
+                                            <span className="owner-badge">Owner</span>
+                                        ) : isMember ? (
+                                            <span className="member-badge">Member</span>
+                                        ) : (
+                                            <span className="non-member-badge">Not Member</span>
+                                        )}
+                                    </td>
+                                )}
                                     {viewMode === 'findPots' && canRequestToJoin && (
-                                        <td className="action-cell">
-                                            {isMember ? (
-                                                <span className="member-badge">Member</span>
-                                            ) : !hasInitializedRequests ? (
-                                                <ClipLoader color={"#1abc9c"} size={20} />
-                                            ) : hasPendingRequest ? (
-                                                <button className="request-join-button pending" disabled title="Request Pending">
-                                                    <MdHourglassTop />
-                                                </button>
-                                            ) : (
-                                                <button 
-                                                    className="request-join-button" 
-                                                    title="Request to Join" 
-                                                    onClick={(e) => handleRequestToJoin(pot.id, e)} 
-                                                    disabled={isRequestingJoin}
-                                                >
-                                                    {isRequestingJoin ? <ClipLoader color={"white"} size={16} /> : <MdSend />}
-                                                </button>
-                                            )}
-                                        </td>
-                                    )}
+                                    <td className="action-cell">
+                                        {isMember || isOwner ? (
+                                            <span className="member-badge">
+                                                {isOwner ? 'Owner' : 'Member'}
+                                            </span>
+                                        ) : !hasInitializedRequests ? (
+                                            <ClipLoader color={"#1abc9c"} size={20} />
+                                        ) : hasPendingRequest ? (
+                                            <button className="request-join-button pending" disabled title="Request Pending">
+                                                <MdHourglassTop />
+                                            </button>
+                                        ) : (
+                                            <button 
+                                                className="request-join-button" 
+                                                title="Request to Join" 
+                                                onClick={(e) => handleRequestToJoin(pot.id, e)} 
+                                                disabled={isRequestingJoin}
+                                            >
+                                                {isRequestingJoin ? <ClipLoader color={"white"} size={16} /> : <MdSend />}
+                                            </button>
+                                        )}
+                                    </td>
+                                )}
                                 </tr>
                             );
                         })}
@@ -204,15 +251,28 @@ const GetAllPotsPage = () => {
         );
     };
 
+    // Determine appropriate labels based on user role
+    const getMyPotsLabel = () => {
+        if (isSuperAdmin) return 'All Pots';
+        return 'My Pots';
+    };
+
+    const getSearchPlaceholder = () => {
+        if (viewMode === 'myPots') {
+            return isSuperAdmin ? 'Search all pots...' : 'Search your pots...';
+        }
+        return 'Search available pots...';
+    };
+
     return (
         <div className="all-pots-page-container">
             <h1>POTS</h1>
             <div className="view-toggle-buttons">
                 <button onClick={() => handleViewModeChange('myPots')} className={viewMode === 'myPots' ? 'active' : ''}>
-                    My Pots
+                    {getMyPotsLabel()}
                 </button>
                 <button onClick={() => handleViewModeChange('findPots')} className={viewMode === 'findPots' ? 'active' : ''}>
-                    Find New Pots
+                    Join a Pot
                 </button>
             </div>
             <div className="list-controls">
@@ -223,7 +283,7 @@ const GetAllPotsPage = () => {
                 )}
                 <input 
                     type="text" 
-                    placeholder={viewMode === 'myPots' ? 'Search your pots...' : 'Search all pots...'} 
+                    placeholder={getSearchPlaceholder()} 
                     value={searchTerm} 
                     onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }} 
                     className="list-search-input" 

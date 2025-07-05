@@ -232,7 +232,7 @@ const GetSingleUserPage = () => {
                                 <select id="role" name="role" value={formData.role} onChange={handleInputChange}>
                                     <option value="standard">Standard</option>
                                     <option value="banker">Banker</option>
-                                    <option value="super admin">Super Admin</option>
+                                    <option value="superadmin">Super Admin</option>
                                 </select>
                             </div>
                         ) : (

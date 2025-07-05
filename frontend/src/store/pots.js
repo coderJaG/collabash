@@ -209,6 +209,7 @@ export const createNewPot = (potData) => async (dispatch) => {
 };
 
 export const updateAPot = (potData, potId) => async (dispatch) => {
+    console.log("Updating pot with data:", potData, "and ID:", potId);
     dispatch(updatePotStart());
     try {
         const res = await csrfFetch(`/api/pots/${potId}`, {

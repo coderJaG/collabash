@@ -1,15 +1,16 @@
-// routes/api/pots.js (Updated with PostgreSQL compatible literal)
+// routes/api/pots.js
+
 const express = require('express');
 const router = express.Router();
-const { requireAuth, requirePermission } = require('../../utils/auth'); // Import new middleware
-const { PERMISSIONS } = require('../../utils/roles'); // Import permissions constants
-const { Pot, User, PotsUser, WeeklyPayment, sequelize } = require('../../db/models');
+const { requireAuth, requirePermission } = require('../../utils/auth');
+const { PERMISSIONS } = require('../../utils/roles');
+const { Pot, User, PotsUser, BankerPayment, sequelize } = require('../../db/models');
 const { logHistory } = require('../../utils/historyLogger');
 const { updatePotScheduleAndDetails } = require('../../utils/potUtils');
-const { Op } = require('sequelize');
 
 // --- ROUTES ---
 
+// GET all pots
 router.get('/', requireAuth, async (req, res) => {
     try {
         const includeUsersWithDetails = {
@@ -24,7 +25,7 @@ router.get('/', requireAuth, async (req, res) => {
         };
 
         const potsToReturn = await Pot.findAll({
-            attributes: ['id', 'ownerId', 'ownerName', 'name', 'amount', 'startDate', 'endDate', 'status', 'hand', 'frequency'],
+            attributes: ['id', 'ownerId', 'ownerName', 'name', 'amount', 'startDate', 'endDate', 'status', 'hand', 'frequency', 'subscriptionFee'],
             include: [includeUsersWithDetails],
             order: [['name', 'ASC']]
         });
@@ -49,14 +50,14 @@ router.get('/', requireAuth, async (req, res) => {
     }
 });
 
-
+// GET pot by ID
 router.get('/:potId', requireAuth, async (req, res) => {
     const currUser = req.user;
     const { potId } = req.params;
 
     try {
         const pot = await Pot.findByPk(potId, {
-            attributes: ['id', 'ownerId', 'ownerName', 'name', 'hand', 'amount', 'startDate', 'endDate', 'status', 'frequency'],
+            attributes: ['id', 'ownerId', 'ownerName', 'name', 'hand', 'amount', 'startDate', 'endDate', 'status', 'frequency', 'subscriptionFee'],
             include: [{
                 model: User,
                 as: 'Users',
@@ -90,12 +91,12 @@ router.get('/:potId', requireAuth, async (req, res) => {
     }
 });
 
-
+// POST create new pot 
 router.post('/', requireAuth, requirePermission(PERMISSIONS.CREATE_POT), async (req, res) => {
     const currUser = req.user;
     const t = await sequelize.transaction();
     try {
-        const { name, hand, startDate, userIds, frequency } = req.body;
+        const { name, hand, startDate, userIds, frequency, subscriptionFee } = req.body;
         const ownerName = `${currUser.firstName} ${currUser.lastName}`;
 
         if (!name || hand === undefined || !startDate || !frequency) {
@@ -125,7 +126,8 @@ router.post('/', requireAuth, requirePermission(PERMISSIONS.CREATE_POT), async (
             startDate,
             endDate: startDate,
             status: 'Not Started',
-            frequency: frequency
+            frequency: frequency,
+            subscriptionFee: parseFloat(subscriptionFee) || 0
         }, { transaction: t });
 
         await logHistory({
@@ -134,7 +136,7 @@ router.post('/', requireAuth, requirePermission(PERMISSIONS.CREATE_POT), async (
             entityType: 'Pot',
             entityId: newPot.id,
             potIdContext: newPot.id,
-            changes: { name: newPot.name, hand: newPot.hand, startDate: newPot.startDate, frequency: newPot.frequency },
+            changes: { name: newPot.name, hand: newPot.hand, startDate: newPot.startDate, frequency: newPot.frequency, subscriptionFee: newPot.subscriptionFee },
             description: `User ${currUser.username} created pot "${newPot.name}".`,
             transaction: t
         });
@@ -164,9 +166,7 @@ router.post('/', requireAuth, requirePermission(PERMISSIONS.CREATE_POT), async (
         }
 
         await updatePotScheduleAndDetails(newPot.id, t);
-
         await t.commit();
-
         const finalNewPot = await Pot.findByPk(newPot.id, {
             include: [{ model: User, as: 'Users', through: { model: PotsUser, as: 'potMemberDetails', attributes: ['drawDate', 'displayOrder'] } }],
             order: [[sequelize.literal('"Users->potMemberDetails"."displayOrder"'), 'ASC']]
@@ -184,6 +184,7 @@ router.post('/', requireAuth, requirePermission(PERMISSIONS.CREATE_POT), async (
 });
 
 
+// PUT - update pot by id
 router.put('/:potId', requireAuth, requirePermission(PERMISSIONS.EDIT_POT), async (req, res) => {
     const currUser = req.user;
     const { potId } = req.params;
@@ -196,13 +197,14 @@ router.put('/:potId', requireAuth, requirePermission(PERMISSIONS.EDIT_POT), asyn
             await t.rollback();
             return res.status(404).json({ message: "Pot not found!!" });
         }
-        if (currUser.id !== potToUpdate.ownerId) {
+        
+        if (currUser.id !== potToUpdate.ownerId && currUser.role !== 'superadmin') {
             await t.rollback();
             return res.status(403).json({ "message": "Forbidden" });
         }
 
         const oldValues = { ...potToUpdate.get({ plain: true }) };
-        const { name, hand, startDate, status, frequency } = req.body;
+        const { name, hand, startDate, status, frequency, subscriptionFee } = req.body;
         let scheduleNeedsUpdate = false;
         const appliedChanges = {};
 
@@ -212,45 +214,39 @@ router.put('/:potId', requireAuth, requirePermission(PERMISSIONS.EDIT_POT), asyn
 
         if ((isHandChanging || isStartDateChanging || isFrequencyChanging) && !['Not Started', 'Paused'].includes(potToUpdate.status)) {
             await t.rollback();
-            return res.status(400).json({ message: "Frequency, amount, and start date can only be changed when the pot is 'Not Started' or 'Paused'." });
+            return res.status(400).json({ message: "Key pot details can only be changed when the pot is 'Not Started' or 'Paused'." });
         }
 
-        if (name !== undefined && name !== oldValues.name) { potToUpdate.name = name; appliedChanges.name = { old: oldValues.name, new: name }; }
-        if (status !== undefined && status !== oldValues.status) { potToUpdate.status = status; appliedChanges.status = { old: oldValues.status, new: status }; }
-
-        if (isHandChanging) {
-            const newHand = parseFloat(hand);
-            if (isNaN(newHand) || newHand < 0) {
-                await t.rollback();
-                return res.status(400).json({ message: "Hand amount must be a positive number." });
+        if (name !== undefined) { potToUpdate.name = name; appliedChanges.name = { old: oldValues.name, new: name }; }
+        if (status !== undefined) { potToUpdate.status = status; appliedChanges.status = { old: oldValues.status, new: status }; }
+        if (subscriptionFee !== undefined) {
+            const newFee = parseFloat(subscriptionFee);
+            if (!isNaN(newFee)) {
+                potToUpdate.subscriptionFee = newFee;
+                appliedChanges.subscriptionFee = { old: oldValues.subscriptionFee, new: newFee };
             }
-            potToUpdate.hand = newHand;
-            appliedChanges.hand = { old: oldValues.hand, new: newHand };
-            scheduleNeedsUpdate = true;
         }
-
-        if (isStartDateChanging) {
-            if (startDate && !/^\d{4}-\d{2}-\d{2}$/.test(startDate)) {
-                await t.rollback();
-                return res.status(400).json({ message: "Start date must be in YYYY-MM-DD format." });
-            }
-            potToUpdate.startDate = startDate;
-            appliedChanges.startDate = { old: oldValues.startDate, new: startDate };
-            scheduleNeedsUpdate = true;
-        }
-
-        if (isFrequencyChanging) {
-            if (!['weekly', 'every-2-weeks', 'monthly'].includes(frequency)) {
-                await t.rollback();
-                return res.status(400).json({ message: "Invalid frequency provided." });
-            }
-            potToUpdate.frequency = frequency;
-            appliedChanges.frequency = { old: oldValues.frequency, new: frequency };
-            scheduleNeedsUpdate = true;
-        }
+        if (isHandChanging) { potToUpdate.hand = parseFloat(hand); appliedChanges.hand = { old: oldValues.hand, new: parseFloat(hand) }; scheduleNeedsUpdate = true; }
+        if (isStartDateChanging) { potToUpdate.startDate = startDate; appliedChanges.startDate = { old: oldValues.startDate, new: startDate }; scheduleNeedsUpdate = true; }
+        if (isFrequencyChanging) { potToUpdate.frequency = frequency; appliedChanges.frequency = { old: oldValues.frequency, new: frequency }; scheduleNeedsUpdate = true; }
 
         if (Object.keys(appliedChanges).length > 0) {
             await potToUpdate.save({ transaction: t });
+
+            if (appliedChanges.subscriptionFee) {
+                const newFeeValue = appliedChanges.subscriptionFee.new;
+
+                await BankerPayment.update(
+                    { amountDue: newFeeValue },
+                    {
+                        where: {
+                            potId: numPotId,
+                            status: 'due'
+                        },
+                        transaction: t
+                    }
+                );
+            }
         }
 
         if (scheduleNeedsUpdate) {
@@ -402,7 +398,6 @@ router.post('/:potId/addusers', requireAuth, requirePermission(PERMISSIONS.MANAG
         const updatedPotResult = await Pot.findByPk(numPotId, {
             include: [{ model: User, as: 'Users', through: { model: PotsUser, as: 'potMemberDetails', attributes: ['drawDate', 'displayOrder'] } }],
             order: [
-
                 [sequelize.literal('"Users->potMemberDetails"."displayOrder"'), 'ASC']
             ]
         });
@@ -478,7 +473,6 @@ router.delete('/:potId/removeusers', requireAuth, requirePermission(PERMISSIONS.
         const updatedPotResult = await Pot.findByPk(numPotId, {
             include: [{ model: User, as: 'Users', through: { model: PotsUser, as: 'potMemberDetails', attributes: ['drawDate', 'displayOrder'] } }],
             order: [
-
                 [sequelize.literal('"Users->potMemberDetails"."displayOrder"'), 'ASC']
             ]
         });
@@ -498,7 +492,7 @@ router.put('/:potId/reorderusers', requireAuth, requirePermission(PERMISSIONS.MA
     const { orderedUserIds } = req.body;
     const numPotId = parseInt(potId);
 
-    
+
     if (!Array.isArray(orderedUserIds)) {
         return res.status(400).json({ message: 'orderedUserIds must be an array.' });
     }
@@ -513,16 +507,15 @@ router.put('/:potId/reorderusers', requireAuth, requirePermission(PERMISSIONS.MA
             await t.rollback();
             return res.status(404).json({ message: 'Pot not found.' });
         }
-        
+
         if (currUser.id !== pot.ownerId) {
-        return res.status(403).json({ message: 'Forbidden. Only the banker can reorder users.' });
-    }
+            return res.status(403).json({ message: 'Forbidden. Only the banker can reorder users.' });
+        }
         if (pot.status !== 'Not Started' && pot.status !== 'Paused') {
             await t.rollback();
             return res.status(400).json({ message: 'Users can only be reordered in a pot that is \'Not Started\' or \'Paused\'.' });
         }
 
-        // Correctly fetch the current members from the PotsUser table
         const currentMembers = await PotsUser.findAll({
             where: { potId: numPotId },
             order: [['displayOrder', 'ASC']],
@@ -594,7 +587,6 @@ router.get('/:potId/users', requireAuth, async (req, res) => {
                 }
             }],
             order: [
-
                 [sequelize.literal('"Users->potMemberDetails"."displayOrder"'), 'ASC']
             ]
         });

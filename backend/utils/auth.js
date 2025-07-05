@@ -2,21 +2,19 @@ const jwt = require('jsonwebtoken');
 const { jwtConfig } = require('../config');
 const { User } = require('../db/models');
 const { ROLE_PERMISSIONS } = require('./roles')
-// const { Model } = require('sequelize'); // Model import is not used
 
 const { secret, expiresIn } = jwtConfig;
 
 //Sends JWT Cookie
 const setTokenCookie = (res, user) => {
-    //Create the token
-    const safeUserForToken = { 
+    const safeUserForToken = {
         id: user.id,
         firstName: user.firstName,
-        lastName: user.lastName,  
+        lastName: user.lastName,
         email: user.email,
         username: user.username,
-        mobile: user.mobile,      
-        role: user.role           
+        mobile: user.mobile,
+        role: user.role
     };
     const token = jwt.sign(
         { data: safeUserForToken },
@@ -26,9 +24,9 @@ const setTokenCookie = (res, user) => {
 
     const isProduction = process.env.NODE_ENV === 'production';
 
-    //set the token cookie
+   
     res.cookie('token', token, {
-        maxAge: expiresIn * 1000, // maxAge in milliseconds
+        maxAge: expiresIn * 1000,
         httpOnly: true,
         secure: isProduction,
         sameSite: isProduction && 'Lax'
@@ -51,7 +49,7 @@ const restoreUser = (req, res, next) => {
 
         try {
             const { id } = jwtPayload.data;
-            req.user = await User.findByPk(id, {
+            const userInstance = await User.findByPk(id, {
                 attributes: [
                     'id',
                     'firstName',
@@ -62,9 +60,17 @@ const restoreUser = (req, res, next) => {
                     'role'
                 ]
             });
+            
+            // FIX: Convert Sequelize instance to plain object
+            if (userInstance) {
+                req.user = userInstance.toJSON();
+                // Add permissions to the user object
+                const userPermissions = ROLE_PERMISSIONS[req.user.role] || [];
+                req.user.permissions = userPermissions;
+            }
         } catch (e) {
             console.error("Error restoring user from DB:", e);
-            res.clearCookie('token'); 
+            res.clearCookie('token');
             return next();
         }
 
@@ -75,40 +81,47 @@ const restoreUser = (req, res, next) => {
     });
 };
 
-
 const requireAuth = (req, _res, next) => {
     if (req.user) return next();
 
     const err = new Error('Authentication required');
-    err.title = 'Authentication required'; 
+    err.title = 'Authentication required';
     err.errors = { message: 'Authentication required' };
     err.status = 401;
     return next(err);
 };
 
 const requirePermission = (permission) => {
-  return (req, res, next) => {
-    if (!req.user) {
-      const err = new Error('Authentication required');
-      err.title = 'Authentication required';
-      err.errors = { message: 'Authentication required' };
-      err.status = 401;
-      return next(err);
-    }
+    return (req, res, next) => {
+        if (req.user) {
+            if (req.user.role === 'suspended') {
+                res.clearCookie('token');
+                const err = new Error('Authentication required');
+                err.title = 'Authentication required';
+                err.errors = { message: 'Your session is invalid as your account has been suspended.' };
+                err.status = 401;
+                return next(err);
+            }
+            
+            // Check if user has the required permission
+            const userPermissions = req.user.permissions || ROLE_PERMISSIONS[req.user.role] || [];
+            if (!userPermissions.includes(permission)) {
+                const err = new Error('Forbidden');
+                err.title = 'Forbidden';
+                err.errors = { message: 'You do not have permission to perform this action.' };
+                err.status = 403;
+                return next(err);
+            }
+            
+            return next();
+        }
 
-    const userPermissions = ROLE_PERMISSIONS[req.user.role] || [];
-    
-    if (userPermissions.includes(permission)) {
-      return next(); // User has the permission, proceed
-    } else {
-      const err = new Error('Forbidden');
-      err.title = 'Forbidden';
-      err.errors = { message: 'You do not have permission to perform this action.' };
-      err.status = 403;
-      return next(err);
-    }
-  };
+        const err = new Error('Authentication required');
+        err.title = 'Authentication required';
+        err.errors = { message: 'Authentication required' };
+        err.status = 401;
+        return next(err);
+    };
 };
-
 
 module.exports = { setTokenCookie, restoreUser, requireAuth, requirePermission };

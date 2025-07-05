@@ -10,7 +10,7 @@ import SignUpFormModal from '../SignUpFormModal';
 import DeleteConfirmationModal from '../DeleteConfirmationModal';
 import './GetAllUsersPage.css';
 
-const USERS_PER_PAGE = 5;
+const USERS_PER_PAGE = 20;
 
 const GetAllUsersPage = () => {
     const dispatch = useDispatch();
@@ -166,7 +166,7 @@ const GetAllUsersPage = () => {
                                     deleteButtonTitle = isDeleteDisabled ? "Cannot delete: You are in an active or paused pot." : "Delete your account";
                                 } 
                                 else if (!isOwnProfile) {
-                                    if (currUser.role === 'superadmin' && user.role !== 'super admin') {
+                                    if (currUser.role === 'superadmin' && user.role !== 'superadmin') {
                                         canAttemptDelete = true;
                                         isDeleteDisabled = hasActiveOrPausedPot;
                                         deleteButtonTitle = isDeleteDisabled ? `Cannot delete: ${user.firstName} is in an active or paused pot.` : `Delete user ${user.firstName}`;
