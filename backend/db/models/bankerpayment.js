@@ -6,8 +6,15 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       BankerPayment.belongsTo(models.User, { as: 'banker', foreignKey: 'bankerId' });
       BankerPayment.belongsTo(models.Pot, { as: 'pot', foreignKey: 'potId' });
+      BankerPayment.hasMany(models.PaymentRequest, {
+        foreignKey: 'paymentId',
+        as: 'requests',
+        onDelete: 'CASCADE',
+        hooks: true
+      });
     }
   }
+
   BankerPayment.init({
     bankerId: { type: DataTypes.INTEGER, allowNull: false },
     potId: { type: DataTypes.INTEGER, allowNull: false },
