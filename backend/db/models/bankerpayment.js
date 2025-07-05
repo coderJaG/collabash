@@ -25,6 +25,10 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'BankerPayment',
+    tableName: 'BankerPayments',
+    ...(process.env.NODE_ENV === 'production' && {
+      schema: process.env.SCHEMA
+    }),
   });
   return BankerPayment;
 };

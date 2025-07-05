@@ -8,12 +8,12 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'paymentId',
         as: 'payment'
       });
-      
+
       PaymentRequest.belongsTo(models.User, {
         foreignKey: 'requestedById',
         as: 'requestedBy'
       });
-      
+
       PaymentRequest.belongsTo(models.User, {
         foreignKey: 'reviewedById',
         as: 'reviewedBy'
@@ -54,6 +54,10 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'PaymentRequest',
+    tableName: 'PaymentRequests',
+    ...(process.env.NODE_ENV === 'production' && {
+      schema: process.env.SCHEMA
+    }),
   });
 
   return PaymentRequest;
