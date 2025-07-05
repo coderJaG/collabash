@@ -1,7 +1,6 @@
-// migrations/XXXXXX-create-payment-requests.js
 'use strict';
 
-let options= {};
+let options = {};
 if (process.env.NODE_ENV === 'production') {
   options.schema = process.env.SCHEMA;
 }
@@ -18,21 +17,13 @@ module.exports = {
       paymentId: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        references: {
-          model: 'BankerPayments',
-          key: 'id'
-        },
-        onUpdate: 'CASCADE',
+        references: { model: 'BankerPayments' },
         onDelete: 'CASCADE'
       },
       requestedById: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        references: {
-          model: 'Users',
-          key: 'id'
-        },
-        onUpdate: 'CASCADE',
+        references: { model: 'Users' },
         onDelete: 'CASCADE'
       },
       status: {
@@ -47,11 +38,7 @@ module.exports = {
       reviewedById: {
         type: Sequelize.INTEGER,
         allowNull: true,
-        references: {
-          model: 'Users',
-          key: 'id'
-        },
-        onUpdate: 'CASCADE',
+        references: { model: 'Users' },
         onDelete: 'SET NULL'
       },
       reviewReason: {
@@ -74,11 +61,10 @@ module.exports = {
       }
     }, options);
 
-    // Add indexes for performance
-    await queryInterface.addIndex('PaymentRequests', ['paymentId']);
-    await queryInterface.addIndex('PaymentRequests', ['requestedById']);
-    await queryInterface.addIndex('PaymentRequests', ['status']);
-    await queryInterface.addIndex('PaymentRequests', ['reviewedById']);
+    await queryInterface.addIndex('PaymentRequests', ['paymentId'], options);
+    await queryInterface.addIndex('PaymentRequests', ['requestedById'], options);
+    await queryInterface.addIndex('PaymentRequests', ['status'], options);
+    await queryInterface.addIndex('PaymentRequests', ['reviewedById'], options);
   },
 
   async down(queryInterface, Sequelize) {

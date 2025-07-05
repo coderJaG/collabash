@@ -87,8 +87,6 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'PaymentRequest',
-    tableName: 'PaymentRequests',
-    timestamps: true
   });
 
   return PaymentRequest;
