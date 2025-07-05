@@ -1,4 +1,3 @@
-// payment-request
 'use strict';
 
 let options = {};
@@ -8,6 +7,9 @@ if (process.env.NODE_ENV === 'production') {
 
 module.exports = {
   async up(queryInterface, Sequelize) {
+    const usersTableName = { tableName: 'Users', schema: options.schema };
+    const bankerPaymentsTableName = { tableName: 'BankerPayments', schema: options.schema };
+
     await queryInterface.createTable('PaymentRequests', {
       id: {
         allowNull: false,
@@ -19,7 +21,8 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'BankerPayments',
+          // FIX: Use the schema-aware table name object
+          model: bankerPaymentsTableName,
           key: 'id'
         },
         onDelete: 'CASCADE'
@@ -28,7 +31,8 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'Users',
+          // FIX: Use the schema-aware table name object
+          model: usersTableName,
           key: 'id'
         },
         onDelete: 'CASCADE'
@@ -46,7 +50,7 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: true,
         references: {
-          model: 'Users',
+          model: usersTableName,
           key: 'id'
         },
         onDelete: 'SET NULL'
@@ -71,8 +75,7 @@ module.exports = {
       }
     }, options);
 
-    // Add indexes for better performance
-     await queryInterface.addIndex('PaymentRequests', ['paymentId'], options);
+    await queryInterface.addIndex('PaymentRequests', ['paymentId'], options);
     await queryInterface.addIndex('PaymentRequests', ['requestedById'], options);
     await queryInterface.addIndex('PaymentRequests', ['status'], options);
     await queryInterface.addIndex('PaymentRequests', ['reviewedById'], options);
