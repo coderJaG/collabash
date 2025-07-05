@@ -10,8 +10,7 @@ import PotDetailsPage from "./components/PotDetailspage";
 import GetAllUsersPage from "./components/GetAllUsersPage";
 import GetSingleUserPage from "./components/GetSingleUserPage";
 import TransactionHistoryPage from "./components/TransactionHistoryPage";
-import AdminDashboardPage from "./components/AdminDashboardPage";
-import BankerDashboardPage from "./components/BankerDashboardPage";
+import UnifiedDashboardPage from "./components/UnifiedDashboardPage";
 import * as sessionActions from './store/session'
 
 
@@ -72,12 +71,16 @@ const router = createBrowserRouter([
         element: <TransactionHistoryPage />
       },
       {
-        path: '/admin',
-        element: <AdminDashboardPage />
+        path: '/dashboard', //standard user dashboard
+        element: <UnifiedDashboardPage /> 
       },
       {
-        path: '/banker-dashboard',
-        element: <BankerDashboardPage />
+        path: '/admin', // admin dashboard
+        element: <UnifiedDashboardPage />
+      },
+      {
+        path: '/banker-dashboard', // banker dashboard
+        element: <UnifiedDashboardPage />
       }
     ]
   }

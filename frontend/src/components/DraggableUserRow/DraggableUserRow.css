@@ -1,5 +1,8 @@
-/* Updated DraggableUserRow.css - Remove problematic styles */
+/* DraggableUserRow.css - Updated with consistent styling */
 
+/* ============================================= */
+/* ==           DRAG HANDLE CELL              == */
+/* ============================================= */
 .drag-handle-cell {
     touch-action: none;
     user-select: none;
@@ -7,38 +10,116 @@
     -moz-user-select: none;
     -ms-user-select: none;
     cursor: grab;
-    padding: 8px;
+    padding: 12px;
     text-align: center;
-    min-width: 40px;
+    min-width: 50px;
     /* Prevent text selection during drag */
     -webkit-touch-callout: none;
     -webkit-tap-highlight-color: transparent;
+    color: #1abc9c;
+    font-size: 1.1em;
+    transition: all 0.2s ease;
 }
 
 .drag-handle-cell:active {
     cursor: grabbing;
 }
 
+.drag-handle-cell:hover {
+    background-color: rgba(26, 188, 156, 0.1);
+    color: #16a085;
+    transform: scale(1.05);
+}
+
+/* ============================================= */
+/* ==           MEMBER ROW                    == */
+/* ============================================= */
 .member-row {
-    transition: opacity 0.2s ease;
+    transition: opacity 0.2s ease, background-color 0.2s ease;
     /* Ensure smooth transitions without layout shifts */
     will-change: transform;
 }
 
 .member-row.is-dragging-react-dnd {
-    opacity: 0.4;
-    background-color: #f0f0f0;
+    opacity: 0.5;
+    background-color: #e8f8f5 !important;
     /* Prevent layout shifts during drag */
-    transform: rotate(2deg);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    transform: rotate(1deg);
+    box-shadow: 0 8px 20px rgba(26, 188, 156, 0.3);
     z-index: 1000;
+    border: 2px solid #1abc9c;
 }
 
-/* Mobile-specific improvements */
+/* ============================================= */
+/* ==           DELETE USER BUTTON            == */
+/* ============================================= */
+.delete-user-from-pot-button {
+    background: linear-gradient(135deg, #e74c3c, #c0392b) !important;
+    color: white !important;
+    border: none !important;
+    padding: 8px 12px !important;
+    border-radius: 6px !important;
+    font-size: 1em !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 36px !important;
+    min-height: 36px !important;
+}
+
+.delete-user-from-pot-button:hover {
+    background: linear-gradient(135deg, #c0392b, #a93226) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3) !important;
+}
+
+.finger-button-pointer {
+    cursor: pointer !important;
+}
+
+/* ============================================= */
+/* ==           CHECKBOX STYLING              == */
+/* ============================================= */
+.members-table input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    margin-right: 8px;
+    accent-color: #1abc9c;
+    /* Prevent zoom on double tap */
+    touch-action: manipulation;
+}
+
+.members-table input[type="checkbox"]:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+/* ============================================= */
+/* ==           STATUS ICONS                  == */
+/* ============================================= */
+.member-row svg {
+    font-size: 1em;
+    margin-left: 5px;
+}
+
+.member-row svg[style*="color: green"] {
+    color: #27ae60 !important;
+}
+
+.member-row svg[style*="color: red"] {
+    color: #e74c3c !important;
+}
+
+/* ============================================= */
+/* ==           MOBILE IMPROVEMENTS           == */
+/* ============================================= */
 @media (max-width: 768px) {
     .drag-handle-cell {
-        padding: 12px 8px;
-        min-width: 44px; /* Minimum touch target size */
+        padding: 14px 10px;
+        min-width: 48px; /* Minimum touch target size */
         /* Larger touch area for mobile */
         position: relative;
     }
@@ -74,32 +155,50 @@
         /* Prevent zoom on double tap */
         touch-action: manipulation;
     }
+    
+    .delete-user-from-pot-button {
+        min-width: 40px !important;
+        min-height: 40px !important;
+        padding: 10px !important;
+    }
 }
 
+/* ============================================= */
+/* ==           TOUCH DEVICE FEEDBACK         == */
+/* ============================================= */
+@media (hover: none) and (pointer: coarse) {
+    .drag-handle-cell:active {
+        background-color: rgba(26, 188, 156, 0.2);
+        transform: scale(1.08);
+        transition: all 0.1s ease;
+    }
+    
+    .delete-user-from-pot-button:active {
+        transform: scale(0.95) !important;
+        transition: all 0.1s ease !important;
+    }
+}
+
+/* ============================================= */
+/* ==           DESKTOP HOVER EFFECTS         == */
+/* ============================================= */
+@media (hover: hover) and (pointer: fine) {
+    .drag-handle-cell:hover {
+        background-color: rgba(26, 188, 156, 0.1);
+        transform: scale(1.02);
+        transition: all 0.1s ease;
+    }
+}
+
+/* ============================================= */
+/* ==           TABLE IMPROVEMENTS            == */
+/* ============================================= */
 /* Prevent scrolling issues during drag on mobile */
 .members-table-container {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     /* Ensure container doesn't interfere with drag */
     position: relative;
-}
-
-/* Add visual feedback for touch devices */
-@media (hover: none) and (pointer: coarse) {
-    .drag-handle-cell:active {
-        background-color: #e0e0e0;
-        transform: scale(1.05);
-        transition: all 0.1s ease;
-    }
-}
-
-/* Desktop-specific styles */
-@media (hover: hover) and (pointer: fine) {
-    .drag-handle-cell:hover {
-        background-color: #f5f5f5;
-        transform: scale(1.02);
-        transition: all 0.1s ease;
-    }
 }
 
 /* Ensure table doesn't jump during drag operations */
@@ -113,16 +212,23 @@
 .members-table thead th {
     position: sticky;
     top: 0;
-    background-color: white;
+    background: linear-gradient(135deg, #1abc9c, #16a085);
     z-index: 10;
 }
+
+/* ============================================= */
+/* ==           DRAG & DROP ENHANCEMENTS     == */
+/* ============================================= */
 
 /* Improve drag preview appearance */
 .react-dnd-preview {
     pointer-events: none;
-    transform: rotate(5deg);
-    opacity: 0.8;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    transform: rotate(2deg);
+    opacity: 0.9;
+    box-shadow: 0 12px 24px rgba(26, 188, 156, 0.4);
+    border: 2px solid #1abc9c;
+    border-radius: 6px;
+    background-color: white;
 }
 
 /* Ensure smooth scrolling when not dragging */
@@ -134,4 +240,91 @@ html {
 .react-dnd-drag-layer {
     pointer-events: none;
     z-index: 100;
+}
+
+/* Enhanced drag state styling */
+.members-table.reordering-active .member-row:not(.is-dragging-react-dnd) {
+    transition: all 0.2s ease;
+}
+
+.members-table.reordering-active .member-row:hover:not(.is-dragging-react-dnd) {
+    background-color: rgba(26, 188, 156, 0.05);
+    transform: translateY(-1px);
+}
+
+/* ============================================= */
+/* ==           ACCESSIBILITY                 == */
+/* ============================================= */
+@media (prefers-reduced-motion: reduce) {
+    .drag-handle-cell,
+    .member-row,
+    .delete-user-from-pot-button,
+    .react-dnd-preview {
+        transition: none !important;
+        transform: none !important;
+    }
+    
+    .member-row.is-dragging-react-dnd {
+        transform: none !important;
+        opacity: 0.7;
+    }
+}
+
+/* ============================================= */
+/* ==           KEYBOARD NAVIGATION           == */
+/* ============================================= */
+.drag-handle-cell:focus-visible {
+    outline: 2px solid #1abc9c;
+    outline-offset: 2px;
+    background-color: rgba(26, 188, 156, 0.1);
+}
+
+.delete-user-from-pot-button:focus-visible {
+    outline: 2px solid #e74c3c !important;
+    outline-offset: 2px !important;
+}
+
+.members-table input[type="checkbox"]:focus-visible {
+    outline: 2px solid #1abc9c;
+    outline-offset: 2px;
+}
+
+/* ============================================= */
+/* ==           ENHANCED VISUAL FEEDBACK      == */
+/* ============================================= */
+.member-row:hover .drag-handle-cell {
+    color: #16a085;
+    background-color: rgba(26, 188, 156, 0.05);
+}
+
+.member-row:hover .delete-user-from-pot-button {
+    transform: scale(1.05) !important;
+    box-shadow: 0 2px 8px rgba(231, 76, 60, 0.2) !important;
+}
+
+/* Table row alternating colors with drag compatibility */
+.members-table tbody tr:nth-child(even):not(.is-dragging-react-dnd) {
+    background-color: #f8fffe;
+}
+
+.members-table tbody tr:hover:not(.is-dragging-react-dnd) {
+    background-color: #e8f8f5;
+}
+
+/* ============================================= */
+/* ==           PRINT STYLES                  == */
+/* ============================================= */
+@media print {
+    .drag-handle-cell,
+    .delete-user-from-pot-button {
+        display: none !important;
+    }
+    
+    .members-table {
+        border-collapse: collapse !important;
+    }
+    
+    .member-row {
+        break-inside: avoid;
+    }
 }

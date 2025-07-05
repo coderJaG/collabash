@@ -188,11 +188,11 @@ const adminReducer = (state = initialState, action) => {
             return { ...state, isLoading: true, error: null };
 
         case GET_PAYMENT_REPORT_SUCCESS:
-        case GET_BANKER_PAYMENT_REPORT_SUCCESS:
+        case GET_BANKER_PAYMENT_REPORT_SUCCESS: {
             const newPayments = {};
             action.payload.forEach(p => { newPayments[p.id] = p; });
             return { ...state, isLoading: false, payments: newPayments };
-
+        }
         case UPDATE_PAYMENT_STATUS_SUCCESS:
             return {
                 ...state,

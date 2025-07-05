@@ -1,15 +1,16 @@
-// PotDetailsPage.jsx - Updated drag handling to prevent page jumping
+// PotDetailsPage.jsx - Updated with text labels on buttons
 
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate, useParams, useLocation  } from "react-router-dom";
 import { useEffect, useState, useMemo, useCallback } from "react";
 import {
     FaBars, FaEdit, FaSave, FaTimesCircle, FaPlay, FaPause, FaClone,
     FaCheckCircle, FaTrashAlt
 } from 'react-icons/fa';
+import { MdArrowBack } from 'react-icons/md';
 import * as potsActions from '../../store/pots';
 import * as usersActions from '../../store/users';
 import { fetchWeeklyStatus, updateWeeklyPayment } from '../../store/transactions';
-import { useNavigate, useParams } from "react-router-dom";
 import { formatDate } from "../../utils/formatDate";
 import OpenModalButton from "../OpenModalButton";
 import AddUsersToPot from "../AddUserToPot";
@@ -28,11 +29,10 @@ const getPotLifecycle = (status) => {
     return 'unknown';
 };
 
-
-
 const PotDetailsPage = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const location = useLocation();
     const { potId } = useParams();
     const numPotId = parseInt(potId, 10);
 
@@ -57,7 +57,7 @@ const PotDetailsPage = () => {
     const [isEditingFrequency, setIsEditingFrequency] = useState(false);
     const [editableFrequency, setEditableFrequency] = useState('');
     const [isEditingFee, setIsEditingFee] = useState(false);
-    const [editableFee, setEditableFee] = useState('');
+    // const [editableFee, setEditableFee] = useState('');
 
     const userPermissions = useMemo(() => new Set(currUser?.permissions || []), [currUser]);
     const canEditPot = userPermissions.has('pot:edit');
@@ -65,8 +65,8 @@ const PotDetailsPage = () => {
     const canManageMembers = userPermissions.has('pot:manage_members');
     const canDuplicatePot = userPermissions.has('pot:create');
 
-    const isSuperAdmin = currUser?.role === 'superadmin';
-    const isBanker = currUser?.role === 'banker';
+    // const isSuperAdmin = currUser?.role === 'superadmin';
+    // const isBanker = currUser?.role === 'banker';
 
     useEffect(() => {
         if (!isUserActuallyDragging && !isReordering) {
@@ -79,30 +79,29 @@ const PotDetailsPage = () => {
         }
     }, [potDetails?.Users, isReordering, isUserActuallyDragging, orderedUsers]);
 
-  useEffect(() => {
-    if (potDetails) {
-        
-        if (!isEditingAmount) {
-            setEditableAmount(potDetails.hand || '');
+    useEffect(() => {
+        if (potDetails) {
+            if (!isEditingAmount) {
+                setEditableAmount(potDetails.hand || '');
+            }
+            if (!isEditingStartDate) {
+                setEditableStartDate(potDetails.startDate || '');
+            }
+            if (!isEditingFrequency) {
+                setEditableFrequency(potDetails.frequency || 'weekly');
+            }
+            if (!isEditingFee) {
+                setIsEditingFee(potDetails.subscriptionFee || '1.00');
+            }
         }
-        if (!isEditingStartDate) {
-            setEditableStartDate(potDetails.startDate || '');
-        }
-        if (!isEditingFrequency) {
-            setEditableFrequency(potDetails.frequency || 'weekly');
-        }
-        if (!isEditingFee) {
-            setEditableFee(potDetails.subscriptionFee || '1.00');
-        }
-    }
-}, [potDetails, isEditingAmount, isEditingStartDate, isEditingFrequency, isEditingFee]);
+    }, [potDetails, isEditingAmount, isEditingStartDate, isEditingFrequency, isEditingFee]);
 
     useEffect(() => {
         if (potDetails && potDetails.status === 'Active' && potDetails.endDate) {
             const today = new Date();
             const endDate = new Date(potDetails.endDate);
-            today.setHours(0,0,0,0);
-            endDate.setUTCHours(0,0,0,0);
+            today.setHours(0, 0, 0, 0);
+            endDate.setUTCHours(0, 0, 0, 0);
             if (today > endDate) {
                 dispatch(potsActions.updateAPot({ status: 'Ended' }, numPotId));
             }
@@ -112,20 +111,18 @@ const PotDetailsPage = () => {
     // Simplified drag handling - no scroll prevention on mobile
     const handleDragStart = () => {
         setIsUserActuallyDragging(true);
-        // Don't prevent scrolling at all - let the drag library handle it
     };
 
     const handleDragEnd = (didDrop) => {
         setIsUserActuallyDragging(false);
-        // No scroll restoration needed since we don't prevent it
-        
-        if (didDrop) { 
-            handleReorderUsersSubmit(); 
-        } else { 
+
+        if (didDrop) {
+            handleReorderUsersSubmit();
+        } else {
             // Reset to original order if drag was cancelled
-            if (potDetails?.Users) { 
-                setOrderedUsers([...potDetails.Users].sort((a, b) => (a.potMemberDetails?.displayOrder || 0) - (b.potMemberDetails?.displayOrder || 0))); 
-            } 
+            if (potDetails?.Users) {
+                setOrderedUsers([...potDetails.Users].sort((a, b) => (a.potMemberDetails?.displayOrder || 0) - (b.potMemberDetails?.displayOrder || 0)));
+            }
         }
     };
 
@@ -135,7 +132,7 @@ const PotDetailsPage = () => {
     const weekLoadingKey = `${numPotId}_${currentWeek}`;
     const isLoadingWeek = useSelector(state => !!state.transactions.loadingWeeklyStatus[weekLoadingKey]);
     const weekError = useSelector(state => state.transactions.errorWeeklyStatus[weekLoadingKey]);
-    
+
     const paymentSummary = useMemo(() => {
         if (!potDetails || !weeklyStatusMap) {
             return { membersPaidThisWeek: 0, amountRemaining: potDetails?.amount || 0 };
@@ -156,10 +153,9 @@ const PotDetailsPage = () => {
         return () => {
             dispatch(potsActions.clearPotReorderError());
             dispatch(potsActions.clearPotDetailsError());
-            
         };
     }, [dispatch, numPotId]);
-    
+
     useEffect(() => {
         if (numPotId && !isLoading && potDetails && totalWeeks > 0) {
             if (currentWeek > totalWeeks) setCurrentWeek(totalWeeks);
@@ -187,9 +183,7 @@ const PotDetailsPage = () => {
     };
 
     const handleSavePotUpdate = async (field, value) => {
-        console.log('thissisisisisisisisisisis')
         setLocalUiError(null);
-        console.log(`Updating ${field} to:`, value);
         try {
             await dispatch(potsActions.updateAPot({ [field]: value }, numPotId));
             if (field === 'hand') setIsEditingAmount(false);
@@ -209,7 +203,7 @@ const PotDetailsPage = () => {
             setLocalUiError(error.message || "Failed to add user.");
         }
     };
-    
+
     const handleRemoveUserFromPot = async (userId) => {
         setLocalUiError(null);
         try {
@@ -242,7 +236,7 @@ const PotDetailsPage = () => {
             if (potDetails?.Users) { setOrderedUsers([...potDetails.Users].sort((a, b) => (a.potMemberDetails?.displayOrder || 0) - (b.potMemberDetails?.displayOrder || 0))); }
         }
     };
-    
+
     const handlePaymentChange = (userId, week, paymentType, isPaid) => {
         dispatch(updateWeeklyPayment({ potId: numPotId, userId, weekNumber: week, paymentType, isPaid }));
     };
@@ -251,6 +245,22 @@ const PotDetailsPage = () => {
         await dispatch(potsActions.deletePot(potIdToDelete));
         navigate('/pots');
     };
+
+ const handleBackToAdminDashboard = () => {
+    if (location.state?.returnToAdmin && location.state?.fromPotDetails) {
+        // Return to the PotDetailsView in AdminDashboard
+        navigate('/dashboard', { 
+            state: { 
+                restoreView: true,
+                viewMode: 'overview', // This will restore PotDetailsView
+                selectedPotId: location.state.selectedPotId
+            }
+        });
+    } else {
+        // Return to main dashboard overview
+        navigate('/dashboard');
+    }
+};
 
     if (isLoading && !potDetails) return <LoadingSpinner message="Loading Pot Details..." />;
     if (error) return <div className="pot-details-page-wrapper error"><h1>Error</h1><p>{error.message}</p></div>
@@ -261,53 +271,97 @@ const PotDetailsPage = () => {
     const canEditOrder = canManageMembers && potLifecycle === 'pre-active' && orderedUsers.length > 1;
     const canManageWeeklyPayments = canManageMembers && potDetails.status === 'Active';
     const availableUsersForModalList = Object.values(allUsersForModal || {});
-    
+
     return (
         <div className="pot-details-page-wrapper">
             <h1 className="pot-header">POT DETAILS</h1>
             <div className="buttons-bar">
                 <div className="action-buttons-container">
+                    <button
+                        className="back-to-admin-dashboard-button"
+                        onClick={handleBackToAdminDashboard}
+                    >
+                        <MdArrowBack />
+                        Back to Dashboard
+                    </button>
                     {canEditPot && potDetails.status === 'Not Started' && (
-                        <button className="start-resume-button" onClick={() => handleChangeStatus('Active')} disabled={isUpdatingPot || !orderedUsers.length} title="Start Pot">
+                        <button
+                            className="start-resume-button"
+                            onClick={() => handleChangeStatus('Active')}
+                            disabled={isUpdatingPot || !orderedUsers.length}
+                        >
                             <FaPlay />
+                            Start Pot
                         </button>
                     )}
                     {canEditPot && potDetails.status === 'Paused' && (
-                        <button className="start-resume-button" onClick={() => handleChangeStatus('Active')} disabled={isUpdatingPot} title="Resume Pot">
+                        <button
+                            className="start-resume-button"
+                            onClick={() => handleChangeStatus('Active')}
+                            disabled={isUpdatingPot}
+                        >
                             <FaPlay />
+                            Resume Pot
                         </button>
                     )}
                     {canEditPot && potDetails.status === 'Active' && (
-                        <button className="pause-button" onClick={() => handleChangeStatus('Paused')} disabled={isUpdatingPot} title="Pause Pot">
+                        <button
+                            className="pause-button"
+                            onClick={() => handleChangeStatus('Paused')}
+                            disabled={isUpdatingPot}
+                        >
                             <FaPause />
+                            Pause Pot
                         </button>
                     )}
                     {canEditPot && potLifecycle !== 'terminal' && (
                         <OpenModalButton
-                            buttonText={<FaTimesCircle />}
-                            className="cancel-button"
-                            title="Cancel Pot"
-                            modalComponent={<DeleteConfirmationModal message="Are you sure you want to cancel this pot?" onConfirm={() => handleChangeStatus('Cancelled')} confirmButtonText="Yes, Cancel Pot"/>}
+                            buttonText={
+                                <>
+                                    <FaTimesCircle />
+                                    Cancel Pot
+                                </>
+                            }
+                            className="cancel-pot-button"
+                            modalComponent={
+                                <DeleteConfirmationModal
+                                    message="Are you sure you want to cancel this pot?"
+                                    onConfirm={() => handleChangeStatus('Cancelled')}
+                                    confirmButtonText="Yes, Cancel Pot"
+                                />}
                         />
                     )}
                     {canEditPot && potDetails.status === 'Ended' && (
                         <OpenModalButton
-                            buttonText={<FaCheckCircle />}
+                            buttonText={
+                                <>
+                                    <FaCheckCircle />
+                                    Close Pot
+                                </>
+                            }
                             className="close-button"
-                            title="Close Pot"
                             modalComponent={<DeleteConfirmationModal message="Are you sure you want to close this pot? This is the final step and cannot be undone." onConfirm={() => handleChangeStatus('Closed')} confirmButtonText="Yes, Close Pot" />}
                         />
                     )}
                     {canDuplicatePot && potLifecycle === 'terminal' && (
-                        <button className="duplicate-button" onClick={handleDuplicatePot} disabled={isUpdatingPot} title="Duplicate Pot">
+                        <button
+                            className="duplicate-button"
+                            onClick={handleDuplicatePot}
+                            disabled={isUpdatingPot}
+                        >
                             <FaClone />
+                            Duplicate
                         </button>
                     )}
                     {canDeletePot && potDetails.status === 'Not Started' && (
                         <OpenModalButton
-                            buttonText={<FaTrashAlt />}
+                            buttonText={
+                                <>
+                                    <FaTrashAlt />
+                                    Delete Pot
+                                </>
+                            }
                             className="delete-button"
-                            title="Delete Pot"
                             modalComponent={<DeleteConfirmationModal message="Are you sure you want to delete this pot? This action cannot be undone." onConfirm={() => handleDeletePot(numPotId)} confirmButtonText="Yes, Delete Pot" />}
                         />
                     )}
@@ -317,79 +371,167 @@ const PotDetailsPage = () => {
             {localUiError && <div className="error"><p>{localUiError}</p></div>}
             {reorderError && <div className="error"><p>{reorderError.message || String(reorderError)}</p></div>}
             {weekError && <div className="error"><p>Weekly Data Error: {weekError.message || String(weekError)}</p></div>}
-            
-            <div className="pot-container">
-                <div className="pot-name-div"><h2 className="pot-name">{potDetails.name?.toUpperCase()}</h2></div>
-                 {/* {(isSuperAdmin || isBanker) && (
-                    <div className="pot-detail-row">
-                        <span>Subscription Fee:</span>
-                        {isEditingFee && isSuperAdmin && canEditDetails ? (
-                            <div className="inline-edit-container">
-                                <input type="number" value={editableFee} onChange={(e) => setEditableFee(e.target.value)} disabled={isUpdatingPot} step="0.50" min="0" />
-                                <FaSave className="save-icon" onClick={() => handleSavePotUpdate('subscriptionFee', editableFee)} />
-                                <FaTimesCircle className="cancel-icon" onClick={() => setIsEditingFee(false)} />
-                            </div>
-                        ) : (
-                            <div className="inline-display-container">
-                                <span className="amount-display">{`$${Number.parseFloat(potDetails.subscriptionFee || 0).toFixed(2)}`}</span>
-                          
-                                {isSuperAdmin && canEditDetails && !isUpdatingPot && (
-                                    <FaEdit className="edit-icon" onClick={() => setIsEditingFee(true)} />
-                                )}
-                            </div>
+
+          <div className="pot-container">
+    <div className="pot-name-div">
+        <h2 className="pot-name">{potDetails.name?.toUpperCase()}</h2>
+    </div>
+    
+    {/* Status Summary Section */}
+    <div className="pot-status-summary">
+        <div className="status-item">
+            <span className="status-label">Current Week</span>
+            <span className="status-value">{currentWeek} / {totalWeeks > 0 ? totalWeeks : 'N/A'}</span>
+        </div>
+        <div className="status-item">
+            <span className="status-label">Banker</span>
+            <span className="status-value">{potDetails.ownerName}</span>
+        </div>
+        <div className="status-item">
+            <span className="status-label">Status</span>
+            <span className="status-value">{potDetails.status}</span>
+        </div>
+    </div>
+
+    {/* Pot Information Section */}
+    <div className="pot-info-section">
+        <h3>Pot Information</h3>
+        <div className="pot-info-grid">
+            <div className="info-item">
+                <span className="info-label">Start Date</span>
+                {isEditingStartDate && canEditDetails ? (
+                    <div className="inline-edit-container">
+                        <input
+                            type="date"
+                            value={editableStartDate}
+                            onChange={(e) => setEditableStartDate(e.target.value)}
+                            disabled={isUpdatingPot}
+                        />
+                        <FaSave
+                            className="save-icon"
+                            onClick={() => handleSavePotUpdate('startDate', editableStartDate)}
+                        />
+                        <FaTimesCircle
+                            className="cancel-icon"
+                            onClick={() => setIsEditingStartDate(false)}
+                        />
+                    </div>
+                ) : (
+                    <div className="inline-display-container">
+                        <span className="info-value">{formatDate(potDetails.startDate)}</span>
+                        {canEditDetails && !isUpdatingPot && (
+                            <FaEdit
+                                className="edit-icon"
+                                onClick={() => setIsEditingStartDate(true)}
+                            />
                         )}
                     </div>
-                )} */}
-                <div className='week-display-div'><span>Current Week:</span> <span>{currentWeek} / {totalWeeks > 0 ? totalWeeks : 'N/A'}</span></div>
-                <div className='banker-div'><span>Banker:</span> <span>{potDetails.ownerName}</span></div>
-                
-                <div className="pot-detail-row">
-                    <span>Start Date:</span>
-                    {isEditingStartDate && canEditDetails ? (
-                        <div className="inline-edit-container"><input type="date" value={editableStartDate} onChange={(e) => setEditableStartDate(e.target.value)} disabled={isUpdatingPot} /><FaSave className="save-icon" onClick={() => handleSavePotUpdate('startDate', editableStartDate)} /><FaTimesCircle className="cancel-icon" onClick={() => setIsEditingStartDate(false)} /></div>
-                    ) : (
-                        <div className="inline-display-container"><span>{formatDate(potDetails.startDate)}</span>{canEditDetails && !isUpdatingPot && (<FaEdit className="edit-icon" onClick={() => setIsEditingStartDate(true)} />)}</div>
-                    )}
-                </div>
-                <div className="pot-detail-row"><span>End Date:</span> <span>{formatDate(potDetails.endDate)}</span></div>
-                <div className="pot-detail-row">
-                    <span>Amt/Hand:</span>
-                    {isEditingAmount && canEditDetails ? (
-                        <div className="inline-edit-container"><input type="number" value={editableAmount} onChange={(e) => setEditableAmount(e.target.value)} disabled={isUpdatingPot} step="10" min="0" /><FaSave className="save-icon" onClick={() => handleSavePotUpdate('hand', editableAmount)} /><FaTimesCircle className="cancel-icon" onClick={() => setIsEditingAmount(false)} /></div>
-                    ) : (
-                        <div className="inline-display-container"><span className="amount-display">{`$${Number.parseFloat(potDetails.hand || 0).toFixed(2)}`}</span>{canEditDetails && !isUpdatingPot && (<FaEdit className="edit-icon" onClick={() => setIsEditingAmount(true)} />)}</div>
-                    )}
-                </div>
-                <div className="pot-detail-row"><span>Pot Amount:</span> <span>{`$${Number.parseFloat(potDetails.amount || 0).toFixed(2)}`}</span></div>
-                
-                <div className="pot-detail-row">
-                    <span>Frequency:</span>
-                    {isEditingFrequency && canEditDetails ? (
-                        <div className="inline-edit-container">
-                            <select value={editableFrequency} onChange={(e) => setEditableFrequency(e.target.value)} disabled={isUpdatingPot}>
-                                <option value="weekly">Weekly</option>
-                                <option value="every-2-weeks">Every 2 Weeks</option>
-                                <option value="monthly">Monthly</option>
-                            </select>
-                            <FaSave className="save-icon" onClick={() => handleSavePotUpdate('frequency', editableFrequency)} />
-                            <FaTimesCircle className="cancel-icon" onClick={() => setIsEditingFrequency(false)} />
-                        </div>
-                    ) : (
-                        <div className="inline-display-container">
-                            <span className="frequency-display">{potDetails.frequency?.replace('-', ' ')}</span>
-                            {canEditDetails && !isUpdatingPot && (<FaEdit className="edit-icon" onClick={() => setIsEditingFrequency(true)} />)}
-                        </div>
-                    )}
-                </div>
-                
-                <div className="pot-detail-row"><span>Status:</span> <span>{potDetails.status}</span></div>
+                )}
             </div>
+
+            <div className="info-item">
+                <span className="info-label">End Date</span>
+                <span className="info-value">{formatDate(potDetails.endDate)}</span>
+            </div>
+
+            <div className="info-item amount-item">
+                <span className="info-label">Amount per Hand</span>
+                {isEditingAmount && canEditDetails ? (
+                    <div className="inline-edit-container">
+                        <input
+                            type="number"
+                            value={editableAmount}
+                            onChange={(e) => setEditableAmount(e.target.value)}
+                            disabled={isUpdatingPot}
+                            step="10"
+                            min="0"
+                        />
+                        <FaSave
+                            className="save-icon"
+                            onClick={() => handleSavePotUpdate('hand', editableAmount)}
+                        />
+                        <FaTimesCircle
+                            className="cancel-icon"
+                            onClick={() => setIsEditingAmount(false)}
+                        />
+                    </div>
+                ) : (
+                    <div className="inline-display-container">
+                        <span className="info-value">{`$${Number.parseFloat(potDetails.hand || 0).toFixed(2)}`}</span>
+                        {canEditDetails && !isUpdatingPot && (
+                            <FaEdit
+                                className="edit-icon"
+                                onClick={() => setIsEditingAmount(true)}
+                            />
+                        )}
+                    </div>
+                )}
+            </div>
+
+            <div className="info-item amount-item">
+                <span className="info-label">Total Pot Amount</span>
+                <span className="info-value">{`$${Number.parseFloat(potDetails.amount || 0).toFixed(2)}`}</span>
+            </div>
+
+            <div className="info-item">
+                <span className="info-label">Frequency</span>
+                {isEditingFrequency && canEditDetails ? (
+                    <div className="inline-edit-container">
+                        <select
+                            value={editableFrequency}
+                            onChange={(e) => setEditableFrequency(e.target.value)}
+                            disabled={isUpdatingPot}
+                        >
+                            <option value="weekly">Weekly</option>
+                            <option value="every-2-weeks">Every 2 Weeks</option>
+                            <option value="monthly">Monthly</option>
+                        </select>
+                        <FaSave
+                            className="save-icon"
+                            onClick={() => handleSavePotUpdate('frequency', editableFrequency)}
+                        />
+                        <FaTimesCircle
+                            className="cancel-icon"
+                            onClick={() => setIsEditingFrequency(false)}
+                        />
+                    </div>
+                ) : (
+                    <div className="inline-display-container">
+                        <span className="info-value frequency-display">{potDetails.frequency?.replace('-', ' ')}</span>
+                        {canEditDetails && !isUpdatingPot && (
+                            <FaEdit
+                                className="edit-icon"
+                                onClick={() => setIsEditingFrequency(true)}
+                            />
+                        )}
+                    </div>
+                )}
+            </div>
+
+            <div className="info-item">
+                <span className="info-label">Total Members</span>
+                <span className="info-value">{orderedUsers.length}</span>
+            </div>
+        </div>
+    </div>
+</div>
 
             <div className="members-div">
                 <div className="members-header">
                     <h3>MEMBERS</h3>
                     {canManageMembers && potLifecycle === 'pre-active' && (
-                        <OpenModalButton buttonText="Add Users" className="add-users-button" modalComponent={<AddUsersToPot currentPotUsers={orderedUsers} availableUsers={availableUsersForModalList} onSave={handleAddUser} isSavingUsers={isUpdatingPot}/>}/>
+                        <OpenModalButton
+                            buttonText="Add Users"
+                            className="add-users-button"
+                            modalComponent={
+                                <AddUsersToPot
+                                    currentPotUsers={orderedUsers}
+                                    availableUsers={availableUsersForModalList}
+                                    onSave={handleAddUser}
+                                    isSavingUsers={isUpdatingPot}
+                                />
+                            }
+                        />
                     )}
                 </div>
                 <div className="members-summary">
@@ -398,22 +540,46 @@ const PotDetailsPage = () => {
                     <span>Remaining: <strong>${paymentSummary.amountRemaining.toFixed(2)}</strong></span>
                 </div>
                 {totalWeeks > 0 && (
-                    <select value={currentWeek} onChange={e => setCurrentWeek(parseInt(e.target.value))} disabled={isLoadingWeek}>
-                        {weeksForSelect.map((weekNum, index) => (<option key={weekNum} value={weekNum}>Week {weekNum} (Draw: {orderedUsers[index]?.firstName || 'N/A'})</option>))}
+                    <select
+                        value={currentWeek}
+                        onChange={e => setCurrentWeek(parseInt(e.target.value))}
+                        disabled={isLoadingWeek}
+                    >
+                        {weeksForSelect.map((weekNum, index) => (
+                            <option key={weekNum} value={weekNum}>
+                                Week {weekNum} (Draw: {orderedUsers[index]?.firstName || 'N/A'})
+                            </option>
+                        ))}
                     </select>
                 )}
-                {(isLoadingWeek || (isReordering && !isLoading)) && totalWeeks > 0 && <LoadingSpinner message={isReordering ? "Saving order..." : "Loading weekly status..."} />}
+                {(isLoadingWeek || (isReordering && !isLoading)) && totalWeeks > 0 && (
+                    <LoadingSpinner message={isReordering ? "Saving order..." : "Loading weekly status..."} />
+                )}
                 {!isLoadingWeek && !isReordering && totalWeeks > 0 && (
                     <div className="members-table-container">
-                        {canEditOrder && (<div className="reorder-hint"><FaBars /> Touch and hold the grid icon to drag rows and reorder the draw sequence.</div>)}
+                        {canEditOrder && (
+                            <div className="reorder-hint">
+                                <FaBars /> Touch and hold the grid icon to drag rows and reorder the draw sequence.
+                            </div>
+                        )}
                         <table className={`members-table ${isReordering ? 'reordering-active' : ''}`}>
-                            <thead><tr>{canEditOrder ? <th className="drag-handle-header"></th> : <th></th>}<th>#</th><th>Name</th><th>Draw Date</th><th>Paid (Wk {currentWeek})</th><th>Draw (Wk {currentWeek})</th><th>Actions</th></tr></thead>
+                            <thead>
+                                <tr>
+                                    {canEditOrder ? <th className="drag-handle-header"></th> : <th></th>}
+                                    <th>#</th>
+                                    <th>Name</th>
+                                    <th>Draw Date</th>
+                                    <th>Paid (Wk {currentWeek})</th>
+                                    <th>Draw (Wk {currentWeek})</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
                             <tbody>
                                 {orderedUsers.map((user, index) => (
-                                    <DraggableUserRow 
-                                        key={user.id.toString()} 
-                                        index={index} 
-                                        user={user} 
+                                    <DraggableUserRow
+                                        key={user.id.toString()}
+                                        index={index}
+                                        user={user}
                                         moveRow={moveRow}
                                         onDragBegin={handleDragStart}
                                         onDragOperationEnd={handleDragEnd}
@@ -433,7 +599,9 @@ const PotDetailsPage = () => {
                         </table>
                     </div>
                 )}
-                {totalWeeks === 0 && !isLoadingWeek && <p>No members added to this pot yet. Add members to start!</p>}
+                {totalWeeks === 0 && !isLoadingWeek && (
+                    <p>No members added to this pot yet. Add members to start!</p>
+                )}
             </div>
         </div>
     );

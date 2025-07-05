@@ -1,3 +1,5 @@
+// Navigation.jsx - Updated with unified dashboard routes
+
 import { NavLink } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useMemo, useState } from "react";
@@ -12,8 +14,9 @@ const Navigation = ({ isLoaded }) => {
 
     const userPermissions = useMemo(() => new Set(currUser?.permissions || []), [currUser]);
     const canViewHistory = userPermissions.has('history:view_all');
-    const canViewAdmin = userPermissions.has('admin:view_reports');
-    const isBanker = currUser?.role === 'banker';
+    // const canViewAdmin = userPermissions.has('admin:view_reports');
+    // const isBanker = currUser?.role === 'banker';
+    // const isStandardUser = currUser?.role === 'standard';
 
     const handleMenuToggle = () => {
         setIsMenuOpen(!isMenuOpen);
@@ -22,6 +25,24 @@ const Navigation = ({ isLoaded }) => {
     const closeMenu = () => {
         setIsMenuOpen(false);
     };
+
+    // Determine dashboard link text based on user role
+    const getDashboardLink = () => {
+        if (!currUser) return null;
+        
+        switch (currUser.role) {
+            case 'superadmin':
+                return { path: '/dashboard', text: 'ADMIN' };
+            case 'banker':
+                return { path: '/dashboard', text: 'BANKER' };
+            case 'standard':
+                return { path: '/dashboard', text: 'DASHBOARD' };
+            default:
+                return null;
+        }
+    };
+
+    const dashboardLink = getDashboardLink();
 
     const sessionNavLinks = currUser ? (
         <>
@@ -42,9 +63,11 @@ const Navigation = ({ isLoaded }) => {
                     <NavLink to="/" className="nav-logo"><h1>COLLABASH</h1></NavLink>
                     <ul className="desktop-nav-links">
                         <li><NavLink to={'/'}>HOME</NavLink></li>
-                        {currUser && canViewAdmin && (<li><NavLink to={'/admin'}>ADMIN</NavLink></li>)}
-                        {currUser && isBanker && (<li><NavLink to={'/banker-dashboard'}>BANKER</NavLink></li>)}
-                        {currUser && (<li><NavLink to={'/pots'}>POTS</NavLink></li>)}
+                        {/* Show dashboard link for all logged-in users */}
+                        {currUser && dashboardLink && (
+                            <li><NavLink to={dashboardLink.path}>{dashboardLink.text}</NavLink></li>
+                        )}
+                        {/* {currUser && (<li><NavLink to={'/pots'}>POTS</NavLink></li>)} */}
                         {currUser && (<li><NavLink to={'/users'}>USERS</NavLink></li>)}
                         {currUser && canViewHistory && (<li><NavLink to={'/history'}>HISTORY</NavLink></li>)}
                     </ul>
@@ -63,8 +86,10 @@ const Navigation = ({ isLoaded }) => {
                 <div className="mobile-menu-dropdown">
                     <ul>
                         <li><NavLink to={'/'} onClick={closeMenu}>HOME</NavLink></li>
-                        {currUser && canViewAdmin && (<li><NavLink to={'/admin'} onClick={closeMenu}>ADMIN</NavLink></li>)}
-                        {currUser && isBanker && (<li><NavLink to={'/banker-dashboard'} onClick={closeMenu}>BANKER</NavLink></li>)}
+                        {/* Show dashboard link for all logged-in users */}
+                        {currUser && dashboardLink && (
+                            <li><NavLink to={dashboardLink.path} onClick={closeMenu}>{dashboardLink.text}</NavLink></li>
+                        )}
                         {currUser && (<li><NavLink to={'/pots'} onClick={closeMenu}>POTS</NavLink></li>)}
                         {currUser && (<li><NavLink to={'/users'} onClick={closeMenu}>USERS</NavLink></li>)}
                         {currUser && canViewHistory && (<li><NavLink to={'/history'} onClick={closeMenu}>HISTORY</NavLink></li>)}
