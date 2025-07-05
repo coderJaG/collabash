@@ -7,80 +7,34 @@ if (process.env.NODE_ENV === 'production') {
 
 module.exports = {
   async up(queryInterface, Sequelize) {
-    const usersTableName = { tableName: 'Users', schema: options.schema };
-    const bankerPaymentsTableName = { tableName: 'BankerPayments', schema: options.schema };
+    const schema = options.schema ? `"${options.schema}".` : '';
+    
+    await queryInterface.sequelize.query(`
+      CREATE TABLE ${schema}"PaymentRequests" (
+        id SERIAL PRIMARY KEY,
+        "paymentId" INTEGER NOT NULL,
+        "requestedById" INTEGER NOT NULL,
+        status VARCHAR NOT NULL DEFAULT 'pending',
+        "requestReason" TEXT,
+        "reviewedById" INTEGER,
+        "reviewReason" TEXT,
+        "reviewedAt" TIMESTAMP,
+        "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "updatedAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        CONSTRAINT fk_payment FOREIGN KEY ("paymentId") REFERENCES ${schema}"BankerPayments"(id) ON DELETE CASCADE,
+        CONSTRAINT fk_requested_by FOREIGN KEY ("requestedById") REFERENCES ${schema}"Users"(id) ON DELETE CASCADE,
+        CONSTRAINT fk_reviewed_by FOREIGN KEY ("reviewedById") REFERENCES ${schema}"Users"(id) ON DELETE SET NULL
+      );
+    `);
 
-    await queryInterface.createTable('PaymentRequests', {
-      id: {
-        allowNull: false,
-        autoIncrement: true,
-        primaryKey: true,
-        type: Sequelize.INTEGER
-      },
-      paymentId: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-          model: bankerPaymentsTableName,
-          key: 'id'
-        },
-        onDelete: 'CASCADE'
-      },
-      requestedById: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-          model: usersTableName,
-          key: 'id'
-        },
-        onDelete: 'CASCADE'
-      },
-      status: {
-        type: Sequelize.STRING,
-        allowNull: false,
-        defaultValue: 'pending'
-      },
-      requestReason: {
-        type: Sequelize.TEXT,
-        allowNull: true
-      },
-      reviewedById: {
-        type: Sequelize.INTEGER,
-        allowNull: true,
-        references: {
-          model: usersTableName,
-          key: 'id'
-        },
-        onDelete: 'SET NULL'
-      },
-      reviewReason: {
-        type: Sequelize.TEXT,
-        allowNull: true
-      },
-      reviewedAt: {
-        type: Sequelize.DATE,
-        allowNull: true
-      },
-      createdAt: {
-        allowNull: false,
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
-      },
-      updatedAt: {
-        allowNull: false,
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
-      }
-    }, options);
-
-    await queryInterface.addIndex('PaymentRequests', ['paymentId'], options);
-    await queryInterface.addIndex('PaymentRequests', ['requestedById'], options);
-    await queryInterface.addIndex('PaymentRequests', ['status'], options);
-    await queryInterface.addIndex('PaymentRequests', ['reviewedById'], options);
+    // Add indexes if needed
+    await queryInterface.addIndex({ tableName: 'PaymentRequests', schema: options.schema }, ['paymentId']);
+    await queryInterface.addIndex({ tableName: 'PaymentRequests', schema: options.schema }, ['requestedById']);
+    await queryInterface.addIndex({ tableName: 'PaymentRequests', schema: options.schema }, ['status']);
+    await queryInterface.addIndex({ tableName: 'PaymentRequests', schema: options.schema }, ['reviewedById']);
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('PaymentRequests', options);
+    await queryInterface.dropTable({ tableName: 'PaymentRequests', schema: options.schema });
   }
-  
 };
