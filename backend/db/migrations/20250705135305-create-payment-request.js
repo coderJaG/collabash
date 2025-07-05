@@ -21,7 +21,6 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          // FIX: Use the schema-aware table name object
           model: bankerPaymentsTableName,
           key: 'id'
         },
@@ -31,14 +30,13 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          // FIX: Use the schema-aware table name object
           model: usersTableName,
           key: 'id'
         },
         onDelete: 'CASCADE'
       },
       status: {
-        type: Sequelize.ENUM('pending', 'approved', 'denied'),
+        type: Sequelize.STRING,
         allowNull: false,
         defaultValue: 'pending'
       },
