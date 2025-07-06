@@ -1,5 +1,6 @@
+// SignUpFormModal.jsx - Updated with conditional role selection
 import { useState, useRef, useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useModal } from "../context/Modal";
 import LoginFormModal from "../LoginFormModal";
 import * as sessionActions from "../../store/session"
@@ -22,6 +23,8 @@ import './SignUpFormModal.css';
 const SignUpFormModal = ({createdByBanker = false}) => {
     const dispatch = useDispatch();
     const { closeModal, setModalContent } = useModal();
+    const currentUser = useSelector(state => state.session.user); // Get current user for permission check
+    
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [username, setUserName] = useState('');
@@ -38,6 +41,29 @@ const SignUpFormModal = ({createdByBanker = false}) => {
     const [passwordStrength, setPasswordStrength] = useState(0);
     const [focusedField, setFocusedField] = useState('');
     const modalRef = useRef(null);
+
+    // Determine if current user can assign roles
+    const canAssignRoles = createdByBanker && currentUser && 
+        (currentUser.role === 'superadmin' || currentUser.role === 'banker');
+    
+    // Determine available roles based on current user's permissions
+    const getAvailableRoles = () => {
+        if (!canAssignRoles) return [];
+        
+        if (currentUser.role === 'superadmin') {
+            return [
+                { value: 'standard', label: 'Standard User', icon: MdPerson },
+                { value: 'banker', label: 'Banker', icon: MdBusiness }
+            ];
+        } else if (currentUser.role === 'banker') {
+            return [
+                { value: 'standard', label: 'Standard User', icon: MdPerson }
+            ];
+        }
+        return [];
+    };
+
+    const availableRoles = getAvailableRoles();
 
     const calculatePasswordStrength = (pwd) => {
         let strength = 0;
@@ -88,7 +114,7 @@ const SignUpFormModal = ({createdByBanker = false}) => {
             email,
             mobile,
             password,
-            role 
+            role: canAssignRoles ? role : 'standard' // Force standard role for public signups
         };
 
         setErrors({});
@@ -99,7 +125,6 @@ const SignUpFormModal = ({createdByBanker = false}) => {
                     dispatch(usersActions.getAllUsers());
                 }
             })
-            // ✅ FIXED: This catch block now correctly handles the error object
             .catch((errorData) => {
                 if (errorData && errorData.errors) {
                     setErrors(errorData.errors);
@@ -151,10 +176,12 @@ const SignUpFormModal = ({createdByBanker = false}) => {
             <div className="modal-header-gradient">
                 <h1 className="signup-form-header">
                     <MdAccountCircle className="header-icon" />
-                    {createdByBanker ? "Create New User" : "Join the Platform"}
+                    {canAssignRoles ? "Create New User" : "Join the Platform"}
                 </h1>
                 <p className="signup-subtitle">
-                    {createdByBanker ? "Add a new member to the system" : "Create your account to get started"}
+                    {canAssignRoles 
+                        ? "Add a new member to the system" 
+                        : "Create your account to get started"}
                 </p>
             </div>
 
@@ -390,48 +417,66 @@ const SignUpFormModal = ({createdByBanker = false}) => {
                     )}
                 </div>
 
-                {createdByBanker && (
+                {/* Conditional Role Selection - Only show when admin is creating users */}
+                {canAssignRoles && availableRoles.length > 0 && (
                     <div className="role-selection-container">
                         <label className="role-label">
                             <MdSupervisorAccount className="label-icon" />
                             User Role
                         </label>
                         <div className="role-options">
-                            <div className={`radio-option ${role === 'standard' ? 'selected' : ''}`}>
-                                <input
-                                    id="standard"
-                                    type='radio'
-                                    value='standard'
-                                    checked={role === 'standard'}
-                                    onChange={e => setRole(e.target.value)}
-                                    disabled={isTransitioning || isSubmitting}
-                                />
-                                <label htmlFor="standard" className="radio-label-wrapper">
-                                    <MdPerson className="role-icon" />
-                                    <div>
-                                        <span className="role-title">Standard User</span>
-                                        <span className="role-description">Can join and participate in pots</span>
+                            {availableRoles.map((roleOption) => {
+                                const IconComponent = roleOption.icon;
+                                return (
+                                    <div 
+                                        key={roleOption.value}
+                                        className={`radio-option ${role === roleOption.value ? 'selected' : ''}`}
+                                    >
+                                        <input
+                                            id={roleOption.value}
+                                            type='radio'
+                                            value={roleOption.value}
+                                            checked={role === roleOption.value}
+                                            onChange={e => setRole(e.target.value)}
+                                            disabled={isTransitioning || isSubmitting}
+                                        />
+                                        <label htmlFor={roleOption.value} className="radio-label-wrapper">
+                                            <IconComponent className="role-icon" />
+                                            <div>
+                                                <span className="role-title">{roleOption.label}</span>
+                                                <span className="role-description">
+                                                    {roleOption.value === 'standard' 
+                                                        ? "Can join and participate in pots"
+                                                        : "Can create and manage pots"
+                                                    }
+                                                </span>
+                                            </div>
+                                        </label>
                                     </div>
-                                </label>
+                                );
+                            })}
+                        </div>
+                        
+                        {/* Show info message about role limitations */}
+                        {currentUser?.role === 'banker' && (
+                            <div className="role-limitation-info">
+                                <MdClose className="info-icon" />
+                                <span>As a banker, you can only create standard users. Contact a super admin to create banker accounts.</span>
                             </div>
+                        )}
+                    </div>
+                )}
 
-                            <div className={`radio-option ${role === 'banker' ? 'selected' : ''}`}>
-                                <input
-                                    id="banker"
-                                    type='radio'
-                                    value='banker'
-                                    checked={role === 'banker'}
-                                    onChange={e => setRole(e.target.value)}
-                                    disabled={isTransitioning || isSubmitting}
-                                />
-                                <label htmlFor="banker" className="radio-label-wrapper">
-                                    <MdBusiness className="role-icon" />
-                                    <div>
-                                        <span className="role-title">Banker</span>
-                                        <span className="role-description">Can create and manage pots</span>
-                                    </div>
-                                </label>
-                            </div>
+                {/* Show info for public signups */}
+                {!canAssignRoles && (
+                    <div className="public-signup-info">
+                        <MdSupervisorAccount className="info-icon" />
+                        <div className="info-content">
+                            <span className="info-title">Account Type</span>
+                            <span className="info-description">
+                                You'll start as a Standard User. To become a banker and create pots, 
+                                contact an administrator after registration.
+                            </span>
                         </div>
                     </div>
                 )}
@@ -449,13 +494,13 @@ const SignUpFormModal = ({createdByBanker = false}) => {
                     ) : (
                         <>
                             <MdCheck className="button-icon" />
-                            <span>{createdByBanker ? "Create Account" : "Sign Up"}</span>
+                            <span>{canAssignRoles ? "Create Account" : "Sign Up"}</span>
                         </>
                     )}
                 </button>
             </form>
             
-            {!createdByBanker && (
+            {!canAssignRoles && (
                 <div className="form-switch-link">
                     <span>Already have an account?</span>
                     <button 

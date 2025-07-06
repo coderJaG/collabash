@@ -424,3 +424,198 @@ legend {
     border: 1px solid currentColor !important;
   }
 }
+
+/* Add this to the END of your shared/base.css file */
+
+/* ============================================= */
+/* ==           Z-INDEX HIERARCHY             == */
+/* ============================================= */
+
+/* Base application layers */
+#root {
+  position: relative;
+  z-index: 0 !important;
+}
+
+.App,
+.main-content,
+.page-container,
+.container,
+.dashboard-container,
+.content-wrapper,
+main {
+  position: relative;
+  z-index: 1 !important;
+}
+
+/* Any sticky or fixed elements in main content */
+.sticky,
+.fixed,
+[style*="position: sticky"],
+[style*="position: fixed"]:not(.main-nav-bar):not(.profile-dropdown):not(.mobile-menu-overlay):not(.mobile-menu-container) {
+  z-index: 100 !important;
+}
+
+/* Tooltips and notifications */
+.tooltip,
+.notification,
+.toast {
+  z-index: 8000 !important;
+}
+
+/* Modals and overlays (lower than navigation) */
+.modal-backdrop {
+  z-index: 9000 !important;
+}
+
+.modal-content {
+  z-index: 9001 !important;
+}
+
+/* Navigation layers (highest priority) */
+.main-nav-bar {
+  z-index: 10000 !important;
+  position: sticky !important;
+  overflow: visible !important;
+}
+
+.nav-container {
+  z-index: 10001 !important;
+}
+
+.nav-left,
+.nav-right {
+  z-index: 10002 !important;
+}
+
+.desktop-nav-links,
+.desktop-session-links {
+  z-index: 10003 !important;
+}
+
+.nav-notification-item,
+.nav-profile-item {
+  z-index: 10004 !important;
+}
+
+/* Mobile menu */
+.mobile-menu-overlay {
+  z-index: 10005 !important;
+}
+
+.mobile-menu-container {
+  z-index: 10006 !important;
+}
+
+/* Profile dropdown (highest) */
+.profile-button-container {
+  z-index: 10010 !important;
+}
+
+.profile-dropdown {
+  z-index: 10011 !important;
+}
+
+/* Notifications dropdown */
+.notifications-dropdown {
+  z-index: 10009 !important;
+}
+
+/* Any other navigation dropdowns */
+.nav-tooltip,
+.nav-dropdown,
+.user-menu,
+.navigation-dropdown {
+  z-index: 10008 !important;
+}
+
+/* ============================================= */
+/* ==           STACKING CONTEXT FIXES       == */
+/* ============================================= */
+
+/* Ensure proper stacking context for common React patterns */
+.react-portal,
+.portal-container {
+  z-index: 9500 !important;
+}
+
+/* Fix for any third-party libraries */
+.react-datepicker-wrapper,
+.react-select__menu,
+.tippy-box {
+  z-index: 9800 !important;
+}
+
+/* Landing page specific fixes */
+.landing-page-wrapper {
+  z-index: 1 !important;
+}
+
+.landing-page-content {
+  z-index: 2 !important;
+}
+
+/* Dashboard specific fixes */
+.dashboard-grid,
+.dashboard-cards {
+  z-index: 1 !important;
+}
+
+/* ============================================= */
+/* ==           OVERFLOW FIXES                == */
+/* ============================================= */
+
+/* Ensure containers don't clip dropdowns */
+.nav-container,
+.nav-right,
+.desktop-session-links {
+  overflow: visible !important;
+}
+
+/* But keep main content areas contained */
+.main-content,
+.page-container,
+.container {
+  overflow: visible;
+  /* Allow dropdowns to show outside containers */
+}
+
+/* ============================================= */
+/* ==           MOBILE SPECIFIC FIXES         == */
+/* ============================================= */
+
+@media (max-width: 768px) {
+  .profile-dropdown {
+    z-index: 10012 !important;
+    position: fixed !important;
+  }
+  
+  .mobile-menu-overlay {
+    z-index: 10005 !important;
+  }
+  
+  .mobile-menu-container {
+    z-index: 10006 !important;
+  }
+}
+
+.mobile-menu-overlay {
+    z-index: 10004 !important;
+}
+
+.mobile-menu-container {
+    z-index: 10005 !important;
+}
+
+/* Fix for any sticky or fixed elements in main content */
+.sticky,
+.fixed,
+[style*="position: sticky"],
+[style*="position: fixed"] {
+    z-index: 100 !important; /* Much lower than navigation */
+}
+
+/* Notifications should be visible but not interfere with navigation */
+.notifications-dropdown {
+    z-index: 10009 !important;
+}

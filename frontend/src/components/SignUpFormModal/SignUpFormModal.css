@@ -17,10 +17,10 @@
     border-radius: var(--radius-xl);
     width: 90%;
     max-width: 520px;
-    margin: 20px auto;
+    margin: 90px auto 20px auto; /* Add top margin to clear navbar */
     box-shadow: var(--shadow-xl);
-    max-height: 90vh;
-    overflow: hidden; /* Changed to hidden to prevent any clipping */
+    max-height: calc(100vh - 110px); /* Account for navbar height + margins */
+    overflow: hidden;
     box-sizing: border-box;
     position: relative;
     border: 1px solid var(--border-medium);
@@ -33,10 +33,29 @@
     display: flex;
     flex-direction: column;
     gap: var(--spacing-xl);
-    max-height: calc(90vh - 200px); /* Increased to account for header + footer */
+    max-height: calc(100vh - 310px); /* Account for header + footer + navbar */
     overflow-y: auto;
     overflow-x: hidden;
-    flex: 1; /* Allow content to grow and shrink */
+    flex: 1;
+}
+
+/* Custom scrollbar for form content */
+.signup-form-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.signup-form-content::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 3px;
+}
+
+.signup-form-content::-webkit-scrollbar-thumb {
+    background: var(--primary-green);
+    border-radius: 3px;
+}
+
+.signup-form-content::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-green-hover);
 }
 
 @keyframes modalSlideIn {
@@ -71,8 +90,8 @@
     text-align: center;
     position: relative;
     overflow: hidden;
-    flex-shrink: 0; /* Prevent header from shrinking */
-    z-index: 10; /* Ensure header stays on top */
+    flex-shrink: 0;
+    z-index: 10;
 }
 
 .modal-header-gradient::before {
@@ -380,7 +399,7 @@
     accent-color: var(--primary-green);
     transform: scale(1.2);
     position: relative;
-    z-index: 1; /* ensure it's above the ::before pseudo-element */
+    z-index: 1;
     visibility: visible;
     display: inline-block;
 }
@@ -459,14 +478,12 @@
     margin-bottom: var(--spacing-lg);
 }
 
-/* Show error icons for signup form */
 .signup-form .error-message .error-icon {
     font-size: var(--font-size-base);
     flex-shrink: 0;
     color: var(--status-error);
 }
 
-/* Override login modal error message pseudo-elements and add here */
 .signup-form .error-message::before {
     display: none !important;
     content: none !important;
@@ -566,7 +583,7 @@
     gap: var(--spacing-sm);
     color: var(--text-secondary);
     font-size: var(--font-size-sm);
-    flex-shrink: 0; /* Prevent footer from shrinking */
+    flex-shrink: 0;
 }
 
 .login-button {
@@ -593,14 +610,70 @@
 }
 
 /* ============================================= */
+/* ==           INFO SECTIONS                 == */
+/* ============================================= */
+
+.role-limitation-info,
+.public-signup-info {
+    margin-top: var(--spacing-md);
+    padding: var(--spacing-md) var(--spacing-lg);
+    background: rgba(26, 188, 156, 0.1);
+    border: 1px solid rgba(26, 188, 156, 0.3);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-md);
+    font-size: var(--font-size-sm);
+}
+
+.role-limitation-info {
+    background: rgba(255, 193, 7, 0.1);
+    border-color: rgba(255, 193, 7, 0.3);
+}
+
+.info-icon {
+    font-size: var(--font-size-lg);
+    color: var(--primary-green);
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+.role-limitation-info .info-icon {
+    color: #f39c12;
+}
+
+.info-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.info-title {
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-primary);
+    font-size: var(--font-size-sm);
+}
+
+.info-description {
+    color: var(--text-secondary);
+    line-height: 1.4;
+    font-size: var(--font-size-sm);
+}
+
+.role-limitation-info span {
+    color: #d68910;
+    font-weight: var(--font-weight-medium);
+}
+
+/* ============================================= */
 /* ==           RESPONSIVE DESIGN             == */
 /* ============================================= */
 
 @media (max-width: 768px) {
     .signup-form {
         width: 95%;
-        margin: 10px auto;
-        max-height: 95vh;
+        margin: 80px auto 10px auto; /* Adjusted for mobile navbar */
+        max-height: calc(100vh - 100px);
     }
     
     .form-row {
@@ -611,7 +684,7 @@
     .signup-form-content {
         padding: var(--spacing-xl);
         gap: var(--spacing-lg);
-        max-height: calc(95vh - 180px); /* Adjusted for mobile */
+        max-height: calc(100vh - 280px); /* Adjusted for mobile */
     }
     
     .modal-header-gradient {
@@ -620,5 +693,110 @@
     
     .signup-form-header {
         font-size: 1.3rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .signup-form {
+        width: 98%;
+        margin: 75px auto 5px auto;
+        max-height: calc(100vh - 85px);
+    }
+    
+    .signup-form-content {
+        padding: var(--spacing-lg);
+        gap: var(--spacing-md);
+        max-height: calc(100vh - 250px);
+    }
+    
+    .modal-header-gradient {
+        padding: var(--spacing-lg);
+    }
+    
+    .form-input-group {
+        gap: var(--spacing-xs);
+    }
+    
+    .role-selection-container {
+        padding: var(--spacing-lg);
+    }
+    
+    .form-switch-link {
+        padding: var(--spacing-lg);
+    }
+}
+
+/* ============================================= */
+/* ==           ACCESSIBILITY FEATURES        == */
+/* ============================================= */
+
+.signup-form input:focus-visible,
+.signup-form-button:focus-visible,
+.login-button:focus-visible,
+.password-toggle:focus-visible {
+    outline: 2px solid var(--primary-green);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgba(26, 188, 156, 0.3);
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+    .signup-form {
+        border: 2px solid var(--primary-green);
+        background: var(--bg-secondary);
+        backdrop-filter: none;
+    }
+    
+    .signup-form input {
+        border: 2px solid var(--primary-green);
+    }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .signup-form,
+    .form-input-group,
+    .signup-form-button,
+    .radio-option {
+        transition: none;
+        animation: none;
+        transform: none !important;
+    }
+    
+    .signup-form-button::before,
+    .radio-option::before {
+        display: none;
+    }
+}
+
+/* ============================================= */
+/* ==           PRINT STYLES                  == */
+/* ============================================= */
+
+@media print {
+    .signup-form {
+        position: static;
+        width: 100%;
+        max-width: none;
+        margin: 0;
+        max-height: none;
+        overflow: visible;
+        box-shadow: none;
+        border: 2px solid black;
+    }
+    
+    .modal-header-gradient {
+        background: white !important;
+        color: black !important;
+        border-bottom: 2px solid black;
+    }
+    
+    .signup-form-header {
+        color: black !important;
+        text-shadow: none;
+    }
+    
+    .signup-subtitle {
+        color: black !important;
     }
 }
