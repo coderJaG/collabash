@@ -26,19 +26,28 @@ export const DELETE_POT_SUCCESS = 'pots/DELETE_POT_SUCCESS';
 export const DELETE_POT_FAILURE = 'pots/DELETE_POT_FAILURE';
 export const RESET_DELETE_POT_STATUS = 'pots/RESET_DELETE_POT_STATUS'
 
-
+//add dingle user to pot
 const ADD_USER_TO_POT_START = 'pots/ADD_USER_TO_POT_START';
 const ADD_USER_TO_POT_SUCCESS = 'pots/ADD_USER_TO_POT_SUCCESS';
 const ADD_USER_TO_POT_FAILURE = 'pots/ADD_USER_TO_POT_FAILURE';
 
+//add multiple users to pot
+const ADD_USERS_TO_POT_START = 'pots/ADD_USERS_TO_POT_START';
+const ADD_USERS_TO_POT_SUCCESS = 'pots/ADD_USERS_TO_POT_SUCCESS';
+const ADD_USERS_TO_POT_FAILURE = 'pots/ADD_USERS_TO_POT_FAILURE';
+
+//remove user from pot
 const REMOVE_USER_FROM_POT_START = 'pots/REMOVE_USER_FROM_POT_START';
 const REMOVE_USER_FROM_POT_SUCCESS = 'pots/REMOVE_USER_FROM_POT_SUCCESS';
 const REMOVE_USER_FROM_POT_FAILURE = 'pots/REMOVE_USER_FROM_POT_FAILURE';
 
+//reorder users in pot
 export const REORDER_POT_USERS_START = 'pots/REORDER_POT_USERS_START';
 export const REORDER_POT_USERS_SUCCESS = 'pots/REORDER_POT_USERS_SUCCESS';
 export const REORDER_POT_USERS_FAILURE = 'pots/REORDER_POT_USERS_FAILURE';
 export const CLEAR_POT_REORDER_ERROR = 'pots/CLEAR_POT_REORDER_ERROR';
+
+
 
 // --- Action Creators ---
 
@@ -64,10 +73,17 @@ const deletePotSuccess = (potId) => ({ type: DELETE_POT_SUCCESS, payload: potId 
 const deletePotFailure = (error) => ({ type: DELETE_POT_FAILURE, payload: error });
 export const resetDeletePotStatus = () => ({ type: RESET_DELETE_POT_STATUS })
 
-const addUserToPotStart = () => ({ type: ADD_USER_TO_POT_START });
-const addUserToPotSuccess = (potUserData) => ({ type: ADD_USER_TO_POT_SUCCESS, payload: potUserData });
-const addUserToPotFailure = (error) => ({ type: ADD_USER_TO_POT_FAILURE, payload: error });
+// Add single User to Pot
+// const addUserToPotStart = () => ({ type: ADD_USER_TO_POT_START });
+// const addUserToPotSuccess = (potUserData) => ({ type: ADD_USER_TO_POT_SUCCESS, payload: potUserData });
+// const addUserToPotFailure = (error) => ({ type: ADD_USER_TO_POT_FAILURE, payload: error });
 
+// Add multiple Users to Pot
+const addUsersToPotStart = () => ({ type: ADD_USERS_TO_POT_START });
+const addUsersToPotSuccess = (payload) => ({ type: ADD_USERS_TO_POT_SUCCESS, payload });
+const addUsersToPotFailure = (error) => ({ type: ADD_USERS_TO_POT_FAILURE, payload: error });
+
+// Remove User from Pot
 const removeUserFromPotStart = () => ({ type: REMOVE_USER_FROM_POT_START });
 const removeUserFromPotSuccess = (potUserData) => ({ type: REMOVE_USER_FROM_POT_SUCCESS, payload: potUserData });
 const removeUserFromPotFailure = (error) => ({ type: REMOVE_USER_FROM_POT_FAILURE, payload: error });
@@ -102,19 +118,19 @@ const initialState = {
 // Helper to process error responses and ensure error.message is a string
 const processErrorResponse = async (response, defaultMessage) => {
     let errorData = {
-        status: response.status, 
+        status: response.status,
         message: defaultMessage,
-        errors: [] 
+        errors: []
     };
     try {
-        const backendError = await response.json(); 
+        const backendError = await response.json();
         errorData = { ...errorData, ...backendError };
 
 
         if (typeof errorData.message === 'object' && errorData.message !== null) {
             errorData.message = errorData.message.detail || errorData.message.error || JSON.stringify(errorData.message);
-        } else if (!errorData.message) { 
-            errorData.message = response.statusText || defaultMessage; 
+        } else if (!errorData.message) {
+            errorData.message = response.statusText || defaultMessage;
         }
     } catch (e) {
         errorData.message = response.statusText || defaultMessage;
@@ -129,7 +145,7 @@ const processErrorResponse = async (response, defaultMessage) => {
 
 
 // --- Thunks ---
-
+// Fetch all pots
 export const getPots = () => async (dispatch) => {
     dispatch(getAllPotsStart());
     try {
@@ -154,6 +170,7 @@ export const getPots = () => async (dispatch) => {
     }
 };
 
+// Fetch a pot by ID
 export const getAPotById = (potId) => async (dispatch) => {
     dispatch(getPotByIdStart());
     try {
@@ -179,6 +196,7 @@ export const getAPotById = (potId) => async (dispatch) => {
     }
 };
 
+// Create a new pot
 export const createNewPot = (potData) => async (dispatch) => {
     dispatch(createPotStart());
     try {
@@ -204,10 +222,11 @@ export const createNewPot = (potData) => async (dispatch) => {
             };
         }
         dispatch(createPotFailure(errorToDispatch));
-        throw errorToDispatch; 
+        throw errorToDispatch;
     }
 };
 
+// Update an existing pot
 export const updateAPot = (potData, potId) => async (dispatch) => {
     console.log("Updating pot with data:", potData, "and ID:", potId);
     dispatch(updatePotStart());
@@ -238,6 +257,7 @@ export const updateAPot = (potData, potId) => async (dispatch) => {
     }
 };
 
+// Delete a pot
 export const deletePot = (potId) => async (dispatch) => {
     dispatch(deletePotStart());
     try {
@@ -248,7 +268,7 @@ export const deletePot = (potId) => async (dispatch) => {
             throw await processErrorResponse(res, `Failed to delete pot ${potId}`);
         }
         dispatch(deletePotSuccess(potId));
-        return res; 
+        return res;
     } catch (caughtError) {
         let errorToDispatch;
         if (caughtError instanceof Response) {
@@ -264,37 +284,109 @@ export const deletePot = (potId) => async (dispatch) => {
     }
 };
 
+// Add single user to a pot
 export const addUserToPot = (userData) => async (dispatch) => {
     const { potId, userId } = userData;
-    dispatch(addUserToPotStart());
+
+    if (!potId || !userId) {
+        throw new Error('Both potId and userId are required');
+    }
+
+    // Use bulk function with a single user
     try {
-        const res = await csrfFetch(`/api/pots/${potId}/addusers`, {
+        const result = await dispatch(addUsersToPot(potId, [userId]));
+
+        // Transform the bulk response to match the single-user format
+        const transformedResult = {
+            ...result,
+            userId: userId,
+            // For backward compatibility, include the old message format if only one user
+            message: result.summary?.added === 1 ?
+                `User successfully added to pot` :
+                result.message
+        };
+
+        return transformedResult;
+    } catch (error) {
+        throw {
+            ...error,
+            userId,
+            potId
+        };
+    }
+};
+
+// Add multiple users to a pot
+export const addUsersToPot = (potId, userIds) => async (dispatch) => {
+    if (!Array.isArray(userIds) || userIds.length === 0) {
+        throw new Error('Invalid user IDs provided - must be a non-empty array');
+    }
+
+    const numPotId = parseInt(potId);
+    if (isNaN(numPotId)) {
+        throw new Error('Invalid pot ID provided');
+    }
+
+    dispatch(addUsersToPotStart());
+
+    try {
+        const res = await csrfFetch(`/api/pots/${numPotId}/addusers`, {
             method: 'POST',
-            body: JSON.stringify({ userId }),
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userIds }), // Send as userIds array
         });
+
         if (!res.ok) {
-            throw await processErrorResponse(res, `Failed to add user ${userId} to pot ${potId}`);
+            throw await processErrorResponse(res, `Failed to add users to pot ${potId}`);
         }
+
         const data = await res.json();
-        dispatch(addUserToPotSuccess({ message: data.message || 'User added successfully', userId, potId }));
-        dispatch(getAPotById(potId));
+
+        // Enhanced success payload with summary data
+        const successPayload = {
+            message: data.message || `Successfully processed ${userIds.length} users`,
+            potId: numPotId,
+            userIds,
+            summary: data.summary || {
+                totalRequested: userIds.length,
+                added: 0,
+                skipped: 0,
+                notFound: 0,
+                addedUsers: [],
+                skippedUsers: [],
+                notFoundUsers: []
+            },
+            updatedPot: data
+        };
+
+        dispatch(addUsersToPotSuccess(successPayload));
+
+        // Update the current pot details with the returned data
+        if (data.id) {
+            dispatch(getPotByIdSuccess(data));
+        }
+
         return data;
+
     } catch (caughtError) {
         let errorToDispatch;
         if (caughtError instanceof Response) {
-            errorToDispatch = await processErrorResponse(caughtError, `Failed to add user (processed in catch)`);
+            errorToDispatch = await processErrorResponse(caughtError, `Failed to add users to pot (processed in catch)`);
         } else {
             errorToDispatch = {
-                message: caughtError.message || String(caughtError) || 'An unknown error occurred while adding user.',
+                message: caughtError.message || String(caughtError) || 'An unknown error occurred while adding users.',
                 status: caughtError.status,
+                potId: numPotId,
+                userIds,
                 ...(typeof caughtError === 'object' && caughtError !== null ? caughtError : {})
             };
         }
-        dispatch(addUserToPotFailure(errorToDispatch));
+        dispatch(addUsersToPotFailure(errorToDispatch));
         throw errorToDispatch;
     }
 };
 
+// Remove user from a pot
 export const removeUserFromPot = (userData) => async (dispatch) => {
     const { potId, userId } = userData;
     dispatch(removeUserFromPotStart());
@@ -339,7 +431,7 @@ export const reorderPotUsers = (potId, orderedUserIds) => async (dispatch) => {
         if (!res.ok) {
             throw await processErrorResponse(res, `Failed to reorder users for pot ${potId}`);
         }
-        const updatedPot = await res.json(); 
+        const updatedPot = await res.json();
         dispatch(reorderPotUsersSuccess(updatedPot));
 
         return updatedPot;
@@ -356,7 +448,7 @@ export const reorderPotUsers = (potId, orderedUserIds) => async (dispatch) => {
             };
         }
         dispatch(reorderPotUsersFailure(errorToDispatch));
-        throw errorToDispatch; 
+        throw errorToDispatch;
     }
 };
 
@@ -424,9 +516,60 @@ const potsReducer = (state = initialState, action) => {
         case UPDATE_POT_FAILURE:
             return { ...state, isUpdating: false, errorUpdate: action.payload };
 
+        // Add multiple Users to Pot
+        case ADD_USERS_TO_POT_START:
+            return {
+                ...state,
+                isUpdating: true,
+                errorUpdate: null,
+                addUserStatus: null
+            };
+
+        case ADD_USERS_TO_POT_SUCCESS:
+            return {
+                ...state,
+                isUpdating: false,
+                addUserStatus: {
+                    success: true,
+                    message: action.payload.message,
+                    potId: action.payload.potId,
+                    userIds: action.payload.userIds,
+                    isBulkOperation: action.payload.userIds.length > 1,
+                    summary: action.payload.summary,
+                    timestamp: new Date().toISOString()
+                },
+                // Update the pot in allById if it exists
+                allById: action.payload.updatedPot?.id ? {
+                    ...state.allById,
+                    [action.payload.updatedPot.id]: action.payload.updatedPot
+                } : state.allById,
+                errorUpdate: null
+            };
+
+        case ADD_USERS_TO_POT_FAILURE:
+            return {
+                ...state,
+                isUpdating: false,
+                errorUpdate: action.payload,
+                addUserStatus: {
+                    success: false,
+                    message: action.payload.message,
+                    potId: action.payload.potId,
+                    userIds: action.payload.userIds,
+                    error: action.payload,
+                    timestamp: new Date().toISOString()
+                }
+            };
+
         // Add User to Pot
         case ADD_USER_TO_POT_START:
-            return { ...state, isUpdating: true, errorUpdate: null, addUserStatus: null };
+            return {
+                ...state,
+                isUpdating: true,
+                errorUpdate: null,
+                addUserStatus: null
+            };
+
         case ADD_USER_TO_POT_SUCCESS:
             return {
                 ...state,
@@ -435,16 +578,28 @@ const potsReducer = (state = initialState, action) => {
                     success: true,
                     message: action.payload.message,
                     userId: action.payload.userId,
-                    potId: action.payload.potId
+                    potId: action.payload.potId,
+                    userIds: action.payload.userIds || [action.payload.userId],
+                    isBulkOperation: false,
+                    summary: action.payload.summary,
+                    timestamp: new Date().toISOString()
                 },
                 errorUpdate: null
             };
+
         case ADD_USER_TO_POT_FAILURE:
             return {
                 ...state,
                 isUpdating: false,
                 errorUpdate: action.payload,
-                addUserStatus: { success: false, ...action.payload }
+                addUserStatus: {
+                    success: false,
+                    message: action.payload.message,
+                    userId: action.payload.userId,
+                    potId: action.payload.potId,
+                    error: action.payload,
+                    timestamp: new Date().toISOString()
+                }
             };
 
         // Remove User from Pot

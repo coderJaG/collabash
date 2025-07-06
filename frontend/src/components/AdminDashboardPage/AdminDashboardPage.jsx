@@ -1,4 +1,4 @@
-// AdminDashboardPage.jsx - Enhanced with Manage Pot button (keeping View Payments)
+// AdminDashboardPage.jsx 
 
 import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -6,6 +6,8 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { getPots, updateAPot } from '../../store/pots';
 import { fetchPaymentReport, approvePayment, denyPayment, updateUserStatus, markPaymentAsPaid } from '../../store/admin';
 import { ClipLoader } from 'react-spinners';
+import { FaCubesStacked } from "react-icons/fa6";
+import { SiQuicklook } from "react-icons/si";
 import { MdArrowBack, MdPayment, MdWarning, MdCheckCircle, MdEdit, MdSave, MdCancel, MdHourglassTop, MdSchedule, MdBlock, MdAdd, MdSettings } from 'react-icons/md';
 import { formatDate } from '../../utils/formatDate';
 import OpenModalButton from '../../components/OpenModalButton';
@@ -40,7 +42,6 @@ const AdminDashboardPage = () => {
         dispatch(getPots());
         dispatch(fetchPaymentReport());
     }, [dispatch]);
-
 
     useEffect(() => {
         if (location.state?.restoreView) {
@@ -193,18 +194,20 @@ const AdminDashboardPage = () => {
     // Loading and error states
     if (isLoading && pots.length === 0) {
         return (
-            <div className="admin-dashboard loading">
+            <div className="container loading-container">
                 <ClipLoader color="#1abc9c" size={50} />
-                <p>Loading dashboard...</p>
+                <p className="loading-message">Loading dashboard...</p>
             </div>
         );
     }
 
     if (error) {
         return (
-            <div className="admin-dashboard error-container">
-                <h1>Error</h1>
-                <p>{error.message || String(error)}</p>
+            <div className="container">
+                <div className="alert alert-error">
+                    <h1>Error</h1>
+                    <p>{error.message || String(error)}</p>
+                </div>
             </div>
         );
     }
@@ -212,10 +215,10 @@ const AdminDashboardPage = () => {
     // Pot Management View
     if (viewMode === 'pots') {
         return (
-            <div className="admin-dashboard">
+            <div className="container">
                 <div className="admin-header-section">
                     <div className="header-with-back">
-                        <button className="back-button" onClick={handleBackToDashboard}>
+                        <button className="btn btn-secondary back-to-admin-dashboard-button" onClick={handleBackToDashboard}>
                             <MdArrowBack /> Back to Dashboard
                         </button>
                         <div>
@@ -227,7 +230,7 @@ const AdminDashboardPage = () => {
                 <div className="admin-controls">
                     <div className="control-buttons">
                         {canCreatePots && (
-                            <button className="create-pot-button" onClick={handleCreatePot}>
+                            <button className="btn btn-success" onClick={handleCreatePot}>
                                 <MdAdd /> Create New Pot
                             </button>
                         )}
@@ -237,7 +240,7 @@ const AdminDashboardPage = () => {
                         placeholder="Search pots by name or banker..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="admin-search-input"
+                        className="search-input"
                     />
                 </div>
                 <div className="pots-grid">
@@ -271,17 +274,17 @@ const AdminDashboardPage = () => {
     // Payment Dashboard Overview
     if (!selectedPot) {
         return (
-            <div className="admin-dashboard">
+            <div className="container">
                 <div className="admin-header-section">
                     <h1 className="admin-header">Admin Dashboard</h1>
                     <p className="admin-subtitle">Manage pot payments, banker status, and subscription fees</p>
                 </div>
                 <div className="dashboard-nav-buttons">
-                    <button className="nav-button" onClick={handleViewAllPots}>
-                        <MdPayment /> Manage All Pots
+                    <button className="btn btn-secondary" onClick={handleViewAllPots}>
+                        <FaCubesStacked /> Manage All Pots
                     </button>
                     {canCreatePots && (
-                        <button className="nav-button create" onClick={handleCreatePot}>
+                        <button className="btn btn-success" onClick={handleCreatePot}>
                             <MdAdd /> Create New Pot
                         </button>
                     )}
@@ -292,7 +295,7 @@ const AdminDashboardPage = () => {
                         placeholder="Search pots by name or banker..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="admin-search-input"
+                        className="search-input"
                     />
                 </div>
                 <div className="pots-grid">
@@ -327,7 +330,7 @@ const AdminDashboardPage = () => {
     const CurrentView = viewMode === 'payments' ? PaymentDetailsView : PotDetailsView;
 
     return (
-        <div className="admin-dashboard">
+        <div className="container">
             <CurrentView
                 selectedPot={selectedPot}
                 handleBackToPots={handleBackToPots}
@@ -349,6 +352,7 @@ const PotCard = ({
     pot,
     handlePotSelect,
     handleViewPayments,
+    handleManagePot,
     editingFees,
     feeInputs,
     feeUpdateSuccess,
@@ -367,85 +371,90 @@ const PotCard = ({
     };
 
     return (
-        <div className="pot-card">
-            <div className="pot-card-header">
-                <h3 className="pot-name">{pot.name}</h3>
-                <div className="pot-status-indicators">
-                    {stats.pendingCount > 0 && (
-                        <span className="status-indicator pending" title={`${stats.pendingCount} Pending Approval`}>
-                            <MdHourglassTop /> {stats.pendingCount}
+        <div className="card card-accent">
+            <div className="card-body">
+                <div className="pot-card-header">
+                    <h3 className="pot-name">{pot.name}</h3>
+                    <div className="pot-status-indicators">
+                        <span className={`status-badge status-${pot.status.toLowerCase().replace(' ', '-')}`}>
+                            {pot.status}
                         </span>
-                    )}
-                    {stats.dueCount > 0 && (
-                        <span className="status-indicator due" title={`${stats.dueCount} Payments Due`}>
-                            <MdWarning /> {stats.dueCount}
+                        {stats.pendingCount > 0 && (
+                            <span className="status-badge status-pending" title={`${stats.pendingCount} Pending Approval`}>
+                                <MdHourglassTop /> {stats.pendingCount}
+                            </span>
+                        )}
+                        {stats.dueCount > 0 && (
+                            <span className="status-badge status-due" title={`${stats.dueCount} Payments Due`}>
+                                <MdWarning /> {stats.dueCount}
+                            </span>
+                        )}
+                        {stats.paidCount > 0 && (
+                            <span className="status-badge status-paid" title={`${stats.paidCount} Payments Paid`}>
+                                <MdCheckCircle /> {stats.paidCount}
+                            </span>
+                        )}
+                    </div>
+                </div>
+                <div className="pot-card-stats">
+                    <div className="stat-item">
+                        <span className="form-label stat-label">Banker</span>
+                        <span className="stat-value">{pot.ownerName}</span>
+                    </div>
+                    <div className="stat-item">
+                        <span className="form-label stat-label">Members</span>
+                        <span className="stat-value">{stats.memberCount}</span>
+                    </div>
+                    <div className="stat-item">
+                        <span className="form-label stat-label">Amount Due</span>
+                        <span className="stat-value amount-cell">${stats.totalDue.toFixed(2)}</span>
+                    </div>
+                    <div className="stat-item">
+                        <span className="form-label stat-label">Status</span>
+                        <span className={`stat-value status-${stats.dueCount > 0 || stats.pendingCount > 0 ? 'warning' : 'good'}`}>
+                            {stats.dueCount > 0 ? `${stats.dueCount} Due` : (stats.pendingCount > 0 ? `${stats.pendingCount} Pending` : 'All Paid')}
                         </span>
-                    )}
-                    {stats.paidCount > 0 && (
-                        <span className="status-indicator paid" title={`${stats.paidCount} Payments Paid`}>
-                            <MdCheckCircle /> {stats.paidCount}
-                        </span>
-                    )}
-                </div>
-            </div>
-            <div className="pot-card-stats">
-                <div className="stat-item">
-                    <span className="stat-label">Banker</span>
-                    <span className="stat-value">{pot.ownerName}</span>
-                </div>
-                <div className="stat-item">
-                    <span className="stat-label">Members</span>
-                    <span className="stat-value">{stats.memberCount}</span>
-                </div>
-                <div className="stat-item">
-                    <span className="stat-label">Amount Due</span>
-                    <span className="stat-value amount-due">${stats.totalDue.toFixed(2)}</span>
-                </div>
-                <div className="stat-item">
-                    <span className="stat-label">Status</span>
-                    <span className={`stat-value status-${stats.dueCount > 0 || stats.pendingCount > 0 ? 'warning' : 'good'}`}>
-                        {stats.dueCount > 0 ? `${stats.dueCount} Due` : (stats.pendingCount > 0 ? `${stats.pendingCount} Pending` : 'All Paid')}
-                    </span>
-                </div>
-                <div className="stat-item fee-management">
-                    <span className="stat-label">Subscription Fee</span>
-                    {editingFees[pot.id] ? (
-                        <div className="fee-edit-container">
-                            <input
-                                type="number"
-                                step="0.01"
-                                min="0"
-                                value={feeInputs[pot.id] || ''}
-                                onChange={(e) => handleFeeInputChange(pot.id, e.target.value)}
-                                className="fee-input"
-                            />
-                            <div className="fee-actions">
-                                <button className="fee-save-btn" onClick={() => handleSaveFee(pot.id)}>
-                                    <MdSave />
-                                </button>
-                                <button className="fee-cancel-btn" onClick={() => handleCancelEditFee(pot.id)}>
-                                    <MdCancel />
+                    </div>
+                    <div className="stat-item fee-management">
+                        <span className="form-label stat-label">Subscription Fee</span>
+                        {editingFees[pot.id] ? (
+                            <div className="fee-edit-container">
+                                <input
+                                    type="number"
+                                    step="0.01"
+                                    min="0"
+                                    value={feeInputs[pot.id] || ''}
+                                    onChange={(e) => handleFeeInputChange(pot.id, e.target.value)}
+                                    className="form-input fee-input"
+                                />
+                                <div className="fee-actions">
+                                    <button className="icon-btn icon-btn-success" onClick={() => handleSaveFee(pot.id)}>
+                                        <MdSave />
+                                    </button>
+                                    <button className="icon-btn icon-btn-danger" onClick={() => handleCancelEditFee(pot.id)}>
+                                        <MdCancel />
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="fee-display-container">
+                                <span className="stat-value">${Number(pot.subscriptionFee || 0).toFixed(2)}</span>
+                                <button className="icon-btn icon-btn-primary" onClick={() => handleEditFee(pot.id, pot.subscriptionFee)}>
+                                    <MdEdit />
                                 </button>
                             </div>
-                        </div>
-                    ) : (
-                        <div className="fee-display-container">
-                            <span className="stat-value">${Number(pot.subscriptionFee || 0).toFixed(2)}</span>
-                            <button className="fee-edit-btn" onClick={() => handleEditFee(pot.id, pot.subscriptionFee)}>
-                                <MdEdit />
-                            </button>
-                        </div>
-                    )}
-                    {feeUpdateSuccess[pot.id] && <div className="fee-success-message">{feeUpdateSuccess[pot.id]}</div>}
-                    {feeUpdateErrors[pot.id] && <div className="fee-error-message">{feeUpdateErrors[pot.id]}</div>}
+                        )}
+                        {feeUpdateSuccess[pot.id] && <div className="fee-success-message">{feeUpdateSuccess[pot.id]}</div>}
+                        {feeUpdateErrors[pot.id] && <div className="fee-error-message">{feeUpdateErrors[pot.id]}</div>}
+                    </div>
                 </div>
             </div>
-            <div className="pot-card-footer">
-                <button className="view-details-btn" onClick={() => handlePotSelect(pot)}>
-                    View Details
+            <div className="card-footer pot-card-footer">
+                <button className="btn btn-secondary btn-block" onClick={() => handlePotSelect(pot)}>
+                  <SiQuicklook />  View Details
                 </button>
                 {pot.paymentData?.payments.length > 0 && (
-                    <button className="view-payments-btn" onClick={() => handleViewPayments(pot)}>
+                    <button className="btn btn-primary btn-block" onClick={() => handleViewPayments(pot)}>
                         <MdPayment /> View Payments
                     </button>
                 )}
@@ -458,7 +467,7 @@ const PotDetailsView = ({ selectedPot, handleBackToPots, setViewMode, handleMana
     <>
         <div className="admin-header-section">
             <div className="header-with-back">
-                <button className="back-button" onClick={handleBackToPots}>
+                <button className="btn btn-secondary back-to-admin-dashboard-button" onClick={handleBackToPots}>
                     <MdArrowBack /> All Pots
                 </button>
                 <div>
@@ -467,79 +476,81 @@ const PotDetailsView = ({ selectedPot, handleBackToPots, setViewMode, handleMana
                 </div>
             </div>
         </div>
-        <div className="pot-details-container">
-            <div className="pot-info-section">
-                <h3>Pot Information</h3>
-                <div className="pot-info-grid">
-                    <div className="info-item">
-                        <span className="info-label">Banker:</span>
-                        <span className="info-value">{selectedPot.ownerName}</span>
+        <div className="card card-accent pot-details-container">
+            <div className="card-body">
+                <div className="pot-info-section">
+                    <h3>Pot Information</h3>
+                    <div className="pot-info-grid">
+                        <div className="info-item">
+                            <span className="form-label info-label">Banker:</span>
+                            <span className="info-value">{selectedPot.ownerName}</span>
+                        </div>
+                        <div className="info-item">
+                            <span className="form-label info-label">Hand Amount:</span>
+                            <span className="info-value amount-cell">${Number(selectedPot.hand || 0).toFixed(2)}</span>
+                        </div>
+                        <div className="info-item">
+                            <span className="form-label info-label">Status:</span>
+                            <span className="info-value">{selectedPot.status}</span>
+                        </div>
+                        <div className="info-item">
+                            <span className="form-label info-label">Subscription Fee:</span>
+                            <span className="info-value">${Number(selectedPot.subscriptionFee || 0).toFixed(2)}</span>
+                        </div>
+                        <div className="info-item">
+                            <span className="form-label info-label">Members:</span>
+                            <span className="info-value">{selectedPot.Users?.length || 0}</span>
+                        </div>
+                        <div className="info-item">
+                            <span className="form-label info-label">Start Date:</span>
+                            <span className="info-value">{formatDate(selectedPot.startDate) || 'Not set'}</span>
+                        </div>
                     </div>
-                    <div className="info-item">
-                        <span className="info-label">Hand Amount:</span>
-                        <span className="info-value">${Number(selectedPot.hand || 0).toFixed(2)}</span>
-                    </div>
-                    <div className="info-item">
-                        <span className="info-label">Status:</span>
-                        <span className="info-value">{selectedPot.status}</span>
-                    </div>
-                    <div className="info-item">
-                        <span className="info-label">Subscription Fee:</span>
-                        <span className="info-value">${Number(selectedPot.subscriptionFee || 0).toFixed(2)}</span>
-                    </div>
-                    <div className="info-item">
-                        <span className="info-label">Members:</span>
-                        <span className="info-value">{selectedPot.Users?.length || 0}</span>
-                    </div>
-                    <div className="info-item">
-                        <span className="info-label">Start Date:</span>
-                        <span className="info-value">{formatDate(selectedPot.startDate) || 'Not set'}</span>
-                    </div>
-                </div>
-                <div style={{ marginTop: '20px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                    <button
-                        className="admin-manage-pot-btn"
-                        onClick={() => handleManagePot(selectedPot.id)}
-                    >
-                        <MdSettings />
-                        Manage Pot
-                    </button>
-                    {selectedPot.paymentData?.payments.length > 0 && (
-                        <button className="view-payments-btn primary" onClick={() => setViewMode('payments')}>
-                            <MdPayment /> View Payment Details
+                    <div style={{ marginTop: '20px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                        <button
+                            className="btn btn-purple"
+                            onClick={() => handleManagePot(selectedPot.id)}
+                        >
+                            <MdSettings />
+                            Manage Pot
                         </button>
-                    )}
-                </div>
-            </div>
-            {selectedPot.Users && selectedPot.Users.length > 0 && (
-                <div className="members-section">
-                    <h3>Members</h3>
-                    <div className="members-table-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Draw Date</th>
-                                    <th>Position</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {selectedPot.Users.map((user, index) => (
-                                    <tr key={user.id}>
-                                        <td>
-                                            <div className="member-info">
-                                                <span className="member-name">{user.firstName} {user.lastName}</span>
-                                            </div>
-                                        </td>
-                                        <td>{formatDate(user.potMemberDetails?.drawDate) || 'TBD'}</td>
-                                        <td>{user.potMemberDetails?.displayOrder || index + 1}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                        {selectedPot.paymentData?.payments.length > 0 && (
+                            <button className="btn btn-primary" onClick={() => setViewMode('payments')}>
+                                <MdPayment /> View Payment Details
+                            </button>
+                        )}
                     </div>
                 </div>
-            )}
+                {selectedPot.Users && selectedPot.Users.length > 0 && (
+                    <div className="members-section">
+                        <h3>Members</h3>
+                        <div className="table-container">
+                            <table className="table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Draw Date</th>
+                                        <th>Position</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {selectedPot.Users.map((user, index) => (
+                                        <tr key={user.id}>
+                                            <td>
+                                                <div className="member-info">
+                                                    <span className="member-name">{user.firstName} {user.lastName}</span>
+                                                </div>
+                                            </td>
+                                            <td>{formatDate(user.potMemberDetails?.drawDate) || 'TBD'}</td>
+                                            <td>{user.potMemberDetails?.displayOrder || index + 1}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                )}
+            </div>
         </div>
     </>
 );
@@ -548,7 +559,7 @@ const PaymentDetailsView = ({ selectedPot, setViewMode, filteredPayments, filter
     <>
         <div className="admin-header-section">
             <div className="header-with-back">
-                <button className="back-button" onClick={() => setViewMode('overview')}>
+                <button className="btn btn-secondary back-to-admin-dashboard-button" onClick={() => setViewMode('overview')}>
                     <MdArrowBack /> Pot Details
                 </button>
                 <div>
@@ -574,8 +585,8 @@ const PaymentDetailsView = ({ selectedPot, setViewMode, filteredPayments, filter
                 All ({paymentCounts.all})
             </button>
         </div>
-        <div className="report-table-container">
-            <table>
+        <div className="table-container">
+            <table className="table">
                 <thead>
                     <tr>
                         <th>Banker</th>
@@ -608,27 +619,27 @@ const PaymentDetailsView = ({ selectedPot, setViewMode, filteredPayments, filter
                                 <td className="action-cell">
                                     {payment.status === 'pending' && (
                                         <div className="action-buttons">
-                                            <button className="action-btn approve" onClick={() => dispatch(approvePayment(payment.id))}>
+                                            <button className="btn btn-success btn-sm" onClick={() => dispatch(approvePayment(payment.id))}>
                                                 Approve
                                             </button>
-                                            <button className="action-btn deny" onClick={() => dispatch(denyPayment(payment.id))}>
+                                            <button className="btn btn-danger btn-sm" onClick={() => dispatch(denyPayment(payment.id))}>
                                                 Deny
                                             </button>
                                         </div>
                                     )}
                                     {payment.status === 'due' && (
                                         <div className="action-buttons">
-                                            <button className="action-btn paid" onClick={() => dispatch(markPaymentAsPaid(payment.id))}>
+                                            <button className="btn btn-primary btn-sm" onClick={() => dispatch(markPaymentAsPaid(payment.id))}>
                                                 Mark Paid
                                             </button>
                                             {isSuspended ? (
-                                                <button className="action-btn suspended" disabled>
+                                                <button className="btn btn-secondary btn-sm" disabled>
                                                     <MdBlock /> Suspended
                                                 </button>
                                             ) : canBeSuspended ? (
                                                 <OpenModalButton
                                                     buttonText="Suspend Banker"
-                                                    className="action-btn suspend"
+                                                    className="btn btn-warning btn-sm"
                                                     modalComponent={
                                                         <SuspendConfirmationModal
                                                             bankerName={payment.banker.username}
