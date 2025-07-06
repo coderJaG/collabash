@@ -62,7 +62,8 @@ const Navigation = ({ isLoaded }) => {
                 <div className="nav-left">
                     <NavLink to="/" className="nav-logo"><h1>COLLABASH</h1></NavLink>
                     <ul className="desktop-nav-links">
-                        <li><NavLink to={'/'}>HOME</NavLink></li>
+                        {/* Show home link for users not logged in */}
+                        {!currUser && <li><NavLink to={'/'}>HOME</NavLink></li>}
                         {/* Show dashboard link for all logged-in users */}
                         {currUser && dashboardLink && (
                             <li><NavLink to={dashboardLink.path}>{dashboardLink.text}</NavLink></li>

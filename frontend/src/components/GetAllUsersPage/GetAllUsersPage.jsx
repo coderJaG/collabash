@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { MdDelete } from 'react-icons/md';
+import { MdDelete, MdPersonAdd, MdSearch } from 'react-icons/md';
 import * as usersActions from '../../store/users';
 import * as sessionActions from '../../store/session';
 import LoadingSpinner from '../LoadingSpinner';
@@ -20,7 +20,6 @@ const GetAllUsersPage = () => {
     const error = useSelector(state => state.users.errorAllUsers);
     const currUser = useSelector(state => state.session.user);
     
-
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [deleteError, setDeleteError] = useState(null);
@@ -28,10 +27,8 @@ const GetAllUsersPage = () => {
     const userPermissions = useMemo(() => new Set(currUser?.permissions || []), [currUser]);
     const canCreateUser = userPermissions.has('user:create');
     const canViewAllUsers = userPermissions.has('user:view_all');
-    // const canDeleteAnyUser = userPermissions.has('user:delete_any');
     const canDeleteSelf = userPermissions.has('user:delete_self');
     
-
     useEffect(() => {
         dispatch(usersActions.getAllUsers());
     }, [dispatch]);
@@ -96,8 +93,10 @@ const GetAllUsersPage = () => {
 
     if (isLoading && usersArray.length === 0) {
         return (
-            <div className="user-list-page-container">
-                <h1>All Users</h1>
+            <div className="container loading-container">
+                <div className="admin-header-section">
+                    <h1 className="admin-header">All Users</h1>
+                </div>
                 <LoadingSpinner />
             </div>
         );
@@ -105,47 +104,86 @@ const GetAllUsersPage = () => {
 
     if (error) {
         return (
-            <div className="user-list-page-container error-container">
-                <h1>All Users</h1>
-                <p>Error fetching users: {error.message || String(error)}</p>
+            <div className="container">
+                <div className="admin-header-section">
+                    <h1 className="admin-header">All Users</h1>
+                </div>
+                <div className="alert alert-error">
+                    <p>Error fetching users: {error.message || String(error)}</p>
+                </div>
             </div>
         );
     }
 
     return (
-        <div className="user-list-page-container">
-            <h1>ALL USERS</h1>
-            {deleteError && <p className="error-message general-error">{deleteError}</p>}
+        <div className="container">
+            <div className="admin-header-section">
+                <h1 className="admin-header">All Users</h1>
+                <p className="admin-subtitle">Manage system users and permissions</p>
+            </div>
+
+            {deleteError && (
+                <div className="alert alert-error">
+                    <p>{deleteError}</p>
+                </div>
+            )}
+
             <div className="user-list-controls">
                 {canCreateUser && (
                     <OpenModalButton
-                        buttonText="Create New User"
-                        className="create-user-button"
+                        buttonText={
+                            <>
+                                <MdPersonAdd /> Create New User
+                            </>
+                        }
+                        className="btn btn-success create-user-button"
                         modalComponent={<SignUpFormModal createdByBanker={true} />}
                     />
                 )}
-                <input
-                    type="text"
-                    placeholder="Search users..."
-                    value={searchTerm}
-                    onChange={(e) => {
-                        setSearchTerm(e.target.value);
-                        setCurrentPage(1);
-                    }}
-                    className="users-search-input"
-                />
+                
+                <div className="search-container">
+                    <div className="search-input-wrapper">
+                        {/* <MdSearch className="search-icon" /> */}
+                        <input
+                            type="text"
+                            placeholder=" Search users..."
+                            value={searchTerm}
+                            onChange={(e) => {
+                                setSearchTerm(e.target.value);
+                                setCurrentPage(1);
+                            }}
+                            className="search-input users-search-input"
+                        />
+                    </div>
+                </div>
             </div>
 
-            <div className="users-table-container">
+            <div className="users-stats">
+                <div className="stat-item">
+                    <span className="stat-label">Total Users</span>
+                    <span className="stat-value">{usersArray.length}</span>
+                </div>
+                <div className="stat-item">
+                    <span className="stat-label">Filtered Results</span>
+                    <span className="stat-value">{filteredUsers.length}</span>
+                </div>
+                <div className="stat-item">
+                    <span className="stat-label">Current Page</span>
+                    <span className="stat-value">{currentPage} of {totalPages}</span>
+                </div>
+            </div>
+
+            <div className="table-container">
                 {currentUsersOnPage.length > 0 ? (
-                    <table className="users-table">
+                    <table className="table">
                         <thead>
                             <tr>
-                                <th>NAME</th>
-                                <th>MOBILE</th>
-                                <th>ROLE</th>
-                                <th>POTS JOINED</th>
-                                <th>ACTIONS</th>
+                                <th>Name</th>
+                                <th>Username</th>
+                                <th>Mobile</th>
+                                <th>Role</th>
+                                <th>Pots Joined</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -153,7 +191,6 @@ const GetAllUsersPage = () => {
                                 const potsJoined = user.PotsJoined || [];
                                 const isOwnProfile = currUser?.id === user.id;
 
-                           
                                 let canAttemptDelete = false;
                                 let isDeleteDisabled = true;
                                 let deleteButtonTitle = "";
@@ -172,7 +209,7 @@ const GetAllUsersPage = () => {
                                         deleteButtonTitle = isDeleteDisabled ? `Cannot delete: ${user.firstName} is in an active or paused pot.` : `Delete user ${user.firstName}`;
                                     } else if (currUser.role === 'banker' && user.role === 'standard') {
                                         canAttemptDelete = true;
-                                        isDeleteDisabled = hasActiveOrPausedPot; // A banker can always delete a standard user (backend will check pot association)
+                                        isDeleteDisabled = hasActiveOrPausedPot;
                                         deleteButtonTitle = `Delete user ${user.firstName}`;
                                     } else {
                                         deleteButtonTitle = "You do not have permission to delete this user.";
@@ -189,21 +226,50 @@ const GetAllUsersPage = () => {
                                 }
 
                                 return (
-                                    <tr key={user.id}>
-                                        <td className={canViewProfile ? "user-name-link" : ""} onClick={canViewProfile ? () => handleUserNameClick(user) : undefined} title={canViewProfile ? `View ${user.firstName}'s profile` : "Permission denied"}>
-                                            {user.firstName} {user.lastName}
+                                    <tr key={user.id} className={isOwnProfile ? "current-user-row" : ""}>
+                                        <td 
+                                            className={canViewProfile ? "user-name-link" : ""} 
+                                            onClick={canViewProfile ? () => handleUserNameClick(user) : undefined} 
+                                            title={canViewProfile ? `View ${user.firstName}'s profile` : "Permission denied"}
+                                        >
+                                            <div className="user-info">
+                                                <div className="user-avatar">
+                                                    {user.firstName?.[0]}{user.lastName?.[0]}
+                                                </div>
+                                                <div className="user-details">
+                                                    <span className="user-name">
+                                                        {user.firstName} {user.lastName}
+                                                        {isOwnProfile && <span className="you-indicator"> (You)</span>}
+                                                    </span>
+                                                    <span className="user-email">{user.email}</span>
+                                                </div>
+                                            </div>
                                         </td>
-                                        <td>{user.mobile}</td>
-                                        <td>{user.role}</td>
-                                        <td title={potsJoined.map(p => p.name).join(', ')} className={potsJoined.length > 0 ? "has-tooltip" : ""}>
-                                            {displayPotsText}
+                                        <td>
+                                            <span className="username-display">{user.username}</span>
                                         </td>
-                                        <td className="actions-cell">
+                                        <td>
+                                            <span className="mobile-display">{user.mobile || 'Not provided'}</span>
+                                        </td>
+                                        <td>
+                                            <span className={`role-badge role-${user.role}`}>
+                                                {user.role}
+                                            </span>
+                                        </td>
+                                        <td 
+                                            title={potsJoined.map(p => p.name).join(', ')} 
+                                            className={potsJoined.length > 0 ? "has-tooltip pots-cell" : "pots-cell"}
+                                        >
+                                            <span className="pots-count">
+                                                {displayPotsText}
+                                            </span>
+                                        </td>
+                                        <td className="action-cell">
                                             {canAttemptDelete ? (
                                                 <div title={deleteButtonTitle}>
                                                     <OpenModalButton
                                                         buttonText={<MdDelete />}
-                                                        className={`delete-user-button ${isDeleteDisabled ? 'disabled' : ''}`}
+                                                        className={`btn ${isDeleteDisabled ? 'btn-secondary' : 'btn-danger'} delete-user-button ${isDeleteDisabled ? 'disabled' : ''}`}
                                                         disabled={isDeleteDisabled}
                                                         modalComponent={
                                                             <DeleteConfirmationModal
@@ -215,7 +281,11 @@ const GetAllUsersPage = () => {
                                                     />
                                                 </div>
                                             ) : (
-                                                <button className="delete-user-button disabled" title={deleteButtonTitle} disabled>
+                                                <button 
+                                                    className="btn btn-secondary delete-user-button disabled" 
+                                                    title={deleteButtonTitle} 
+                                                    disabled
+                                                >
                                                     <MdDelete />
                                                 </button>
                                             )}
@@ -226,13 +296,23 @@ const GetAllUsersPage = () => {
                         </tbody>
                     </table>
                 ) : (
-                    <p>{searchTerm.trim() ? "No users match your search." : "No users found."}</p>
+                    <div className="no-users-message">
+                        <h3>No users found</h3>
+                        <p>{searchTerm.trim() ? "No users match your search criteria." : "No users found in the system."}</p>
+                    </div>
                 )}
             </div>
 
             {totalPages > 1 && (
                 <div className="pagination-controls">
-                    <button onClick={goToPrevPage} disabled={currentPage === 1}>Previous</button>
+                    <button 
+                        onClick={goToPrevPage} 
+                        disabled={currentPage === 1}
+                        className="btn btn-secondary pagination-btn"
+                    >
+                        Previous
+                    </button>
+                    
                     {Array.from({ length: totalPages }, (_, i) => i + 1)
                         .filter(pageNumber => {
                             if (totalPages <= 7) return true;
@@ -244,12 +324,23 @@ const GetAllUsersPage = () => {
                         .map((pageNumber, index) => (
                            pageNumber === 'ellipsis' ?
                            <span key={`ellipsis-${index}`} className="page-ellipsis">...</span> :
-                           <button key={pageNumber} onClick={() => paginate(pageNumber)} className={`page-number ${currentPage === pageNumber ? 'active' : ''}`}>
+                           <button 
+                               key={pageNumber} 
+                               onClick={() => paginate(pageNumber)} 
+                               className={`btn ${currentPage === pageNumber ? 'btn-primary' : 'btn-secondary'} page-number ${currentPage === pageNumber ? 'active' : ''}`}
+                           >
                                {pageNumber}
                            </button>
                         ))
                     }
-                    <button onClick={goToNextPage} disabled={currentPage === totalPages}>Next</button>
+                    
+                    <button 
+                        onClick={goToNextPage} 
+                        disabled={currentPage === totalPages}
+                        className="btn btn-secondary pagination-btn"
+                    >
+                        Next
+                    </button>
                 </div>
             )}
         </div>

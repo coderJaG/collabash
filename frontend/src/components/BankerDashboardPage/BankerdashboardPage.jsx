@@ -6,10 +6,12 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { getPots } from '../../store/pots';
 import { fetchBankerPaymentReport, requestPaymentApproval } from '../../store/admin';
 import { fetchSentRequests, createJoinRequest } from '../../store/requests';
+import { updateUser } from '../../store/users';
+import * as sessionActions from '../../store/session';
 import { ClipLoader } from 'react-spinners';
 import { FaCubesStacked } from "react-icons/fa6";
 import { SiQuicklook } from "react-icons/si";
-import { MdArrowBack, MdPayment, MdWarning, MdCheckCircle, MdAdd, MdSend, MdHourglassTop, MdSettings, MdSchedule } from 'react-icons/md';
+import { MdArrowBack, MdPayment, MdWarning, MdCheckCircle, MdAdd, MdSend, MdHourglassTop, MdSettings, MdSchedule, MdPerson, MdEdit, MdSave, MdCancel } from 'react-icons/md';
 import { formatDate } from '../../utils/formatDate';
 import './BankerDashboardPage.css';
 
@@ -28,9 +30,23 @@ const BankerDashboardPage = () => {
     const isRequestingJoin = useSelector(state => state.requests.isLoading);
 
     const [selectedPot, setSelectedPot] = useState(null);
-    const [viewMode, setViewMode] = useState('overview'); // 'overview', 'payments', 'pots', or 'findPots'
+    const [viewMode, setViewMode] = useState('overview'); // 'overview', 'payments', 'pots', 'findPots', 'profile'
     const [filter, setFilter] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
+
+    // Profile edit states
+    const [isEditingProfile, setIsEditingProfile] = useState(false);
+    const [profileFormData, setProfileFormData] = useState({
+        firstName: '',
+        lastName: '',
+        username: '',
+        email: '',
+        mobile: ''
+    });
+    const [newPassword, setNewPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [profileEditError, setProfileEditError] = useState('');
+    const [profileEditSuccess, setProfileEditSuccess] = useState('');
 
     const isLoading = isLoadingPots || isLoadingPayments;
     const error = potsError || paymentsError;
@@ -38,6 +54,19 @@ const BankerDashboardPage = () => {
     const userPermissions = useMemo(() => new Set(currUser?.permissions || []), [currUser]);
     const canCreatePots = userPermissions.has('pot:create');
     const canRequestToJoin = userPermissions.has('request:create');
+
+    // Initialize profile form data
+    useEffect(() => {
+        if (currUser) {
+            setProfileFormData({
+                firstName: currUser.firstName || '',
+                lastName: currUser.lastName || '',
+                username: currUser.username || '',
+                email: currUser.email || '',
+                mobile: currUser.mobile || ''
+            });
+        }
+    }, [currUser]);
 
     // Get pending request pot IDs
     const pendingRequestPotIds = useMemo(() => {
@@ -82,7 +111,7 @@ const BankerDashboardPage = () => {
                 }
             }
 
-            navigate('/banker-dashboard', { replace: true, state: {} });
+            navigate('/dashboard', { replace: true, state: {} });
         }
     }, [location.state, bankerPots, navigate]);
 
@@ -174,8 +203,84 @@ const BankerDashboardPage = () => {
         if (!potData) return [];
 
         if (filter === 'all') return potData.payments.sort((a, b) => new Date(a.drawDate) - new Date(b.drawDate));
-        return potData.payments.filter(p => p.status === filter).sort((a, b) => new Date(a.drawDate) - new Date(b.drawDate));
+                return potData.payments.filter(p => p.status === filter).sort((a, b) => new Date(a.drawDate) - new Date(b.drawDate));
     }, [bankerPotPayments, selectedPot, viewMode, filter]);
+
+    // Dashboard stats calculation
+    const getDashboardStats = () => {
+        const totalPots = bankerPots.length;
+        console.log('bankerPots:', bankerPots);
+        const activePots = bankerPots.filter(pot => pot.status.toLowerCase() === 'active').length;
+        console.log('activePots:', activePots);
+        const totalMembers = bankerPots.reduce((sum, pot) => sum + (pot.Users?.length || 0), 0);
+        const totalDuePayments = bankerPayments.filter(p => p.status === 'due').length;
+        const totalPendingPayments = bankerPayments.filter(p => p.status === 'pending').length;
+        const monthlyRevenue = bankerPayments.filter(p => p.status.toLowerCase() === 'paid').reduce((sum, p) => sum + Number(p.amountDue), 0);
+
+        return [
+            { label: 'My Pots', value: totalPots.toString(), trend: '+1', color: 'primary' },
+            { label: 'Active Pots', value: activePots.toString(), trend: '0', color: 'success' },
+            { label: 'Total Members', value: totalMembers.toString(), trend: '+5', color: 'info' },
+            { label: 'Due Payments', value: totalDuePayments.toString(), trend: '-1', color: 'warning' },
+            { label: 'Pending Approvals', value: totalPendingPayments.toString(), trend: '0', color: 'error' },
+            { label: 'Monthly Revenue', value: `${monthlyRevenue.toFixed(2)}`, trend: '+8%', color: 'success' }
+        ];
+    };
+
+    // Profile form handlers
+    const handleProfileInputChange = (e) => {
+        const { name, value } = e.target;
+        setProfileFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleMobileChange = (e) => {
+        const { value } = e.target;
+        const numericValue = value.replace(/[^\d]/g, '');
+        const truncatedValue = numericValue.slice(0, 10);
+        let formattedValue = truncatedValue;
+        if (truncatedValue.length > 6) {
+            formattedValue = `${truncatedValue.slice(0, 3)}-${truncatedValue.slice(3, 6)}-${truncatedValue.slice(6)}`;
+        } else if (truncatedValue.length > 3) {
+            formattedValue = `${truncatedValue.slice(0, 3)}-${truncatedValue.slice(3)}`;
+        }
+        setProfileFormData(prev => ({ ...prev, mobile: formattedValue }));
+    };
+
+    const handleProfileSubmit = async (e) => {
+        e.preventDefault();
+        setProfileEditError('');
+        setProfileEditSuccess('');
+
+        if (newPassword && newPassword !== confirmPassword) {
+            setProfileEditError('New passwords do not match.');
+            return;
+        }
+        if (newPassword && newPassword.length < 6) {
+            setProfileEditError('New password must be at least 6 characters long.');
+            return;
+        }
+
+        const userDataToUpdate = { ...profileFormData };
+        if (newPassword) {
+            userDataToUpdate.password = newPassword;
+        }
+
+        try {
+            const updatedUser = await dispatch(updateUser(currUser.id, userDataToUpdate));
+            if (updatedUser) {
+                dispatch(sessionActions.restoreUser());
+                setProfileEditSuccess('Profile updated successfully!');
+                setIsEditingProfile(false);
+                setNewPassword('');
+                setConfirmPassword('');
+                setTimeout(() => setProfileEditSuccess(''), 3000);
+            }
+        } catch (error) {
+            const errorMessage = error?.errors?.message || error?.message || 'Failed to update profile. Please try again.';
+            setProfileEditError(errorMessage);
+            setTimeout(() => setProfileEditError(''), 5000);
+        }
+    };
 
     // Navigate to full pot management page
     const handleManagePot = (potId) => {
@@ -248,6 +353,247 @@ const BankerDashboardPage = () => {
             </div>
         );
     }
+
+    // Profile section render
+    const renderProfileSection = () => (
+        <div className="unified-dashboard-content">
+            <div className="dashboard-header">
+                <div className="header-with-back">
+                    <button className="btn btn-secondary back-to-admin-dashboard-button" onClick={handleBackToDashboard}>
+                        <MdArrowBack /> Back to Dashboard
+                    </button>
+                    <div>
+                        <h1 className="admin-header">Profile Settings</h1>
+                        <p className="admin-subtitle">Manage your account information and preferences</p>
+                    </div>
+                </div>
+            </div>
+
+            <div className="profile-section">
+                {profileEditError && <div className="alert alert-error">{profileEditError}</div>}
+                {profileEditSuccess && <div className="alert alert-success">{profileEditSuccess}</div>}
+
+                <div className="profile-card">
+                    {!isEditingProfile ? (
+                        <>
+                            <div className="profile-info">
+                                <div className="profile-avatar">
+                                    <div className="avatar-large">
+                                        {currUser?.firstName?.[0]}{currUser?.lastName?.[0]}
+                                    </div>
+                                </div>
+                                <div className="profile-details">
+                                    <h3>{currUser?.firstName} {currUser?.lastName}</h3>
+                                    <p className="profile-role">{currUser?.role}</p>
+                                </div>
+                            </div>
+
+                            <div className="profile-fields">
+                                <div className="field-row">
+                                    <label>Username</label>
+                                    <span>{currUser?.username}</span>
+                                </div>
+                                <div className="field-row">
+                                    <label>Email</label>
+                                    <span>{currUser?.email}</span>
+                                </div>
+                                <div className="field-row">
+                                    <label>Mobile</label>
+                                    <span>{currUser?.mobile || 'Not provided'}</span>
+                                </div>
+                            </div>
+
+                            <button 
+                                className="btn btn-primary"
+                                onClick={() => setIsEditingProfile(true)}
+                            >
+                                <MdEdit /> Edit Profile
+                            </button>
+                        </>
+                    ) : (
+                        <form onSubmit={handleProfileSubmit} className="profile-edit-form">
+                            <div className="form-row">
+                                <div className="form-group">
+                                    <label>First Name</label>
+                                    <input
+                                        type="text"
+                                        name="firstName"
+                                        value={profileFormData.firstName}
+                                        onChange={handleProfileInputChange}
+                                        className="form-input"
+                                        required
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label>Last Name</label>
+                                    <input
+                                        type="text"
+                                        name="lastName"
+                                        value={profileFormData.lastName}
+                                        onChange={handleProfileInputChange}
+                                        className="form-input"
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="form-group">
+                                <label>Username</label>
+                                <input
+                                    type="text"
+                                    name="username"
+                                    value={profileFormData.username}
+                                    onChange={handleProfileInputChange}
+                                    className="form-input"
+                                    required
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label>Email</label>
+                                <input
+                                    type="email"
+                                    name="email"
+                                    value={profileFormData.email}
+                                    onChange={handleProfileInputChange}
+                                    className="form-input"
+                                    required
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label>Mobile</label>
+                                <input
+                                    type="tel"
+                                    name="mobile"
+                                    value={profileFormData.mobile}
+                                    onChange={handleMobileChange}
+                                    placeholder="999-999-9999"
+                                    className="form-input"
+                                    required
+                                />
+                            </div>
+
+                            <hr className="form-divider" />
+                            <p className="password-change-info">Change Password (leave blank if you do not want to change it):</p>
+                            
+                            <div className="form-group">
+                                <label>New Password</label>
+                                <input
+                                    type="password"
+                                    value={newPassword}
+                                    onChange={(e) => setNewPassword(e.target.value)}
+                                    className="form-input"
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label>Confirm New Password</label>
+                                <input
+                                    type="password"
+                                    value={confirmPassword}
+                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                    className="form-input"
+                                />
+                            </div>
+
+                            <div className="form-actions">
+                                <button type="submit" className="btn btn-success">
+                                    <MdSave /> Save Changes
+                                </button>
+                                <button type="button" onClick={() => setIsEditingProfile(false)} className="btn btn-secondary">
+                                    <MdCancel /> Cancel
+                                </button>
+                            </div>
+                        </form>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+
+    // Dashboard overview render
+    const renderDashboardOverview = () => {
+        const stats = getDashboardStats();
+        
+        return (
+            <div className="unified-dashboard-content">
+                <div className="dashboard-header">
+                    <h1 className="admin-header">Banker Dashboard</h1>
+                    <p className="admin-subtitle">Manage your pots, track payments, and grow your member base</p>
+                </div>
+
+                {/* Dashboard Stats */}
+                <div className="stats-grid">
+                    {stats.map((stat, index) => (
+                        <div key={index} className={`stat-card stat-${stat.color}`}>
+                            <div className="stat-content">
+                                <div className="stat-value">{stat.value}</div>
+                                <div className="stat-label">{stat.label}</div>
+                                {stat.trend && (
+                                    <div className={`stat-trend ${stat.trend.includes('+') ? 'positive' : stat.trend.includes('-') ? 'negative' : 'neutral'}`}>
+                                        {stat.trend}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                {/* Quick Actions */}
+                <div className="quick-actions">
+                    <h3>Quick Actions</h3>
+                    <div className="action-buttons">
+                        <button className="btn btn-secondary" onClick={handleViewAllPots}>
+                            <FaCubesStacked /> Manage My Pots
+                        </button>
+                        <button className="btn btn-secondary" onClick={handleViewAvailablePots}>
+                            <MdSend /> Find Pots to Join
+                        </button>
+                        {canCreatePots && (
+                            <button className="btn btn-success" onClick={handleCreatePot}>
+                                <MdAdd /> Create New Pot
+                            </button>
+                        )}
+                        <button className="btn btn-purple" onClick={() => setViewMode('profile')}>
+                            <MdPerson /> View Profile
+                        </button>
+                    </div>
+                </div>
+
+                {/* Recent Activity */}
+                <div className="admin-controls">
+                    <input
+                        type="text"
+                        placeholder="Search your pots..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="search-input"
+                    />
+                </div>
+
+                <div className="pots-grid">
+                    {filteredPots.slice(0, 4).map(pot => (
+                        <BankerPotCard
+                            key={pot.id}
+                            pot={pot}
+                            handlePotSelect={handlePotSelect}
+                            handleViewPayments={handleViewPayments}
+                            handleManagePot={handleManagePot}
+                        />
+                    ))}
+                </div>
+
+                {filteredPots.length > 4 && (
+                    <div style={{ textAlign: 'center', marginTop: 'var(--spacing-xl)' }}>
+                        <button className="btn btn-secondary" onClick={handleViewAllPots}>
+                            View All My Pots ({filteredPots.length})
+                        </button>
+                    </div>
+                )}
+            </div>
+        );
+    };
 
     // Find Available Pots View
     if (viewMode === 'findPots') {
@@ -429,57 +775,20 @@ const BankerDashboardPage = () => {
         );
     }
 
+    // Profile view
+    if (viewMode === 'profile') {
+        return (
+            <div className="container">
+                {renderProfileSection()}
+            </div>
+        );
+    }
+
     // Dashboard Overview (Main Dashboard)
     if (!selectedPot) {
         return (
             <div className="container">
-                <div className="admin-header-section">
-                    <h1 className="admin-header">Banker Dashboard</h1>
-                    <p className="admin-subtitle">Manage subscription fees for your pots and find new opportunities</p>
-                </div>
-
-                <div className="dashboard-nav-buttons">
-                    <button className="btn btn-secondary" onClick={handleViewAllPots}>
-                        <FaCubesStacked /> Manage All My Pots
-                    </button>
-                    <button className="btn btn-secondary" onClick={handleViewAvailablePots}>
-                        <MdSend /> Find Pots to Join
-                    </button>
-                    {canCreatePots && (
-                        <button className="btn btn-success" onClick={handleCreatePot}>
-                            <MdAdd /> Create New Pot
-                        </button>
-                    )}
-                </div>
-
-                <div className="admin-controls">
-                    <input
-                        type="text"
-                        placeholder="Search your pots..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="search-input"
-                    />
-                </div>
-
-                <div className="pots-grid">
-                    {filteredPots.length > 0 ? filteredPots.map(pot => (
-                        <BankerPotCard
-                            key={pot.id}
-                            pot={pot}
-                            handlePotSelect={handlePotSelect}
-                            handleViewPayments={handleViewPayments}
-                            handleManagePot={handleManagePot}
-                        />
-                    )) : (
-                        <div className="no-pots-message">
-                            <h3>No pots found</h3>
-                            <p>
-                                {searchTerm ? 'No pots match your search.' : 'You don\'t have any pots yet.'}
-                            </p>
-                        </div>
-                    )}
-                </div>
+                {renderDashboardOverview()}
             </div>
         );
     }
@@ -671,7 +980,7 @@ const PotDetailsView = ({ selectedPot, handleBackToPots, setViewMode, handleMana
                                                 <td>
                                                     {userPayment ? (
                                                         <span className={`status-badge status-${userPayment.status}`}>
-                                                            {userPayment.status === 'paid' ? 'Paid' : `Due: $${Number(userPayment.amountDue).toFixed(2)}`}
+                                                            {userPayment.status === 'paid' ? 'Paid' : `Due: ${Number(userPayment.amountDue).toFixed(2)}`}
                                                         </span>
                                                     ) : (
                                                         <span className="status-badge status-due">

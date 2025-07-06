@@ -3,6 +3,21 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useParams, NavLink } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
+import { 
+    MdPerson, 
+    MdEdit, 
+    MdSave, 
+    MdCancel, 
+    MdEmail, 
+    MdPhone, 
+    MdAccountCircle, 
+    MdSupervisorAccount,
+    MdVisibility,
+    MdVisibilityOff,
+    MdArrowBack,
+    MdCheck,
+    MdClose
+} from 'react-icons/md';
 import * as userActions from '../../store/users';
 import * as sessionActions from '../../store/session';
 import LoadingSpinner from '../LoadingSpinner';
@@ -28,8 +43,11 @@ const GetSingleUserPage = () => {
     });
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [editError, setEditError] = useState("");
     const [editSuccess, setEditSuccess] = useState("");
+    const [focusedField, setFocusedField] = useState("");
 
     const userPermissions = useMemo(() => new Set(currUser?.permissions || []), [currUser]);
     const canEditAnyUser = userPermissions.has('user:edit_any');
@@ -38,7 +56,6 @@ const GetSingleUserPage = () => {
         const isOwner = parseInt(currUser.id) === parseInt(selectedUser.id);
         return isOwner || canEditAnyUser;
     }, [currUser, selectedUser, canEditAnyUser]);
-
 
     useEffect(() => {
         if (viewedUserId) {
@@ -62,7 +79,6 @@ const GetSingleUserPage = () => {
         }
     }, [selectedUser]);
 
-
     const handleEditToggle = () => {
         setIsEditing(!isEditing);
         setEditError("");
@@ -84,6 +100,19 @@ const GetSingleUserPage = () => {
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleMobileChange = (e) => {
+        const { value } = e.target;
+        const numericValue = value.replace(/[^\d]/g, '');
+        const truncatedValue = numericValue.slice(0, 10);
+        let formattedValue = truncatedValue;
+        if (truncatedValue.length > 6) {
+            formattedValue = `${truncatedValue.slice(0, 3)}-${truncatedValue.slice(3, 6)}-${truncatedValue.slice(6)}`;
+        } else if (truncatedValue.length > 3) {
+            formattedValue = `${truncatedValue.slice(0, 3)}-${truncatedValue.slice(3)}`;
+        }
+        setFormData(prev => ({ ...prev, mobile: formattedValue }));
     };
 
     const handleSubmitChanges = async (e) => {
@@ -127,6 +156,7 @@ const GetSingleUserPage = () => {
                     dispatch(sessionActions.restoreUser()); 
                 }
                 dispatch(userActions.getUserById(viewedUserId));
+                setTimeout(() => setEditSuccess(""), 3000);
             }
         } catch (error) {
             let messages = [];
@@ -142,27 +172,37 @@ const GetSingleUserPage = () => {
             }
             
             setEditError(messages.join('. '));
+            setTimeout(() => setEditError(""), 5000);
         }
     };
 
     if (isLoading) {
-        return <LoadingSpinner message="Loading user profile..." />;
+        return (
+            <div className="container loading-container">
+                <LoadingSpinner color="#1abc9c" size={50} />
+                <p className="loading-message">Loading user profile...</p>
+            </div>
+        );
     }
 
     if (error && !selectedUser?.id) {
         return (
-            <div className="single-user-page-wrapper error-container">
-                <h1>Error Loading Profile</h1>
-                <p>{error.message || 'Failed to load user details. Please try again later.'}</p>
+            <div className="container">
+                <div className="alert alert-error">
+                    <h1>Error Loading Profile</h1>
+                    <p>{error.message || 'Failed to load user details. Please try again later.'}</p>
+                </div>
             </div>
         );
     }
 
     if (!selectedUser || Object.keys(selectedUser).length === 0) {
         return (
-            <div className="single-user-page-wrapper">
-                <h1>User Profile</h1>
-                <p>User not found or data is unavailable.</p>
+            <div className="container">
+                <div className="alert alert-info">
+                    <h1>User Profile</h1>
+                    <p>User not found or data is unavailable.</p>
+                </div>
             </div>
         );
     }
@@ -174,21 +214,35 @@ const GetSingleUserPage = () => {
         if (!pots || pots.length === 0) {
             return (
                 <div className="no-pots-message">
-                    <p>{tableTitle === "POTS OWNED" ? `${selectedUser.firstName} does not own any pots.` : `${selectedUser.firstName} has not joined any other pots.`}</p>
+                    <h3>No Pots Found</h3>
+                    <p>{tableTitle === "POTS OWNED" ? 
+                        `${selectedUser.firstName} does not own any pots.` : 
+                        `${selectedUser.firstName} has not joined any other pots.`}
+                    </p>
                 </div>
             );
         }
         return (
-            <div className="pot-item">
-                <table>
+            <div className="table-container">
+                <table className="table">
                     <thead>
-                        <tr><th>POT NAME</th><th>POT VALUE</th><th>TOTAL MEMBERS</th></tr>
+                        <tr>
+                            <th>Pot Name</th>
+                            <th>Pot Value</th>
+                            <th>Total Members</th>
+                        </tr>
                     </thead>
                     <tbody>
                         {pots.map(pot => (
                             <tr key={pot.id}>
-                                <td><NavLink to={`/pots/${pot.id}`} className="pot-link-on-profile">{pot.name || 'N/A'}</NavLink></td>
-                                <td>${(pot.amount && !isNaN(pot.amount)) ? Number(pot.amount).toFixed(2) : '0.00'}</td>
+                                <td>
+                                    <NavLink to={`/pots/${pot.id}`} className="pot-link">
+                                        {pot.name || 'N/A'}
+                                    </NavLink>
+                                </td>
+                                <td className="amount-cell">
+                                    ${(pot.amount && !isNaN(pot.amount)) ? Number(pot.amount).toFixed(2) : '0.00'}
+                                </td>
                                 <td>{pot.Users ? pot.Users.length : (pot.userCount !== undefined ? pot.userCount : 0)}</td>
                             </tr>
                         ))}
@@ -198,67 +252,288 @@ const GetSingleUserPage = () => {
         );
     };
 
+    const isOwner = currUser && parseInt(currUser.id) === parseInt(selectedUser.id);
+
     return (
-        <div className="single-user-page-wrapper">
-            <div className="single-user-page-header"><h1>{`${selectedUser.firstName?.toUpperCase()}'S PROFILE`}</h1></div>
-
-            <div className="single-user-info-card">
-                {editError && <p className="form-error-message">{editError}</p>}
-                {editSuccess && <p className="form-success-message">{editSuccess}</p>}
-                {error && selectedUser?.id && <p className="form-error-message">{error.message}</p>}
-
-                {!isEditing ? (
-                    <>
-                        <div className="single-user-detail-row"><p><strong>Name:</strong> {selectedUser.firstName} {selectedUser.lastName}</p></div>
-                        <div className="single-user-detail-row"><p><strong>Username:</strong> {selectedUser.username || '(Not available)'}</p></div>
-                        <div className="single-user-detail-row"><p><strong>Email:</strong> {selectedUser.email || '(Not available)'}</p></div>
-                        <div className="single-user-detail-row"><p><strong>Mobile:</strong> {selectedUser.mobile || 'N/A'}</p></div>
-                        <div className="single-user-detail-row"><p><strong>Role:</strong> {selectedUser.role}</p></div>
-                        {canEditThisProfile && (
-                            <button onClick={handleEditToggle} className="user-profile-button edit-profile-button">Edit Profile</button>
-                        )}
-                    </>
-                ) : (
-                    <form onSubmit={handleSubmitChanges} className="user-info-edit-form">
-                        <div className="form-input-group"><label htmlFor="firstName">First Name:</label><input type="text" id="firstName" name="firstName" value={formData.firstName} onChange={handleInputChange} required /></div>
-                        <div className="form-input-group"><label htmlFor="lastName">Last Name:</label><input type="text" id="lastName" name="lastName" value={formData.lastName} onChange={handleInputChange} required /></div>
-                        <div className="form-input-group"><label htmlFor="username">Username:</label><input type="text" id="username" name="username" value={formData.username} onChange={handleInputChange} required /></div>
-                        <div className="form-input-group"><label htmlFor="email">Email:</label><input type="email" id="email" name="email" value={formData.email} onChange={handleInputChange} required /></div>
-                        <div className="form-input-group"><label htmlFor="mobile">Mobile (e.g., 999-999-9999):</label><input type="tel" id="mobile" name="mobile" value={formData.mobile} onChange={handleInputChange} pattern="\d{3}-\d{3}-\d{4}" placeholder="999-999-9999" required /></div>
-                        
-                        {canEditAnyUser ? (
-                            <div className="form-input-group">
-                                <label htmlFor="role">Role:</label>
-                                <select id="role" name="role" value={formData.role} onChange={handleInputChange}>
-                                    <option value="standard">Standard</option>
-                                    <option value="banker">Banker</option>
-                                    <option value="superadmin">Super Admin</option>
-                                </select>
-                            </div>
-                        ) : (
-                             <div className="single-user-detail-row"><p><strong>Role:</strong> {selectedUser.role}</p></div>
-                        )}
-
-                        <hr className="form-divider" />
-                        <p className="password-change-info">Change Password (leave blank if you do not want to change it):</p>
-                        <div className="form-input-group"><label htmlFor="newPassword">New Password:</label><input type="password" id="newPassword" name="newPassword" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} autoComplete="new-password" /></div>
-                        <div className="form-input-group"><label htmlFor="confirmPassword">Confirm New Password:</label><input type="password" id="confirmPassword" name="confirmPassword" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} autoComplete="new-password"/></div>
-
-                        <div className="form-button-group">
-                            <button type="submit" className="user-profile-button save-changes-button">Save Changes</button>
-                            <button type="button" onClick={handleEditToggle} className="user-profile-button cancel-button">Cancel</button>
-                        </div>
-                    </form>
-                )}
+        <div className="container">
+            <div className="admin-header-section">
+                <div className="header-with-back">
+                    <button 
+                        className="btn btn-secondary back-to-admin-dashboard-button" 
+                        onClick={() => window.history.back()}
+                    >
+                        <MdArrowBack /> Back
+                    </button>
+                    <div>
+                        <h1 className="admin-header">
+                            {selectedUser.firstName}'s Profile
+                            {isOwner && <span className="owner-indicator"> (You)</span>}
+                        </h1>
+                        <p className="admin-subtitle">View and manage user information</p>
+                    </div>
+                </div>
             </div>
 
-            <div className="single-user-pots-list">
-                <h2>POTS OWNED BY {selectedUser.firstName?.toUpperCase()}</h2>
+            {editError && (
+                <div className="alert alert-error">
+                    <MdClose className="alert-icon" />
+                    <span>{editError}</span>
+                </div>
+            )}
+            
+            {editSuccess && (
+                <div className="alert alert-success">
+                    <MdCheck className="alert-icon" />
+                    <span>{editSuccess}</span>
+                </div>
+            )}
+
+            <div className="profile-section">
+                <div className="profile-card">
+                    {!isEditing ? (
+                        <>
+                            <div className="profile-info">
+                                <div className="profile-avatar">
+                                    <div className="avatar-large">
+                                        {selectedUser.firstName?.[0]}{selectedUser.lastName?.[0]}
+                                    </div>
+                                </div>
+                                <div className="profile-details">
+                                    <h3>{selectedUser.firstName} {selectedUser.lastName}</h3>
+                                    <p className={`profile-role role-${selectedUser.role}`}>
+                                        {selectedUser.role}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="profile-fields">
+                                <div className="field-row">
+                                    <label>
+                                        <MdAccountCircle className="field-icon" />
+                                        Username
+                                    </label>
+                                    <span>{selectedUser.username || 'Not available'}</span>
+                                </div>
+                                <div className="field-row">
+                                    <label>
+                                        <MdEmail className="field-icon" />
+                                        Email
+                                    </label>
+                                    <span>{selectedUser.email || 'Not available'}</span>
+                                </div>
+                                <div className="field-row">
+                                    <label>
+                                        <MdPhone className="field-icon" />
+                                        Mobile
+                                    </label>
+                                    <span>{selectedUser.mobile || 'Not provided'}</span>
+                                </div>
+                                <div className="field-row">
+                                    <label>
+                                        <MdSupervisorAccount className="field-icon" />
+                                        Role
+                                    </label>
+                                    <span className={`role-badge role-${selectedUser.role}`}>
+                                        {selectedUser.role}
+                                    </span>
+                                </div>
+                            </div>
+
+                            {canEditThisProfile && (
+                                <button 
+                                    onClick={handleEditToggle} 
+                                    className="btn btn-primary edit-profile-button"
+                                >
+                                    <MdEdit /> Edit Profile
+                                </button>
+                            )}
+                        </>
+                    ) : (
+                        <form onSubmit={handleSubmitChanges} className="profile-edit-form">
+                            <div className="form-row">
+                                <div className={`form-group ${focusedField === 'firstName' ? 'focused' : ''}`}>
+                                    <label>
+                                        <MdPerson className="label-icon" />
+                                        First Name
+                                    </label>
+                                    <input
+                                        type="text"
+                                        name="firstName"
+                                        value={formData.firstName}
+                                        onChange={handleInputChange}
+                                        onFocus={() => setFocusedField('firstName')}
+                                        onBlur={() => setFocusedField('')}
+                                        className="form-input"
+                                        required
+                                    />
+                                </div>
+                                <div className={`form-group ${focusedField === 'lastName' ? 'focused' : ''}`}>
+                                    <label>
+                                        <MdPerson className="label-icon" />
+                                        Last Name
+                                    </label>
+                                    <input
+                                        type="text"
+                                        name="lastName"
+                                        value={formData.lastName}
+                                        onChange={handleInputChange}
+                                        onFocus={() => setFocusedField('lastName')}
+                                        onBlur={() => setFocusedField('')}
+                                        className="form-input"
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            <div className={`form-group ${focusedField === 'username' ? 'focused' : ''}`}>
+                                <label>
+                                    <MdAccountCircle className="label-icon" />
+                                    Username
+                                </label>
+                                <input
+                                    type="text"
+                                    name="username"
+                                    value={formData.username}
+                                    onChange={handleInputChange}
+                                    onFocus={() => setFocusedField('username')}
+                                    onBlur={() => setFocusedField('')}
+                                    className="form-input"
+                                    required
+                                />
+                            </div>
+
+                            <div className={`form-group ${focusedField === 'email' ? 'focused' : ''}`}>
+                                <label>
+                                    <MdEmail className="label-icon" />
+                                    Email
+                                </label>
+                                <input
+                                    type="email"
+                                    name="email"
+                                    value={formData.email}
+                                    onChange={handleInputChange}
+                                    onFocus={() => setFocusedField('email')}
+                                    onBlur={() => setFocusedField('')}
+                                    className="form-input"
+                                    required
+                                />
+                            </div>
+
+                            <div className={`form-group ${focusedField === 'mobile' ? 'focused' : ''}`}>
+                                <label>
+                                    <MdPhone className="label-icon" />
+                                    Mobile Number
+                                </label>
+                                <input
+                                    type="tel"
+                                    name="mobile"
+                                    value={formData.mobile}
+                                    onChange={handleMobileChange}
+                                    onFocus={() => setFocusedField('mobile')}
+                                    onBlur={() => setFocusedField('')}
+                                    placeholder="999-999-9999"
+                                    maxLength="12"
+                                    className="form-input"
+                                    required
+                                />
+                            </div>
+
+                            {canEditAnyUser && (
+                                <div className={`form-group ${focusedField === 'role' ? 'focused' : ''}`}>
+                                    <label>
+                                        <MdSupervisorAccount className="label-icon" />
+                                        Role
+                                    </label>
+                                    <select
+                                        name="role"
+                                        value={formData.role}
+                                        onChange={handleInputChange}
+                                        onFocus={() => setFocusedField('role')}
+                                        onBlur={() => setFocusedField('')}
+                                        className="form-input"
+                                    >
+                                        <option value="standard">Standard</option>
+                                        <option value="banker">Banker</option>
+                                        <option value="superadmin">Super Admin</option>
+                                    </select>
+                                </div>
+                            )}
+
+                            <hr className="form-divider" />
+                            <p className="password-change-info">
+                                Change Password (leave blank if you do not want to change it):
+                            </p>
+
+                            <div className={`form-group password-group ${focusedField === 'newPassword' ? 'focused' : ''}`}>
+                                <label>New Password</label>
+                                <div className="password-input-wrapper">
+                                    <input
+                                        type={showPassword ? 'text' : 'password'}
+                                        value={newPassword}
+                                        onChange={(e) => setNewPassword(e.target.value)}
+                                        onFocus={() => setFocusedField('newPassword')}
+                                        onBlur={() => setFocusedField('')}
+                                        className="form-input"
+                                        autoComplete="new-password"
+                                    />
+                                    <button
+                                        type="button"
+                                        className="password-toggle"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        tabIndex={-1}
+                                    >
+                                        {showPassword ? <MdVisibilityOff /> : <MdVisibility />}
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className={`form-group password-group ${focusedField === 'confirmPassword' ? 'focused' : ''}`}>
+                                <label>Confirm New Password</label>
+                                <div className="password-input-wrapper">
+                                    <input
+                                        type={showConfirmPassword ? 'text' : 'password'}
+                                        value={confirmPassword}
+                                        onChange={(e) => setConfirmPassword(e.target.value)}
+                                        onFocus={() => setFocusedField('confirmPassword')}
+                                        onBlur={() => setFocusedField('')}
+                                        className="form-input"
+                                        autoComplete="new-password"
+                                    />
+                                    <button
+                                        type="button"
+                                        className="password-toggle"
+                                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                        tabIndex={-1}
+                                    >
+                                        {showConfirmPassword ? <MdVisibilityOff /> : <MdVisibility />}
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="form-actions">
+                                <button type="submit" className="btn btn-success">
+                                    <MdSave /> Save Changes
+                                </button>
+                                <button type="button" onClick={handleEditToggle} className="btn btn-secondary">
+                                    <MdCancel /> Cancel
+                                </button>
+                            </div>
+                        </form>
+                    )}
+                </div>
+            </div>
+
+            <div className="pots-section">
+                <h2 className="section-title">
+                    Pots Owned by {selectedUser.firstName}
+                </h2>
                 {renderPotsTable(potsOwnedBySelectedUser, "POTS OWNED")}
             </div>
 
-            <div className="single-user-pots-list">
-                <h2>POTS JOINED BY {selectedUser.firstName?.toUpperCase()}</h2>
+            <div className="pots-section">
+                <h2 className="section-title">
+                    Pots Joined by {selectedUser.firstName}
+                </h2>
                 {renderPotsTable(potsJoinedBySelectedUser, "POTS JOINED")}
             </div>
         </div>
