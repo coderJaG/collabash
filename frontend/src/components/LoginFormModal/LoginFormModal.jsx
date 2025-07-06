@@ -1,9 +1,16 @@
-//LoginFormModal.jsx
+// LoginFormModal.jsx - Updated to match SignUp structure
 import { useState, useRef } from "react";
 import * as sessionActions from "../../store/session";
 import { useDispatch } from "react-redux";
 import { useModal } from "../context/Modal";
 import SignUpFormModal from "../SignUpFormModal";
+import { 
+    MdLogin, 
+    MdPerson, 
+    MdLock,
+    MdAccountCircle,
+    MdWarning
+} from 'react-icons/md';
 import './LoginFormModal.css';
 
 function LoginFormModal() {
@@ -12,6 +19,7 @@ function LoginFormModal() {
     const [password, setPassword] = useState("");
     const [errors, setErrors] = useState({});
     const [isTransitioning, setIsTransitioning] = useState(false);
+    const [focusedField, setFocusedField] = useState('');
     const { closeModal, setModalContent } = useModal();
     const modalRef = useRef(null);
 
@@ -28,7 +36,7 @@ function LoginFormModal() {
                 }
             });
     };
-    // Function to switch to the Sign Up form
+
     const switchToSignup = () => {
         setIsTransitioning(true);
         if (modalRef.current) {
@@ -53,69 +61,103 @@ function LoginFormModal() {
 
     return (
         <div
-            className={`login-modal-content ${isTransitioning ? 'switching' : ''}`}
+            className={`login-form ${isTransitioning ? 'switching' : ''}`}
             ref={modalRef}
         >
-            <h2>Log In</h2>
-            <div className="demo-buttons-container">
-                <button
-                    className="demo-button"
-                    onClick={() => demoUserLogin('Demo-lition', 'password')}
-                    disabled={isTransitioning}
-                >
-                    Demo User 1
-                </button>
-                <button
-                    className="demo-button"
-                    onClick={() => demoUserLogin('johnsmith', 'password2')}
-                    disabled={isTransitioning}
-                >
-                    Demo User 2
-                </button>
-                 <button
-                    className="demo-button"
-                    onClick={() => demoUserLogin('coderjag', 'password')}
-                    disabled={isTransitioning}
-                >
-                    Demo User 3
-                </button>
+            <div className="modal-header-gradient">
+                <h1 className="login-form-header">
+                    <MdLogin className="header-icon" />
+                    Welcome Back
+                </h1>
+                <p className="login-subtitle">
+                    Sign in to your account
+                </p>
             </div>
-            <form onSubmit={handleSubmit} className="login-form">
-                {errors.credential && <p className="error-message">{errors.credential}</p>}
-                <label>
-                    Username or Email
-                    <input
-                        type="text"
-                        value={credential}
-                        onChange={(e) => setCredential(e.target.value)}
-                        required
+
+            <div className="login-form-content">
+                <div className="demo-buttons-container">
+                    <button
+                        className="demo-button"
+                        onClick={() => demoUserLogin('Demo-lition', 'password')}
                         disabled={isTransitioning}
-                        placeholder="Enter your username or email"
-                    />
-                </label>
-                <label>
-                    Password
-                    <input
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
+                    >
+                        Demo User 1
+                    </button>
+                    <button
+                        className="demo-button"
+                        onClick={() => demoUserLogin('johnsmith', 'password2')}
                         disabled={isTransitioning}
-                        placeholder="Enter your password"
-                    />
-                </label>
-                <button
-                    type="submit"
-                    className="login-submit-button"
-                    disabled={disableButton || isTransitioning}
-                >
-                    {isTransitioning ? 'Switching...' : 'Log In'}
-                </button>
-            </form>
+                    >
+                        Demo User 2
+                    </button>
+                    <button
+                        className="demo-button"
+                        onClick={() => demoUserLogin('coderjag', 'password')}
+                        disabled={isTransitioning}
+                    >
+                        Demo User 3
+                    </button>
+                </div>
+
+                <form onSubmit={handleSubmit} className="login-form-fields">
+                    {(errors.credential || errors.message) && (
+                        <div className="error-message general-error">
+                            <span>{errors.credential || errors.message}</span>
+                            <MdWarning className="error-icon" />
+                        </div>
+                    )}
+                    
+                    <div className={`form-input-group ${focusedField === 'credential' ? 'focused' : ''}`}>
+                        <label>
+                            <MdPerson className="label-icon" />
+                            Username or Email
+                        </label>
+                        <input
+                            type="text"
+                            value={credential}
+                            onChange={(e) => setCredential(e.target.value)}
+                            onFocus={() => setFocusedField('credential')}
+                            onBlur={() => setFocusedField('')}
+                            required
+                            disabled={isTransitioning}
+                            placeholder="Enter your username or email"
+                            className={errors.credential || errors.message ? 'error' : ''}
+                        />
+                    </div>
+
+                    <div className={`form-input-group ${focusedField === 'password' ? 'focused' : ''}`}>
+                        <label>
+                            <MdLock className="label-icon" />
+                            Password
+                        </label>
+                        <input
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            onFocus={() => setFocusedField('password')}
+                            onBlur={() => setFocusedField('')}
+                            required
+                            disabled={isTransitioning}
+                            placeholder="Enter your password"
+                            className={errors.password ? 'error' : ''}
+                        />
+                    </div>
+
+                    <button
+                        type="submit"
+                        className="login-submit-button"
+                        disabled={disableButton || isTransitioning}
+                    >
+                        <MdAccountCircle className="button-icon" />
+                        <span>{isTransitioning ? 'Signing In...' : 'Sign In'}</span>
+                    </button>
+                </form>
+            </div>
+            
             <div className="form-switch-link">
-                <span>{"Don't have an account?"}</span>
-                <button
-                    className="signup-button"
+                <span>{`Don\n't have an account?`}</span>
+                <button 
+                    className="signup-button" 
                     onClick={switchToSignup}
                     disabled={isTransitioning}
                 >
