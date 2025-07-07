@@ -1,12 +1,16 @@
-// StandardUserDashboard.jsx - Enhanced with consistent AdminDashboard styling
+// StandardUserDashboard.jsx
 
 import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { getPots } from '../../store/pots';
 import { fetchSentRequests, createJoinRequest } from '../../store/requests';
+import { updateUser } from '../../store/users';
+import * as sessionActions from '../../store/session';
 import { ClipLoader } from 'react-spinners';
-import { MdArrowBack, MdPayment, MdSend, MdHourglassTop, MdSettings } from 'react-icons/md';
+import { FaCubesStacked } from "react-icons/fa6";
+import { MdArrowBack, MdSend, MdHourglassTop, MdSettings, MdPerson, MdEdit, MdSave, MdCancel } from 'react-icons/md';
+import { SiQuicklook } from "react-icons/si";
 import { formatDate } from '../../utils/formatDate';
 import './StandardUserDashboardPage.css';
 
@@ -22,11 +26,38 @@ const StandardUserDashboard = () => {
     const isRequestingJoin = useSelector(state => state.requests.isLoading);
 
     const [selectedPot, setSelectedPot] = useState(null);
-    const [viewMode, setViewMode] = useState('overview'); // 'overview', 'myPots', 'findPots'
+    const [viewMode, setViewMode] = useState('overview'); // 'overview', 'myPots', 'findPots', 'profile'
     const [searchTerm, setSearchTerm] = useState('');
+
+    // Profile edit states
+    const [isEditingProfile, setIsEditingProfile] = useState(false);
+    const [profileFormData, setProfileFormData] = useState({
+        firstName: '',
+        lastName: '',
+        username: '',
+        email: '',
+        mobile: ''
+    });
+    const [newPassword, setNewPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [profileEditError, setProfileEditError] = useState('');
+    const [profileEditSuccess, setProfileEditSuccess] = useState('');
 
     const userPermissions = useMemo(() => new Set(currUser?.permissions || []), [currUser]);
     const canRequestToJoin = userPermissions.has('request:create');
+
+    // Initialize profile form data
+    useEffect(() => {
+        if (currUser) {
+            setProfileFormData({
+                firstName: currUser.firstName || '',
+                lastName: currUser.lastName || '',
+                username: currUser.username || '',
+                email: currUser.email || '',
+                mobile: currUser.mobile || ''
+            });
+        }
+    }, [currUser]);
 
     useEffect(() => {
         dispatch(getPots());
@@ -103,6 +134,61 @@ const StandardUserDashboard = () => {
         return potsToFilter;
     }, [myPots, availablePots, viewMode, searchTerm]);
 
+    // Profile form handlers
+    const handleProfileInputChange = (e) => {
+        const { name, value } = e.target;
+        setProfileFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleMobileChange = (e) => {
+        const { value } = e.target;
+        const numericValue = value.replace(/[^\d]/g, '');
+        const truncatedValue = numericValue.slice(0, 10);
+        let formattedValue = truncatedValue;
+        if (truncatedValue.length > 6) {
+            formattedValue = `${truncatedValue.slice(0, 3)}-${truncatedValue.slice(3, 6)}-${truncatedValue.slice(6)}`;
+        } else if (truncatedValue.length > 3) {
+            formattedValue = `${truncatedValue.slice(0, 3)}-${truncatedValue.slice(3)}`;
+        }
+        setProfileFormData(prev => ({ ...prev, mobile: formattedValue }));
+    };
+
+    const handleProfileSubmit = async (e) => {
+        e.preventDefault();
+        setProfileEditError('');
+        setProfileEditSuccess('');
+
+        if (newPassword && newPassword !== confirmPassword) {
+            setProfileEditError('New passwords do not match.');
+            return;
+        }
+        if (newPassword && newPassword.length < 6) {
+            setProfileEditError('New password must be at least 6 characters long.');
+            return;
+        }
+
+        const userDataToUpdate = { ...profileFormData };
+        if (newPassword) {
+            userDataToUpdate.password = newPassword;
+        }
+
+        try {
+            const updatedUser = await dispatch(updateUser(currUser.id, userDataToUpdate));
+            if (updatedUser) {
+                dispatch(sessionActions.restoreUser());
+                setProfileEditSuccess('Profile updated successfully!');
+                setIsEditingProfile(false);
+                setNewPassword('');
+                setConfirmPassword('');
+                setTimeout(() => setProfileEditSuccess(''), 3000);
+            }
+        } catch (error) {
+            const errorMessage = error?.errors?.message || error?.message || 'Failed to update profile. Please try again.';
+            setProfileEditError(errorMessage);
+            setTimeout(() => setProfileEditError(''), 5000);
+        }
+    };
+
     // Navigate to full pot management page
     const handleManagePot = (potId) => {
         navigate(`/pots/${potId}`, {
@@ -162,21 +248,181 @@ const StandardUserDashboard = () => {
         };
     };
 
+    // Profile section render
+    const renderProfileSection = () => (
+        <div className="unified-dashboard-content">
+            <div className="dashboard-header">
+                <div className="header-with-back">
+                    <button className="btn btn-secondary back-to-admin-dashboard-button" onClick={handleBackToDashboard}>
+                        <MdArrowBack /> Back to Dashboard
+                    </button>
+                    <div>
+                        <h1 className="admin-header">Profile Settings</h1>
+                        <p className="admin-subtitle">Manage your account information and preferences</p>
+                    </div>
+                </div>
+            </div>
+
+            <div className="profile-section">
+                {profileEditError && <div className="alert alert-error">{profileEditError}</div>}
+                {profileEditSuccess && <div className="alert alert-success">{profileEditSuccess}</div>}
+
+                <div className="profile-card">
+                    {!isEditingProfile ? (
+                        <>
+                            <div className="profile-info">
+                                <div className="profile-avatar">
+                                    <div className="avatar-large">
+                                        {currUser?.firstName?.[0]}{currUser?.lastName?.[0]}
+                                    </div>
+                                </div>
+                                <div className="profile-details">
+                                    <h3>{currUser?.firstName} {currUser?.lastName}</h3>
+                                    <p className="profile-role">{currUser?.role}</p>
+                                </div>
+                            </div>
+
+                            <div className="profile-fields">
+                                <div className="field-row">
+                                    <label>Username</label>
+                                    <span>{currUser?.username}</span>
+                                </div>
+                                <div className="field-row">
+                                    <label>Email</label>
+                                    <span>{currUser?.email}</span>
+                                </div>
+                                <div className="field-row">
+                                    <label>Mobile</label>
+                                    <span>{currUser?.mobile || 'Not provided'}</span>
+                                </div>
+                            </div>
+
+                            <button 
+                                className="btn btn-primary"
+                                onClick={() => setIsEditingProfile(true)}
+                            >
+                                <MdEdit /> Edit Profile
+                            </button>
+                        </>
+                    ) : (
+                        <form onSubmit={handleProfileSubmit} className="profile-edit-form">
+                            <div className="form-row">
+                                <div className="form-group">
+                                    <label>First Name</label>
+                                    <input
+                                        type="text"
+                                        name="firstName"
+                                        value={profileFormData.firstName}
+                                        onChange={handleProfileInputChange}
+                                        className="form-input"
+                                        required
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label>Last Name</label>
+                                    <input
+                                        type="text"
+                                        name="lastName"
+                                        value={profileFormData.lastName}
+                                        onChange={handleProfileInputChange}
+                                        className="form-input"
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="form-group">
+                                <label>Username</label>
+                                <input
+                                    type="text"
+                                    name="username"
+                                    value={profileFormData.username}
+                                    onChange={handleProfileInputChange}
+                                    className="form-input"
+                                    required
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label>Email</label>
+                                <input
+                                    type="email"
+                                    name="email"
+                                    value={profileFormData.email}
+                                    onChange={handleProfileInputChange}
+                                    className="form-input"
+                                    required
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label>Mobile</label>
+                                <input
+                                    type="tel"
+                                    name="mobile"
+                                    value={profileFormData.mobile}
+                                    onChange={handleMobileChange}
+                                    placeholder="999-999-9999"
+                                    className="form-input"
+                                    required
+                                />
+                            </div>
+
+                            <hr className="form-divider" />
+                            <p className="password-change-info">Change Password (leave blank if you do not want to change it):</p>
+                            
+                            <div className="form-group">
+                                <label>New Password</label>
+                                <input
+                                    type="password"
+                                    value={newPassword}
+                                    onChange={(e) => setNewPassword(e.target.value)}
+                                    className="form-input"
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label>Confirm New Password</label>
+                                <input
+                                    type="password"
+                                    value={confirmPassword}
+                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                    className="form-input"
+                                />
+                            </div>
+
+                            <div className="form-actions">
+                                <button type="submit" className="btn btn-success">
+                                    <MdSave /> Save Changes
+                                </button>
+                                <button type="button" onClick={() => setIsEditingProfile(false)} className="btn btn-secondary">
+                                    <MdCancel /> Cancel
+                                </button>
+                            </div>
+                        </form>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+
     // Loading and error states
     if (isLoadingPots && allPotsArray.length === 0) {
         return (
-            <div className="admin-dashboard loading">
+            <div className="container loading-container">
                 <ClipLoader color="#1abc9c" size={50} />
-                <p>Loading your dashboard...</p>
+                <p className="loading-message">Loading your dashboard...</p>
             </div>
         );
     }
 
     if (potsError) {
         return (
-            <div className="admin-dashboard error-container">
-                <h1>Error</h1>
-                <p>{potsError.message || String(potsError)}</p>
+            <div className="container">
+                <div className="alert alert-error">
+                    <h1>Error</h1>
+                    <p>{potsError.message || String(potsError)}</p>
+                </div>
             </div>
         );
     }
@@ -184,10 +430,10 @@ const StandardUserDashboard = () => {
     // Find Available Pots View
     if (viewMode === 'findPots') {
         return (
-            <div className="admin-dashboard">
+            <div className="container">
                 <div className="admin-header-section">
                     <div className="header-with-back">
-                        <button className="back-button" onClick={handleBackToDashboard}>
+                        <button className="btn btn-secondary back-to-admin-dashboard-button" onClick={handleBackToDashboard}>
                             <MdArrowBack /> Back to Dashboard
                         </button>
                         <div>
@@ -202,7 +448,7 @@ const StandardUserDashboard = () => {
                         placeholder="Search available pots..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="admin-search-input"
+                        className="search-input"
                     />
                 </div>
                 <div className="pots-grid">
@@ -211,68 +457,64 @@ const StandardUserDashboard = () => {
                         const hasPendingRequest = pendingRequestPotIds.has(pot.id);
 
                         return (
-                            <div key={pot.id} className="pot-card">
-                                <div className="pot-card-header">
-                                    <h3 className="pot-name">{pot.name}</h3>
-                                    <div className="pot-status-indicators">
-                                        <span className={`status-indicator status-${pot.status.toLowerCase().replace(' ', '-')}`}>
-                                            {pot.status}
-                                        </span>
+                            <div key={pot.id} className="card card-accent">
+                                <div className="card-body">
+                                    <div className="pot-card-header">
+                                        <h3 className="pot-name">{pot.name}</h3>
+                                        <div className="pot-status-indicators">
+                                            <span className={`status-badge status-${pot.status.toLowerCase().replace(' ', '-')}`}>
+                                                {pot.status}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div className="pot-card-stats">
+                                        <div className="stat-item">
+                                            <span className="form-label stat-label">Banker</span>
+                                            <span className="stat-value">{pot.ownerName}</span>
+                                        </div>
+                                        <div className="stat-item">
+                                            <span className="form-label stat-label">Members</span>
+                                            <span className="stat-value">{stats.memberCount}</span>
+                                        </div>
+                                        <div className="stat-item">
+                                            <span className="form-label stat-label">Pot Amount</span>
+                                            <span className="stat-value amount-cell">
+                                                ${Number(pot.amount || 0).toFixed(2)}
+                                            </span>
+                                        </div>
+                                        <div className="stat-item">
+                                            <span className="form-label stat-label">Hand Amount</span>
+                                            <span className="stat-value amount-cell">
+                                                ${Number(pot.hand || 0).toFixed(2)}
+                                            </span>
+                                        </div>
+                                        <div className="stat-item">
+                                            <span className="form-label stat-label">Start Date</span>
+                                            <span className="stat-value">
+                                                {pot.startDate ? formatDate(pot.startDate) : 'TBD'}
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div className="pot-card-stats">
-                                    <div className="stat-item">
-                                        <span className="stat-label">Banker</span>
-                                        <span className="stat-value">{pot.ownerName}</span>
-                                    </div>
-                                    <div className="stat-item">
-                                        <span className="stat-label">Members</span>
-                                        <span className="stat-value">{stats.memberCount}</span>
-                                    </div>
-                                    <div className="stat-item">
-                                        <span className="stat-label">Pot Amount</span>
-                                        <span className="stat-value amount-due">
-                                            ${Number(pot.amount || 0).toFixed(2)}
-                                        </span>
-                                    </div>
-                                    <div className="stat-item">
-                                        <span className="stat-label">Hand Amount</span>
-                                        <span className="stat-value amount-due">
-                                            ${Number(pot.hand || 0).toFixed(2)}
-                                        </span>
-                                    </div>
-                                    <div className="stat-item">
-                                        <span className="stat-label">Start Date</span>
-                                        <span className="stat-value">
-                                            {pot.startDate ? formatDate(pot.startDate) : 'TBD'}
-                                        </span>
-                                    </div>
-                                    <div className="stat-item">
-                                        <span className="stat-label">Subscription Fee</span>
-                                        <span className="stat-value">
-                                            ${Number(pot.subscriptionFee || 0).toFixed(2)}
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <div className="pot-card-footer">
+                                <div className="card-footer pot-card-footer">
                                     <button 
-                                        className="view-details-btn" 
+                                        className="btn btn-secondary btn-block" 
                                         onClick={() => handlePotSelect(pot)}
                                     >
-                                        View Details
+                                     <SiQuicklook />  View Details
                                     </button>
                                     
                                     {canRequestToJoin && (
                                         <div style={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
                                             {hasPendingRequest ? (
-                                                <button className="request-btn pending" disabled>
+                                                <button className="btn btn-warning btn-block request-btn pending" disabled>
                                                     <MdHourglassTop /> Request Pending
                                                 </button>
                                             ) : (
                                                 <button 
-                                                    className="request-btn" 
+                                                    className="btn btn-primary btn-block request-btn" 
                                                     onClick={(e) => handleRequestToJoin(pot.id, e)}
                                                     disabled={isRequestingJoin}
                                                 >
@@ -306,10 +548,10 @@ const StandardUserDashboard = () => {
     // My Pots Management View
     if (viewMode === 'myPots') {
         return (
-            <div className="admin-dashboard">
+            <div className="container">
                 <div className="admin-header-section">
                     <div className="header-with-back">
-                        <button className="back-button" onClick={handleBackToDashboard}>
+                        <button className="btn btn-secondary back-to-admin-dashboard-button" onClick={handleBackToDashboard}>
                             <MdArrowBack /> Back to Dashboard
                         </button>
                         <div>
@@ -324,7 +566,7 @@ const StandardUserDashboard = () => {
                         placeholder="Search your pots..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="admin-search-input"
+                        className="search-input"
                     />
                 </div>
                 <div className="pots-grid">
@@ -346,6 +588,15 @@ const StandardUserDashboard = () => {
                         </div>
                     )}
                 </div>
+            </div>
+        );
+    }
+
+    // Profile view
+    if (viewMode === 'profile') {
+        return (
+            <div className="container">
+                {renderProfileSection()}
             </div>
         );
     }
@@ -353,49 +604,58 @@ const StandardUserDashboard = () => {
     // Dashboard Overview (Main Dashboard)
     if (!selectedPot) {
         return (
-            <div className="admin-dashboard">
-                <div className="admin-header-section">
-                    <h1 className="admin-header">My Dashboard</h1>
-                    <p className="admin-subtitle">Manage your pot participation and find new opportunities</p>
-                </div>
+            <div className="container">
+                <div className="unified-dashboard-content">
+                    <div className="dashboard-header">
+                        <h1 className="admin-header">My Dashboard</h1>
+                        <p className="admin-subtitle">Manage your pot participation and find new opportunities</p>
+                    </div>
 
-                <div className="dashboard-nav-buttons">
-                    <button className="nav-button" onClick={() => handleViewModeChange('myPots')}>
-                        <MdPayment /> My Pots ({myPots.length})
-                    </button>
-                    <button className="nav-button" onClick={() => handleViewModeChange('findPots')}>
-                        <MdSend /> Find Pots to Join
-                    </button>
-                </div>
-
-                <div className="admin-controls">
-                    <input
-                        type="text"
-                        placeholder="Search your pots..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="admin-search-input"
-                    />
-                </div>
-
-                <div className="pots-grid">
-                    {filteredPots.length > 0 ? filteredPots.map(pot => (
-                        <UserPotCard
-                            key={pot.id}
-                            pot={pot}
-                            handlePotSelect={handlePotSelect}
-                            handleManagePot={handleManagePot}
-                            calculatePotStats={calculatePotStats}
-                            currUser={currUser}
-                        />
-                    )) : (
-                        <div className="no-pots-message">
-                            <h3>No pots found</h3>
-                            <p>
-                                {searchTerm ? 'No pots match your search.' : 'You are not currently part of any pots.'}
-                            </p>
+                    {/* Quick Actions */}
+                    <div className="quick-actions">
+                        <h3>Quick Actions</h3>
+                        <div className="action-buttons">
+                            <button className="btn btn-secondary" onClick={() => handleViewModeChange('myPots')}>
+                                <FaCubesStacked /> My Pots ({myPots.length})
+                            </button>
+                            <button className="btn btn-secondary" onClick={() => handleViewModeChange('findPots')}>
+                                <MdSend /> Find Pots to Join
+                            </button>
+                            <button className="btn btn-purple" onClick={() => setViewMode('profile')}>
+                                <MdPerson /> View Profile
+                            </button>
                         </div>
-                    )}
+                    </div>
+
+                    <div className="admin-controls">
+                        <input
+                            type="text"
+                            placeholder="Search your pots..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="search-input"
+                        />
+                    </div>
+
+                    <div className="pots-grid">
+                        {filteredPots.length > 0 ? filteredPots.map(pot => (
+                            <UserPotCard
+                                key={pot.id}
+                                pot={pot}
+                                handlePotSelect={handlePotSelect}
+                                handleManagePot={handleManagePot}
+                                calculatePotStats={calculatePotStats}
+                                currUser={currUser}
+                            />
+                        )) : (
+                            <div className="no-pots-message">
+                                <h3>No pots found</h3>
+                                <p>
+                                    {searchTerm ? 'No pots match your search.' : 'You are not currently part of any pots.'}
+                                </p>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
         );
@@ -403,7 +663,7 @@ const StandardUserDashboard = () => {
 
     // Pot Details View
     return (
-        <div className="admin-dashboard">
+        <div className="container">
             <PotDetailsView
                 selectedPot={selectedPot}
                 handleBackToPots={handleBackToPots}
@@ -420,48 +680,46 @@ const UserPotCard = ({ pot, handlePotSelect, handleManagePot, calculatePotStats 
     const stats = calculatePotStats(pot);
 
     return (
-        <div className="pot-card">
-            <div className="pot-card-header">
-                <h3 className="pot-name">{pot.name}</h3>
-                <div className="pot-status-indicators">
-                    <span className={`status-indicator status-${pot.status.toLowerCase().replace(' ', '-')}`}>
-                        {pot.status}
-                    </span>
+        <div className="card card-accent">
+            <div className="card-body">
+                <div className="pot-card-header">
+                    <h3 className="pot-name">{pot.name}</h3>
+                    <div className="pot-status-indicators">
+                        <span className={`status-badge status-${pot.status.toLowerCase().replace(' ', '-')}`}>
+                            {pot.status}
+                        </span>
+                    </div>
+                </div>
+                <div className="pot-card-stats">
+                    <div className="stat-item">
+                        <span className="form-label stat-label">Banker</span>
+                        <span className="stat-value">{pot.ownerName}</span>
+                    </div>
+                    <div className="stat-item">
+                        <span className="form-label stat-label">Members</span>
+                        <span className="stat-value">{stats.memberCount}</span>
+                    </div>
+                    <div className="stat-item">
+                        <span className="form-label stat-label">Pot Amount</span>
+                        <span className="stat-value amount-cell">${Number(pot.amount || 0).toFixed(2)}</span>
+                    </div>
+                    <div className="stat-item">
+                        <span className="form-label stat-label">Hand Amount</span>
+                        <span className="stat-value amount-cell">${Number(pot.hand || 0).toFixed(2)}</span>
+                    </div>
+                    <div className="stat-item">
+                        <span className="form-label stat-label">My Role</span>
+                        <span className={`stat-value role-badge ${stats.isOwner ? 'owner' : stats.isMember ? 'member' : 'none'}`}>
+                            {stats.isOwner ? 'Banker' : stats.isMember ? 'Member' : 'Not Member'}
+                        </span>
+                    </div>
                 </div>
             </div>
-            <div className="pot-card-stats">
-                <div className="stat-item">
-                    <span className="stat-label">Banker</span>
-                    <span className="stat-value">{pot.ownerName}</span>
-                </div>
-                <div className="stat-item">
-                    <span className="stat-label">Members</span>
-                    <span className="stat-value">{stats.memberCount}</span>
-                </div>
-                <div className="stat-item">
-                    <span className="stat-label">Pot Amount</span>
-                    <span className="stat-value amount-due">${Number(pot.amount || 0).toFixed(2)}</span>
-                </div>
-                <div className="stat-item">
-                    <span className="stat-label">Hand Amount</span>
-                    <span className="stat-value amount-due">${Number(pot.hand || 0).toFixed(2)}</span>
-                </div>
-                <div className="stat-item">
-                    <span className="stat-label">My Role</span>
-                    <span className={`stat-value role-badge ${stats.isOwner ? 'owner' : stats.isMember ? 'member' : 'none'}`}>
-                        {stats.isOwner ? 'Banker' : stats.isMember ? 'Member' : 'Not Member'}
-                    </span>
-                </div>
-                <div className="stat-item">
-                    <span className="stat-label">Subscription Fee</span>
-                    <span className="stat-value">${Number(pot.subscriptionFee || 0).toFixed(2)}</span>
-                </div>
-            </div>
-            <div className="pot-card-footer">
-                <button className="view-details-btn" onClick={() => handlePotSelect(pot)}>
-                    View Details
+            <div className="card-footer pot-card-footer">
+                <button className="btn btn-secondary btn-block" onClick={() => handlePotSelect(pot)}>
+               <SiQuicklook />   View Details
                 </button>
-                <button className="manage-pot-btn" onClick={() => handleManagePot(pot.id)}>
+                <button className="btn btn-purple btn-block manage-pot-btn" onClick={() => handleManagePot(pot.id)}>
                     <MdSettings /> {stats.isOwner ? 'Manage Pot' : 'View Full Details'}
                 </button>
             </div>
@@ -480,7 +738,7 @@ const PotDetailsView = ({ selectedPot, handleBackToPots, handleManagePot, currUs
         <>
             <div className="admin-header-section">
                 <div className="header-with-back">
-                    <button className="back-button" onClick={handleBackToPots}>
+                    <button className="btn btn-secondary back-to-admin-dashboard-button" onClick={handleBackToPots}>
                         <MdArrowBack /> Back to Dashboard
                     </button>
                     <div>
@@ -489,93 +747,91 @@ const PotDetailsView = ({ selectedPot, handleBackToPots, handleManagePot, currUs
                     </div>
                 </div>
             </div>
-            <div className="pot-details-container">
-                <div className="pot-info-section">
-                    <h3>Pot Information</h3>
-                    <div className="pot-info-grid">
-                        <div className="info-item">
-                            <span className="info-label">Banker:</span>
-                            <span className="info-value">{selectedPot.ownerName}</span>
+            <div className="card card-accent pot-details-container">
+                <div className="card-body">
+                    <div className="pot-info-section">
+                        <h3>Pot Information</h3>
+                        <div className="pot-info-grid">
+                            <div className="info-item">
+                                <span className="form-label info-label">Banker:</span>
+                                <span className="info-value">{selectedPot.ownerName}</span>
+                            </div>
+                            <div className="info-item">
+                                <span className="form-label info-label">Pot Amount:</span>
+                                <span className="info-value amount-cell">${Number(selectedPot.amount || 0).toFixed(2)}</span>
+                            </div>
+                            <div className="info-item">
+                                <span className="form-label info-label">Hand Amount:</span>
+                                <span className="info-value amount-cell">${Number(selectedPot.hand || 0).toFixed(2)}</span>
+                            </div>
+                            <div className="info-item">
+                                <span className="form-label info-label">Status:</span>
+                                <span className="info-value">{selectedPot.status}</span>
+                            </div>
+                            <div className="info-item">
+                                <span className="form-label info-label">Members:</span>
+                                <span className="info-value">{stats.memberCount}</span>
+                            </div>
+                            <div className="info-item">
+                                <span className="form-label info-label">Start Date:</span>
+                                <span className="info-value">{formatDate(selectedPot.startDate) || 'Not set'}</span>
+                            </div>
+                            <div className="info-item">
+                                <span className="form-label info-label">My Role:</span>
+                                <span className={`info-value role-badge ${stats.isOwner ? 'owner' : stats.isMember ? 'member' : 'none'}`}>
+                                    {stats.isOwner ? 'Banker' : stats.isMember ? 'Member' : 'Not Member'}
+                                </span>
+                            </div>
                         </div>
-                        <div className="info-item">
-                            <span className="info-label">Pot Amount:</span>
-                            <span className="info-value">${Number(selectedPot.amount || 0).toFixed(2)}</span>
-                        </div>
-                        <div className="info-item">
-                            <span className="info-label">Hand Amount:</span>
-                            <span className="info-value">${Number(selectedPot.hand || 0).toFixed(2)}</span>
-                        </div>
-                        <div className="info-item">
-                            <span className="info-label">Status:</span>
-                            <span className="info-value">{selectedPot.status}</span>
-                        </div>
-                        <div className="info-item">
-                            <span className="info-label">Subscription Fee:</span>
-                            <span className="info-value">${Number(selectedPot.subscriptionFee || 0).toFixed(2)}</span>
-                        </div>
-                        <div className="info-item">
-                            <span className="info-label">Members:</span>
-                            <span className="info-value">{stats.memberCount}</span>
-                        </div>
-                        <div className="info-item">
-                            <span className="info-label">Start Date:</span>
-                            <span className="info-value">{formatDate(selectedPot.startDate) || 'Not set'}</span>
-                        </div>
-                        <div className="info-item">
-                            <span className="info-label">My Role:</span>
-                            <span className={`info-value role-badge ${stats.isOwner ? 'owner' : stats.isMember ? 'member' : 'none'}`}>
-                                {stats.isOwner ? 'Banker' : stats.isMember ? 'Member' : 'Not Member'}
-                            </span>
+                        <div style={{ marginTop: '20px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                            <button
+                                className="btn btn-purple"
+                                onClick={() => handleManagePot(selectedPot.id)}
+                            >
+                                <MdSettings />
+                                {stats.isOwner ? 'Manage Pot' : 'View Full Details'}
+                            </button>
                         </div>
                     </div>
-                    <div style={{ marginTop: '20px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                        <button
-                            className="admin-manage-pot-btn"
-                            onClick={() => handleManagePot(selectedPot.id)}
-                        >
-                            <MdSettings />
-                            {stats.isOwner ? 'Manage Pot' : 'View Full Details'}
-                        </button>
-                    </div>
-                </div>
-                {selectedPot.Users && selectedPot.Users.length > 0 && (
-                    <div className="members-section">
-                        <h3>Members</h3>
-                        <div className="members-table-container">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>Draw Date</th>
-                                        <th>Position</th>
-                                        <th>Role</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {selectedPot.Users.map((user, index) => (
-                                        <tr key={user.id}>
-                                            <td>
-                                                <div className="member-info">
-                                                    <span className="member-name">
-                                                        {user.firstName} {user.lastName}
-                                                        {user.id === currUser?.id && ' (You)'}
-                                                    </span>
-                                                </div>
-                                            </td>
-                                            <td>{formatDate(user.potMemberDetails?.drawDate) || 'TBD'}</td>
-                                            <td>{user.potMemberDetails?.displayOrder || index + 1}</td>
-                                            <td>
-                                                <span className={`role-badge ${user.id === selectedPot.ownerId ? 'owner' : 'member'}`}>
-                                                    {user.id === selectedPot.ownerId ? 'Banker' : 'Member'}
-                                                </span>
-                                            </td>
+                    {selectedPot.Users && selectedPot.Users.length > 0 && (
+                        <div className="members-section">
+                            <h3>Members</h3>
+                            <div className="table-container">
+                                <table className="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Draw Date</th>
+                                            <th>Position</th>
+                                            <th>Role</th>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                        {selectedPot.Users.map((user, index) => (
+                                            <tr key={user.id}>
+                                                <td>
+                                                    <div className="member-info">
+                                                        <span className="member-name">
+                                                            {user.firstName} {user.lastName}
+                                                            {user.id === currUser?.id && ' (You)'}
+                                                        </span>
+                                                    </div>
+                                                </td>
+                                                <td>{formatDate(user.potMemberDetails?.drawDate) || 'TBD'}</td>
+                                                <td>{user.potMemberDetails?.displayOrder || index + 1}</td>
+                                                <td>
+                                                    <span className={`role-badge ${user.id === selectedPot.ownerId ? 'owner' : 'member'}`}>
+                                                        {user.id === selectedPot.ownerId ? 'Banker' : 'Member'}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
-                    </div>
-                )}
+                    )}
+                </div>
             </div>
         </>
     );

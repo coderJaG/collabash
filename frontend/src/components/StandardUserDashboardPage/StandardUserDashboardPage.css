@@ -1,129 +1,221 @@
-/* StandardUserDashboardPage.css - Enhanced to match AdminDashboard styling */
+/* StandardUserDashboardPage.css */
+
+/* Import all shared styles */
+@import '../shared/base.css';
+@import '../shared/components.css';
+@import '../shared/layout.css';
+@import '../shared/responsive.css';
+@import '../shared/dark-mode.css';
+@import '../shared/accessibility.css';
 
 /* ============================================= */
-/* ==          USER SPECIFIC OVERRIDES       == */
+/* ==        USER-SPECIFIC OVERRIDES          == */
 /* ============================================= */
 
 /* Role badge styling for user dashboard */
 .role-badge {
-    padding: 4px 10px;
-    border-radius: 12px;
-    font-size: 0.85em;
-    font-weight: 600;
+    padding: var(--spacing-xs) var(--spacing-md);
+    border-radius: var(--radius-lg);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
     text-align: center;
     color: white;
     display: inline-block;
     text-transform: capitalize;
-    transition: all 0.3s ease;
+    transition: var(--transition-all);
+    white-space: nowrap;
 }
 
 .role-badge.owner {
-    background: linear-gradient(135deg, #f39c12, #e67e22);
-    box-shadow: 0 2px 8px rgba(243, 156, 18, 0.3);
+    background: linear-gradient(135deg, var(--status-warning), var(--status-warning-hover));
+    box-shadow: var(--shadow-warning);
 }
 
 .role-badge.member {
-    background: linear-gradient(135deg, #1abc9c, #16a085);
-    box-shadow: 0 2px 8px rgba(26, 188, 156, 0.3);
+    background: linear-gradient(135deg, var(--primary-green), var(--primary-green-hover));
+    box-shadow: var(--shadow-primary);
 }
 
 .role-badge.none {
-    background: linear-gradient(135deg, #95a5a6, #7f8c8d);
-    box-shadow: 0 2px 8px rgba(149, 165, 166, 0.3);
+    background: linear-gradient(135deg, var(--text-muted), var(--text-secondary));
+    box-shadow: var(--shadow-sm);
 }
 
 /* Enhanced stat-value role badge styling when used in cards */
 .stat-value.role-badge {
-    padding: 4px 10px;
-    border-radius: 12px;
-    font-size: 0.9em;
+    padding: var(--spacing-xs) var(--spacing-md);
+    border-radius: var(--radius-lg);
+    font-size: var(--font-size-base);
     text-align: center;
     color: white;
     display: inline-block;
     min-width: 80px;
-    transition: all 0.3s ease;
+    transition: var(--transition-all);
 }
 
 .stat-value.role-badge.owner {
-    background: linear-gradient(135deg, #f39c12, #e67e22);
-    box-shadow: 0 2px 8px rgba(243, 156, 18, 0.3);
+    background: linear-gradient(135deg, var(--status-warning), var(--status-warning-hover));
+    box-shadow: var(--shadow-warning);
 }
 
 .stat-value.role-badge.member {
-    background: linear-gradient(135deg, #1abc9c, #16a085);
-    box-shadow: 0 2px 8px rgba(26, 188, 156, 0.3);
+    background: linear-gradient(135deg, var(--primary-green), var(--primary-green-hover));
+    box-shadow: var(--shadow-primary);
 }
 
 .stat-value.role-badge.none {
-    background: linear-gradient(135deg, #95a5a6, #7f8c8d);
-    box-shadow: 0 2px 8px rgba(149, 165, 166, 0.3);
+    background: linear-gradient(135deg, var(--text-muted), var(--text-secondary));
+    box-shadow: var(--shadow-sm);
 }
 
 /* Enhanced info-value role badge styling when used in details */
 .info-value.role-badge {
-    padding: 6px 12px;
-    border-radius: 12px;
-    font-size: 0.95em;
+    padding: var(--spacing-sm) var(--spacing-lg);
+    border-radius: var(--radius-lg);
+    font-size: var(--font-size-base);
     text-align: center;
     color: white;
     display: inline-block;
     min-width: 90px;
-    font-weight: 600;
-    transition: all 0.3s ease;
+    font-weight: var(--font-weight-semibold);
+    transition: var(--transition-all);
 }
 
 .info-value.role-badge.owner {
-    background: linear-gradient(135deg, #f39c12, #e67e22);
-    box-shadow: 0 2px 8px rgba(243, 156, 18, 0.3);
+    background: linear-gradient(135deg, var(--status-warning), var(--status-warning-hover));
+    box-shadow: var(--shadow-warning);
 }
 
 .info-value.role-badge.member {
-    background: linear-gradient(135deg, #1abc9c, #16a085);
-    box-shadow: 0 2px 8px rgba(26, 188, 156, 0.3);
+    background: linear-gradient(135deg, var(--primary-green), var(--primary-green-hover));
+    box-shadow: var(--shadow-primary);
 }
 
 .info-value.role-badge.none {
-    background: linear-gradient(135deg, #95a5a6, #7f8c8d);
-    box-shadow: 0 2px 8px rgba(149, 165, 166, 0.3);
+    background: linear-gradient(135deg, var(--text-muted), var(--text-secondary));
+    box-shadow: var(--shadow-sm);
 }
 
 /* Enhanced manage pot button for user context */
 .manage-pot-btn {
-    background: linear-gradient(135deg, #9b59b6, #8e44ad);
-    color: white;
-    border: none;
-    padding: 12px 16px;
-    border-radius: 8px;
-    font-size: 0.9em;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    text-decoration: none;
-    flex: 1;
-    min-width: 140px;
-    min-height: 44px;
+    background: linear-gradient(135deg, var(--accent-purple), var(--accent-purple-hover)) !important;
+    color: white !important;
+    border: none !important;
+    cursor: pointer !important;
+    transition: var(--transition-all) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: var(--spacing-sm) !important;
+    text-decoration: none !important;
+    flex: 1 !important;
+    min-width: 140px !important;
 }
 
-.manage-pot-btn:hover {
-    background: linear-gradient(135deg, #8e44ad, #7d3c98);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(155, 89, 182, 0.3);
+.manage-pot-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, var(--accent-purple-hover), var(--accent-purple-dark)) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: var(--shadow-purple) !important;
 }
 
 .manage-pot-btn:active {
-    transform: translateY(0);
-    box-shadow: 0 2px 6px rgba(155, 89, 182, 0.3);
+    transform: translateY(0) !important;
+    box-shadow: 0 2px 6px rgba(155, 89, 182, 0.3) !important;
 }
 
 /* ============================================= */
-/* ==           ENHANCED DARK MODE            == */
+/* ==           RESPONSIVE OVERRIDES          == */
+/* ============================================= */
+@media (max-width: 1024px) {
+    .role-badge,
+    .stat-value.role-badge,
+    .info-value.role-badge {
+        font-size: var(--font-size-sm);
+        padding: var(--spacing-xs) var(--spacing-sm);
+        min-width: 70px;
+    }
+    
+    .manage-pot-btn {
+        min-width: 120px !important;
+        font-size: var(--font-size-sm) !important;
+        padding: var(--spacing-sm) var(--spacing-md) !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .pot-card-footer {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+    
+    .pot-card-footer button {
+        width: 100%;
+        min-width: auto;
+    }
+    
+    .manage-pot-btn {
+        justify-content: center !important;
+        padding: var(--spacing-md) var(--spacing-lg) !important;
+        font-size: var(--font-size-base) !important;
+    }
+    
+    .role-badge,
+    .stat-value.role-badge,
+    .info-value.role-badge {
+        text-align: center;
+        width: 100%;
+        max-width: 120px;
+    }
+}
+
+@media (max-width: 640px) {
+    .manage-pot-btn {
+        width: 100% !important;
+        max-width: none !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .manage-pot-btn {
+        padding: var(--spacing-md) var(--spacing-lg) !important;
+        font-size: var(--font-size-sm) !important;
+        gap: var(--spacing-xs) !important;
+    }
+    
+    .role-badge,
+    .stat-value.role-badge,
+    .info-value.role-badge {
+        font-size: var(--font-size-xs);
+        padding: var(--spacing-xs) var(--spacing-sm);
+        min-width: 60px;
+    }
+    
+    .member-info .member-name {
+        word-wrap: break-word;
+        max-width: 150px;
+    }
+}
+
+@media (max-width: 360px) {
+    .manage-pot-btn {
+        padding: var(--spacing-sm) var(--spacing-md) !important;
+        font-size: var(--font-size-xs) !important;
+        gap: var(--spacing-xs) !important;
+    }
+    
+    .role-badge,
+    .stat-value.role-badge,
+    .info-value.role-badge {
+        font-size: var(--font-size-xs);
+        padding: 2px 4px;
+        min-width: 50px;
+    }
+}
+
+/* ============================================= */
+/* ==           DARK MODE OVERRIDES           == */
 /* ============================================= */
 @media (prefers-color-scheme: dark) {
-    /* Role badge styling in dark mode */
     .role-badge.owner,
     .stat-value.role-badge.owner,
     .info-value.role-badge.owner {
@@ -151,127 +243,22 @@
         box-shadow: 0 2px 10px rgba(149, 165, 166, 0.3) !important;
     }
     
-    /* Manage pot button styling in dark mode */
     .manage-pot-btn {
-        background: linear-gradient(135deg, #9b59b6, #8e44ad) !important;
+        background: linear-gradient(135deg, var(--accent-purple), var(--accent-purple-hover)) !important;
         color: white !important;
         border: none !important;
         box-shadow: 0 4px 15px rgba(155, 89, 182, 0.2) !important;
     }
     
-    .manage-pot-btn:hover {
-        background: linear-gradient(135deg, #8e44ad, #7d3c98) !important;
+    .manage-pot-btn:hover:not(:disabled) {
+        background: linear-gradient(135deg, var(--accent-purple-hover), var(--accent-purple-dark)) !important;
         box-shadow: 0 6px 20px rgba(155, 89, 182, 0.4) !important;
         transform: translateY(-1px) !important;
     }
 }
 
 /* ============================================= */
-/* ==           RESPONSIVE DESIGN             == */
-/* ============================================= */
-
-/* Large tablets and small desktops (1024px and below) */
-@media (max-width: 1024px) {
-    .role-badge,
-    .stat-value.role-badge,
-    .info-value.role-badge {
-        font-size: 0.8em;
-        padding: 3px 8px;
-        min-width: 70px;
-    }
-    
-    .manage-pot-btn {
-        min-width: 120px;
-        font-size: 0.85em;
-        padding: 10px 14px;
-    }
-}
-
-/* Tablets (768px and below) */
-@media (max-width: 768px) {
-    .pot-card-footer {
-        flex-direction: column;
-        gap: 8px;
-    }
-    
-    .pot-card-footer button {
-        width: 100%;
-        min-width: auto;
-    }
-    
-    .manage-pot-btn {
-        justify-content: center;
-        padding: 12px 16px;
-        font-size: 0.9em;
-    }
-    
-    .role-badge,
-    .stat-value.role-badge,
-    .info-value.role-badge {
-        text-align: center;
-        width: 100%;
-        max-width: 120px;
-    }
-}
-
-/* Small tablets and large phones (640px and below) */
-@media (max-width: 640px) {
-    .pot-details-container > div[style*="margin-top"] {
-        flex-direction: column;
-    }
-    
-    .pot-details-container > div[style*="margin-top"] button {
-        width: 100%;
-        min-width: auto;
-    }
-    
-    .manage-pot-btn {
-        width: 100%;
-        max-width: none;
-    }
-}
-
-/* Mobile phones (480px and below) */
-@media (max-width: 480px) {
-    .manage-pot-btn {
-        padding: 10px 12px;
-        font-size: 0.85em;
-        gap: 6px;
-    }
-    
-    .role-badge,
-    .stat-value.role-badge,
-    .info-value.role-badge {
-        font-size: 0.75em;
-        padding: 3px 6px;
-        min-width: 60px;
-    }
-    
-    .member-info .member-name {
-        word-wrap: break-word;
-        max-width: 150px;
-    }
-}
-
-/* Extra small phones (360px and below) */
-@media (max-width: 360px) {
-    .manage-pot-btn {
-        padding: 8px 10px;
-        font-size: 0.8em;
-        gap: 4px;
-    }
-    
-    .role-badge,
-    .stat-value.role-badge,
-    .info-value.role-badge {
-        font-size: 0.7em;
-        padding: 2px 4px;
-        min-width: 50px;
-    }
-}
-
-/* ============================================= */
-/* ==           ACCESSIBILITY                 == */
+/* ==           ACCESSIBILITY OVERRIDES       == */
 /* ============================================= */
 @media (prefers-reduced-motion: reduce) {
     .manage-pot-btn,
@@ -284,13 +271,12 @@
     }
 }
 
-/* High contrast mode support */
 @media (prefers-contrast: high) {
     .manage-pot-btn,
     .role-badge,
     .stat-value.role-badge,
     .info-value.role-badge {
-        border: 2px solid;
+        border: 2px solid currentColor !important;
     }
 }
 
@@ -298,20 +284,18 @@
 /* ==           FOCUS STATES                  == */
 /* ============================================= */
 .manage-pot-btn:focus-visible {
-    outline: 2px solid #1abc9c;
-    outline-offset: 2px;
+    outline: 2px solid var(--primary-green) !important;
+    outline-offset: 2px !important;
 }
 
 /* ============================================= */
-/* ==           PRINT STYLES                  == */
+/* ==           PRINT OVERRIDES               == */
 /* ============================================= */
 @media print {
-    /* Hide interactive elements specific to user dashboard */
     .manage-pot-btn {
         display: none !important;
     }
     
-    /* Role badges for print */
     .role-badge,
     .stat-value.role-badge,
     .info-value.role-badge {
@@ -347,7 +331,6 @@
         border: 1px solid #6c757d !important;
     }
     
-    /* Member info with "You" indicator for print */
     .member-info .member-name {
         color: black !important;
         font-weight: bold !important;
@@ -358,12 +341,10 @@
 /* ============================================= */
 /* ==           UTILITY CLASSES               == */
 /* ============================================= */
-
-/* Ensure user-specific buttons have minimum touch targets for accessibility */
 @media (max-width: 768px) {
     .manage-pot-btn {
-        min-height: 44px;
-        min-width: 44px;
+        min-height: 44px !important;
+        min-width: 44px !important;
     }
 }
 
@@ -416,52 +397,20 @@
 
 /* Special styling for "You" indicator in member names */
 .member-name {
-    transition: color 0.3s ease;
-}
-
-.member-name:has-text("(You)") {
-    font-weight: 700;
-    color: #1abc9c;
+    transition: var(--transition-all);
 }
 
 /* Enhanced table row highlighting for current user */
-.members-table-container tbody tr:has(.member-name:contains("(You)")) {
+.table tbody tr:has(.member-name:contains("(You)")) {
     background: linear-gradient(135deg, rgba(26, 188, 156, 0.1), rgba(32, 201, 166, 0.05));
-    border-left: 4px solid #1abc9c;
+    border-left: 4px solid var(--primary-green);
 }
 
 /* Dark mode enhancement for current user highlighting */
 @media (prefers-color-scheme: dark) {
-    .member-name:has-text("(You)") {
-        color: #81e6d9 !important;
-        text-shadow: 0 0 8px rgba(129, 230, 217, 0.5) !important;
-    }
-    
-    .members-table-container tbody tr:has(.member-name:contains("(You)")) {
+    .table tbody tr:has(.member-name:contains("(You)")) {
         background: linear-gradient(135deg, rgba(26, 188, 156, 0.2), rgba(32, 201, 166, 0.1)) !important;
-        border-left: 4px solid #1abc9c !important;
+        border-left: 4px solid var(--primary-green) !important;
         box-shadow: 0 2px 10px rgba(26, 188, 156, 0.3) !important;
-    }
-}
-
-/* Enhanced card styling for user's own pots */
-.pot-card:has(.role-badge.owner) {
-    border-left: 4px solid #f39c12;
-}
-
-.pot-card:has(.role-badge.member) {
-    border-left: 4px solid #1abc9c;
-}
-
-/* Dark mode enhancements for user's own pots */
-@media (prefers-color-scheme: dark) {
-    .pot-card:has(.role-badge.owner) {
-        border-left: 4px solid #f39c12 !important;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 20px rgba(243, 156, 18, 0.1) !important;
-    }
-    
-    .pot-card:has(.role-badge.member) {
-        border-left: 4px solid #1abc9c !important;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 20px rgba(26, 188, 156, 0.1) !important;
     }
 }

@@ -1,26 +1,31 @@
-/* Modern Login Modal CSS */
+/* LoginFormModal.css - Updated to match SignUp design system */
 
-.login-modal-content {
-    padding: clamp(30px, 7vw, 40px);
-    background: linear-gradient(135deg, rgba(244, 247, 246, 0.98) 0%, rgba(240, 255, 240, 0.95) 100%);
-    backdrop-filter: blur(25px);
-    -webkit-backdrop-filter: blur(25px);
-    border-radius: 24px;
+/* Import shared styles */
+@import '../shared/base.css';
+@import '../shared/components.css';
+
+/* ============================================= */
+/* ==           MODAL CONTAINER               == */
+/* ============================================= */
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-secondary);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: var(--radius-xl);
     width: 90%;
     max-width: 450px;
     margin: 20px auto;
-    box-shadow: 
-        0 25px 80px rgba(0, 0, 0, 0.12),
-        0 12px 40px rgba(26, 188, 156, 0.08),
-        inset 0 1px 0 rgba(255, 255, 255, 0.8),
-        inset 0 -1px 0 rgba(26, 188, 156, 0.1);
-    text-align: center;
+    box-shadow: var(--shadow-xl);
+    max-height: 90vh;
+    overflow: hidden;
     box-sizing: border-box;
     position: relative;
-    overflow: hidden;
-    border: 1px solid rgba(26, 188, 156, 0.15);
+    border: 1px solid var(--border-medium);
     animation: modalSlideIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: var(--transition-all);
 }
 
 @keyframes modalSlideIn {
@@ -34,8 +39,7 @@
     }
 }
 
-/* Smooth transition for modal content switching */
-.login-modal-content.switching {
+.login-form.switching {
     animation: modalSwitch 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -45,19 +49,22 @@
     100% { opacity: 1; transform: scale(1); }
 }
 
-.login-modal-content::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, #20c9a6 0%, #1abc9c 50%, #16a085 100%);
-    border-radius: 24px 24px 0 0;
-    z-index: 2;
+/* ============================================= */
+/* ==           MODAL HEADER                  == */
+/* ============================================= */
+
+.modal-header-gradient {
+    background: linear-gradient(135deg, var(--primary-green), var(--primary-green-hover));
+    padding: var(--spacing-2xl);
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+    z-index: 10;
 }
 
-.login-modal-content::after {
+.modal-header-gradient::before {
     content: '';
     position: absolute;
     top: 0;
@@ -65,284 +72,278 @@
     right: 0;
     bottom: 0;
     background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
-    border-radius: 24px;
     pointer-events: none;
+}
+
+.login-form-header {
+    color: white;
+    margin: 0 0 var(--spacing-sm) 0;
+    font-size: clamp(1.4rem, 4vw, 1.8rem);
+    font-weight: var(--font-weight-bold);
+    letter-spacing: 0.5px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    position: relative;
     z-index: 1;
 }
 
-.login-modal-content h2 {
-    background: linear-gradient(135deg, #1abc9c 0%, #16a085 50%, #138f75 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-top: 0;
-    margin-bottom: clamp(25px, 6vw, 30px);
-    font-size: clamp(1.5em, 5vw, 2em);
-    font-weight: 800;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    position: relative;
-    z-index: 3;
-    text-shadow: 0 2px 10px rgba(26, 188, 156, 0.1);
+.header-icon {
+    font-size: 1.5em;
+    opacity: 0.9;
 }
 
-/* Demo user buttons container */
+.login-subtitle {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: var(--font-size-sm);
+    margin: 0;
+    font-weight: var(--font-weight-medium);
+    position: relative;
+    z-index: 1;
+}
+
+/* ============================================= */
+/* ==           FORM CONTENT                  == */
+/* ============================================= */
+
+.login-form-content {
+    padding: var(--spacing-2xl);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xl);
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* ============================================= */
+/* ==           DEMO BUTTONS SECTION          == */
+/* ============================================= */
+
 .demo-buttons-container {
     display: flex;
-    flex-direction: column; 
-    gap: clamp(12px, 3vw, 15px);
-    justify-content: center;
-    margin-bottom: clamp(25px, 6vw, 30px);
+    flex-direction: column;
+    gap: var(--spacing-md);
+    padding: var(--spacing-xl);
+    background: var(--bg-accent);
+    border: 1px solid var(--primary-green-border);
+    border-radius: var(--radius-lg);
+    backdrop-filter: blur(10px);
+    position: relative;
+}
+
+.demo-buttons-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary-green), var(--primary-green-light));
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
 }
 
 @media (min-width: 640px) {
     .demo-buttons-container {
         flex-direction: row;
-        gap: 15px;
+        gap: var(--spacing-lg);
     }
 }
 
-.login-modal-content .demo-button {
-    background: rgba(255, 255, 255, 0.9);
-    color: #2c3e50;
-    border: 2px solid rgba(26, 188, 156, 0.25);
-    padding: clamp(12px, 3vw, 15px) clamp(18px, 4.5vw, 22px);
-    border-radius: 16px;
+.demo-button {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 2px solid var(--border-light);
+    padding: var(--spacing-lg);
+    border-radius: var(--radius-md);
     cursor: pointer;
-    font-weight: 600;
-    font-size: clamp(0.85em, 2vw, 0.9em);
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    font-weight: var(--font-weight-semibold);
+    font-size: var(--font-size-sm);
+    transition: var(--transition-all);
     position: relative;
     overflow: hidden;
-    backdrop-filter: blur(15px);
     text-transform: uppercase;
-    letter-spacing: 0.8px;
+    letter-spacing: 0.5px;
     min-height: 48px;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 
-        0 8px 25px rgba(0, 0, 0, 0.05),
-        inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    flex: 1;
 }
 
-.login-modal-content .demo-button::before {
+.demo-button::before {
     content: '';
     position: absolute;
     top: 0;
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(26, 188, 156, 0.15), transparent);
-    transition: left 0.5s ease;
+    background: linear-gradient(90deg, transparent, rgba(26, 188, 156, 0.1), transparent);
+    transition: left 0.4s ease;
+    z-index: 0;
 }
 
-.login-modal-content .demo-button:hover::before {
+.demo-button:hover::before {
     left: 100%;
 }
 
-.login-modal-content .demo-button:hover {
-    background: rgba(26, 188, 156, 0.1);
-    border-color: #1abc9c;
-    transform: translateY(-3px) scale(1.02);
-    box-shadow: 
-        0 12px 35px rgba(26, 188, 156, 0.15),
-        inset 0 1px 0 rgba(255, 255, 255, 0.9);
-    color: #1abc9c;
+.demo-button:hover {
+    border-color: var(--primary-green);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    background-color: var(--bg-accent);
+    color: var(--primary-green);
 }
 
-.login-modal-content .demo-button:active {
-    transform: translateY(-1px) scale(1.01);
-    transition: all 0.1s ease;
+.demo-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
 }
 
-/* Login form specific styling */
-.login-form {
+/* ============================================= */
+/* ==           FORM FIELDS                   == */
+/* ============================================= */
+
+.login-form-fields {
     display: flex;
     flex-direction: column;
-    gap: clamp(18px, 4.5vw, 22px);
-    text-align: left;
-    margin-bottom: clamp(25px, 6vw, 30px);
+    gap: var(--spacing-xl);
 }
 
-.login-form label {
-    font-weight: 700;
-    color: #2c3e50;
-    margin-bottom: clamp(8px, 2vw, 10px);
-    font-size: clamp(0.8em, 1.8vw, 0.85em);
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    display: block;
+.form-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
     position: relative;
-    transition: all 0.3s ease;
+    transition: var(--transition-all);
 }
 
-.login-form label::before {
-    content: '';
-    position: absolute;
-    bottom: -2px;
-    left: 0;
-    width: 0;
-    height: 2px;
-    background: linear-gradient(90deg, #1abc9c, #16a085);
-    transition: width 0.3s ease;
-}
-
-.login-form label:focus-within::before {
-    width: 40px;
-}
-
-.login-form label:after {
-    content: " *";
-    color: #e74c3c;
-    font-weight: 700;
-    margin-left: 2px;
-    animation: asteriskPulse 2s infinite;
-}
-
-@keyframes asteriskPulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.6; }
-}
-
-.login-form input[type="text"],
-.login-form input[type="password"] {
-    padding: clamp(14px, 3.5vw, 18px) clamp(18px, 4.5vw, 22px);
-    border: 2px solid rgba(26, 188, 156, 0.15);
-    border-radius: 16px;
-    font-size: clamp(0.95em, 2.3vw, 1.05em);
-    width: 100%;
-    box-sizing: border-box;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(15px);
-    font-weight: 500;
-    color: #2c3e50;
-    position: relative;
-    box-shadow: 
-        0 4px 15px rgba(0, 0, 0, 0.05),
-        inset 0 1px 0 rgba(255, 255, 255, 0.8);
-}
-
-.login-form input[type="text"]:focus,
-.login-form input[type="password"]:focus {
-    border-color: #1abc9c;
-    outline: none;
-    box-shadow: 
-        0 0 0 4px rgba(26, 188, 156, 0.08),
-        0 12px 30px rgba(26, 188, 156, 0.12),
-        inset 0 1px 0 rgba(255, 255, 255, 0.9);
-    background: rgba(255, 255, 255, 0.98);
-    transform: translateY(-3px) scale(1.01);
-}
-
-.login-form input::placeholder {
-    color: rgba(44, 62, 80, 0.5);
-    font-style: italic;
-    transition: all 0.3s ease;
-}
-
-.login-form input:focus::placeholder {
-    color: rgba(26, 188, 156, 0.6);
+.form-input-group.focused {
     transform: translateY(-2px);
 }
 
-.login-form .login-submit-button {
-    padding: clamp(15px, 3.5vw, 18px) clamp(22px, 5vw, 26px);
-    font-size: clamp(0.95em, 2.3vw, 1.1em);
-    background: linear-gradient(135deg, #1abc9c 0%, #16a085 50%, #138f75 100%);
-    color: white;
-    border: none;
-    border-radius: 16px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    margin-top: clamp(15px, 3.5vw, 18px);
+.form-input-group label {
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-secondary);
+    font-size: var(--font-size-sm);
     text-transform: uppercase;
-    letter-spacing: 0.8px;
-    position: relative;
-    overflow: hidden;
-    min-height: 52px;
+    letter-spacing: 0.5px;
     display: flex;
     align-items: center;
-    justify-content: center;
-    box-shadow: 
-        0 12px 30px rgba(26, 188, 156, 0.25),
-        0 6px 20px rgba(0, 0, 0, 0.08),
-        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    gap: var(--spacing-sm);
+    transition: var(--transition-all);
+    position: relative;
 }
 
-.login-form .login-submit-button::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
+.form-input-group.focused label {
+    color: var(--primary-green);
+}
+
+.label-icon {
+    font-size: var(--font-size-lg);
+    opacity: 0.7;
+    transition: var(--transition-all);
+}
+
+.form-input-group.focused .label-icon {
+    opacity: 1;
+    color: var(--primary-green);
+}
+
+/* ============================================= */
+/* ==           INPUT STYLING                 == */
+/* ============================================= */
+
+.login-form-fields input[type="text"],
+.login-form-fields input[type="password"] {
+    padding: var(--spacing-md) var(--spacing-lg);
+    border: 2px solid var(--border-dark);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-base);
     width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
-    transition: left 0.6s ease;
+    box-sizing: border-box;
+    transition: var(--transition-all);
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    font-weight: var(--font-weight-medium);
+    backdrop-filter: blur(5px);
 }
 
-.login-form .login-submit-button::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
-    border-radius: 16px;
-    pointer-events: none;
+.login-form-fields input:focus {
+    border-color: var(--primary-green);
+    box-shadow: 0 0 0 3px rgba(26, 188, 156, 0.2);
+    outline: none;
+    background: var(--bg-secondary);
+    transform: translateY(-1px);
 }
 
-.login-form .login-submit-button:hover::before {
-    left: 100%;
+.login-form-fields input.error {
+    border-color: var(--status-error);
+    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.2);
 }
 
-.login-form .login-submit-button:hover:not(:disabled) {
-    transform: translateY(-4px) scale(1.02);
-    box-shadow: 
-        0 18px 40px rgba(26, 188, 156, 0.35),
-        0 8px 25px rgba(0, 0, 0, 0.12),
-        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+.login-form-fields input::placeholder {
+    color: var(--text-muted);
+    font-style: italic;
+    transition: var(--transition-all);
 }
 
-.login-form .login-submit-button:active:not(:disabled) {
-    transform: translateY(-2px) scale(1.01);
-    transition: all 0.1s ease;
+.login-form-fields input:focus::placeholder {
+    color: rgba(26, 188, 156, 0.6);
+    transform: translateY(-1px);
 }
 
-.login-form .login-submit-button:disabled {
-    background: linear-gradient(135deg, #bdc3c7 0%, #95a5a6 100%);
+.login-form-fields input:disabled {
+    background: var(--bg-muted);
     cursor: not-allowed;
     opacity: 0.6;
-    transform: none;
-    box-shadow: 
-        0 4px 15px rgba(0, 0, 0, 0.1),
-        inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
-/* Error message styling */
-.login-form .error-message {
-    color: #721c24;
-    font-size: clamp(0.8em, 1.8vw, 0.85em);
-    margin-top: clamp(4px, 1vw, 6px);
-    margin-bottom: clamp(10px, 2.5vw, 12px);
-    text-align: center;
-    background: rgba(248, 215, 218, 0.95);
-    padding: clamp(12px, 3vw, 16px) clamp(16px, 4vw, 20px);
-    border-radius: 12px;
-    border: none;
-    backdrop-filter: blur(15px);
-    font-weight: 500;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 8px 25px rgba(231, 76, 60, 0.12);
-    animation: errorShake 0.5s ease-in-out;
-    display: flex;
+/* ============================================= */
+/* ==           ERROR MESSAGES                == */
+/* ============================================= */
+
+.login-form .login-form-fields .error-message {
+    display: flex !important;
     align-items: center;
     justify-content: center;
-    gap: 6px;
+    gap: var(--spacing-sm);
+    color: var(--status-error);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    margin: 0 auto var(--spacing-lg) auto;
+    min-height: 20px;
+    visibility: visible;
+    opacity: 1;
+    max-width: 90%;
+}
+
+.login-form .login-form-fields .error-message.general-error {
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    animation: errorShake 0.5s ease-in-out;
+    box-shadow: 0 2px 8px rgba(231, 76, 60, 0.1);
+    width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+}
+
+/* Override any conflicting pseudo-elements from other CSS files */
+.login-form .login-form-fields .error-message::before,
+.login-form .login-form-fields .error-message::after {
+    display: none !important;
+    content: none !important;
+}
+
+.login-form .login-form-fields .error-message.general-error::before,
+.login-form .login-form-fields .error-message.general-error::after {
+    display: none !important;
+    content: none !important;
 }
 
 @keyframes errorShake {
@@ -351,162 +352,195 @@
     75% { transform: translateX(4px); }
 }
 
-.login-form .error-message::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, #e74c3c, #c0392b);
+.login-form .login-form-fields .error-message span {
+    color: #721c24;
+    font-weight: var(--font-weight-medium);
+    position: relative;
     z-index: 1;
+    flex: 1;
+    text-align: center;
 }
 
-.login-form .error-message::after {
-    content: '⚠️';
-    font-size: 0.9em;
+/* Warning icon styling - make it more visible */
+.login-form .login-form-fields .error-message .error-icon {
+    font-size: 1.1em;
+    flex-shrink: 0;
+    color: #dc3545;
+    background: rgba(255, 230, 3, 0.8);
+    border-radius: 50%;
+    padding: 2px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-/* Form switch link styling */
-.form-switch-link {
-    display: flex;
-    flex-direction: column;
+/* Individual field error messages */
+.login-form .form-input-group .error-message {
+    display: flex !important;
     align-items: center;
-    gap: clamp(8px, 2vw, 10px);
-    margin-top: clamp(20px, 5vw, 25px);
-    position: relative;
-    z-index: 3;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    color: #721c24;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    margin-top: var(--spacing-xs);
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: var(--radius-sm);
+    padding: var(--spacing-sm);
+    visibility: visible;
+    opacity: 1;
+    text-align: center;
 }
 
-@media (min-width: 480px) {
-    .form-switch-link {
-        flex-direction: row;
-        justify-content: center;
-        gap: 12px;
-    }
+/* Override conflicting pseudo-elements for individual field errors too */
+.login-form .form-input-group .error-message::before,
+.login-form .form-input-group .error-message::after {
+    display: none !important;
+    content: none !important;
 }
 
-.form-switch-link span {
-    color: #6c757d;
-    font-size: clamp(0.85em, 2vw, 0.9em);
-    font-weight: 500;
-}
+/* ============================================= */
+/* ==           SUBMIT BUTTON                 == */
+/* ============================================= */
 
-.form-switch-link .signup-button {
-    background: rgba(26, 188, 156, 0.1);
-    color: #1abc9c;
-    border: 2px solid rgba(26, 188, 156, 0.3);
-    padding: clamp(8px, 2vw, 10px) clamp(16px, 4vw, 20px);
-    border-radius: 12px;
+.login-submit-button {
+    background: linear-gradient(135deg, var(--primary-green), var(--primary-green-hover));
+    color: white;
+    border: none;
+    padding: var(--spacing-lg) var(--spacing-xl);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
     cursor: pointer;
-    font-weight: 600;
-    font-size: clamp(0.85em, 2vw, 0.9em);
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    position: relative;
-    overflow: hidden;
-    backdrop-filter: blur(10px);
-    min-height: 44px;
+    transition: var(--transition-all);
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: var(--spacing-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: var(--shadow-md);
+    position: relative;
+    overflow: hidden;
+    min-height: 52px;
 }
 
-.form-switch-link .signup-button::before {
+.login-submit-button::before {
     content: '';
     position: absolute;
     top: 0;
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(26, 188, 156, 0.15), transparent);
-    transition: left 0.5s ease;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.4s ease;
 }
 
-.form-switch-link .signup-button:hover::before {
+.login-submit-button:hover::before {
     left: 100%;
 }
 
-.form-switch-link .signup-button:hover {
-    background: rgba(26, 188, 156, 0.15);
-    border-color: #1abc9c;
-    transform: translateY(-2px) scale(1.05);
-    box-shadow: 0 8px 25px rgba(26, 188, 156, 0.15);
-    color: #16a085;
+.login-submit-button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
 }
 
-.form-switch-link .signup-button:active {
-    transform: translateY(-1px) scale(1.02);
-    transition: all 0.1s ease;
+.login-submit-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
 }
 
-/* Mobile optimizations */
-@media (max-width: 480px) {
-    .login-modal-content {
+.button-icon {
+    font-size: var(--font-size-lg);
+}
+
+/* ============================================= */
+/* ==           FORM SWITCH LINK              == */
+/* ============================================= */
+
+.form-switch-link {
+    padding: var(--spacing-xl);
+    text-align: center;
+    border-top: 1px solid var(--border-light);
+    background: var(--bg-tertiary);
+    border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    color: var(--text-secondary);
+    font-size: var(--font-size-sm);
+    flex-shrink: 0;
+}
+
+.signup-button {
+    background: none;
+    border: none;
+    color: var(--primary-green);
+    font-weight: var(--font-weight-semibold);
+    cursor: pointer;
+    transition: var(--transition-all);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.signup-button:hover {
+    color: var(--primary-green-hover);
+    background: rgba(26, 188, 156, 0.1);
+}
+
+.signup-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ============================================= */
+/* ==           RESPONSIVE DESIGN             == */
+/* ============================================= */
+
+@media (max-width: 768px) {
+    .login-form {
         width: 95%;
         margin: 10px auto;
-        border-radius: 20px;
-        padding: 25px 20px;
+        max-height: 95vh;
     }
     
     .demo-buttons-container {
         flex-direction: column;
-        gap: 10px;
+        gap: var(--spacing-md);
     }
     
-    .login-modal-content .demo-button {
-        min-height: 48px;
-        font-size: 0.85em;
+    .login-form-content {
+        padding: var(--spacing-xl);
+        gap: var(--spacing-lg);
     }
     
-    .login-form .login-submit-button {
-        min-height: 48px;
-        font-size: 0.95em;
+    .modal-header-gradient {
+        padding: var(--spacing-xl);
+    }
+    
+    .login-form-header {
+        font-size: 1.3rem;
     }
 }
 
-/* High contrast mode support */
-@media (prefers-contrast: high) {
-    .login-modal-content {
-        border: 2px solid #1abc9c;
-        background: white;
-        backdrop-filter: none;
+@media (max-width: 480px) {
+    .form-switch-link {
+        flex-direction: column;
+        gap: var(--spacing-sm);
     }
     
-    .login-form input[type="text"],
-    .login-form input[type="password"] {
-        border: 2px solid #1abc9c;
-        background: white;
-        backdrop-filter: none;
+    .login-form {
+        margin: 5px auto;
     }
     
-    .login-modal-content .demo-button,
-    .form-switch-link .signup-button {
-        border: 2px solid #1abc9c;
-        background: white;
-        backdrop-filter: none;
+    .login-form-content {
+        padding: var(--spacing-lg);
+    }
+    
+    .demo-buttons-container {
+        padding: var(--spacing-lg);
     }
 }
-
-/* Reduced motion support */
-@media (prefers-reduced-motion: reduce) {
-    .login-modal-content,
-    .login-form input,
-    .login-form .login-submit-button,
-    .login-modal-content .demo-button,
-    .form-switch-link .signup-button,
-    .login-form .error-message {
-        transition: none;
-        animation: none;
-        transform: none !important;
-    }
-    
-    .login-form .login-submit-button::before,
-    .login-modal-content .demo-button::before,
-    .form-switch-link .signup-button::before,
-    .login-form label::before {
-        display: none;
-    }
-}
-

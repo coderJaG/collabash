@@ -1,0 +1,621 @@
+/* shared/base.css - CSS Variables & Base Reset */
+
+/* ============================================= */
+/* ==           CSS CUSTOM PROPERTIES         == */
+/* ============================================= */
+:root {
+  /* ============================================= */
+  /* ==              COLOR SYSTEM               == */
+  /* ============================================= */
+  
+  /* Primary Green Palette */
+  --primary-green: #1abc9c;
+  --primary-green-hover: #16a085;
+  --primary-green-dark: #138d75;
+  --primary-green-light: #20c9a6;
+  --primary-green-bg: #e8f8f5;
+  --primary-green-border: #b2dfdb;
+  
+  /* Status Colors */
+  --status-success: #27ae60;
+  --status-success-hover: #229954;
+  --status-success-dark: #1e8449;
+  --status-success-bg: #d4edda;
+  --status-success-border: #c3e6cb;
+  
+  --status-warning: #f39c12;
+  --status-warning-hover: #e67e22;
+  --status-warning-dark: #d35400;
+  --status-warning-bg: #fff3cd;
+  --status-warning-border: #fcf3cf;
+  
+  --status-error: #e74c3c;
+  --status-error-hover: #c0392b;
+  --status-error-dark: #a93226;
+  --status-error-bg: #f8d7da;
+  --status-error-border: #f5c6cb;
+  
+  --status-info: #3498db;
+  --status-info-hover: #2980b9;
+  --status-info-dark: #2471a3;
+  --status-info-bg: #e8f4f8;
+  --status-info-border: #d4e8fc;
+  
+  /* Purple Accent */
+  --accent-purple: #9b59b6;
+  --accent-purple-hover: #8e44ad;
+  --accent-purple-dark: #7d3c98;
+  
+  /* Neutral Colors */
+  --text-primary: #2c3e50;
+  --text-secondary: #7f8c8d;
+  --text-muted: #bdc3c7;
+  --text-light: #ecf0f1;
+  
+  /* Background Colors */
+  --bg-primary: #f4f7f6;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f8f9fa;
+  --bg-accent: #e8f8f5;
+  --bg-muted: #ecf0f1;
+  
+  /* Border Colors */
+  --border-light: #ecf0f1;
+  --border-medium: #d1f2eb;
+  --border-dark: #b2dfdb;
+  
+  /* ============================================= */
+  /* ==              SPACING SYSTEM             == */
+  /* ============================================= */
+  --spacing-xs: 5px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 15px;
+  --spacing-xl: 20px;
+  --spacing-2xl: 25px;
+  --spacing-3xl: 30px;
+  --spacing-4xl: 40px;
+  
+  /* ============================================= */
+  /* ==            BORDER RADIUS SYSTEM         == */
+  /* ============================================= */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 25px;
+  --radius-full: 50px;
+  
+  /* ============================================= */
+  /* ==              SHADOW SYSTEM              == */
+  /* ============================================= */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --shadow-xl: 0 12px 40px rgba(0, 0, 0, 0.15);
+  
+  /* Colored Shadows */
+  --shadow-primary: 0 4px 12px rgba(26, 188, 156, 0.3);
+  --shadow-success: 0 4px 12px rgba(39, 174, 96, 0.3);
+  --shadow-warning: 0 4px 12px rgba(243, 156, 18, 0.3);
+  --shadow-error: 0 4px 12px rgba(231, 76, 60, 0.3);
+  --shadow-info: 0 4px 12px rgba(52, 152, 219, 0.3);
+  --shadow-purple: 0 4px 12px rgba(155, 89, 182, 0.3);
+  
+  /* ============================================= */
+  /* ==            TRANSITION SYSTEM            == */
+  /* ============================================= */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.2s ease;
+  --transition-slow: 0.3s ease;
+  --transition-all: all var(--transition-normal);
+  
+  /* ============================================= */
+  /* ==            TYPOGRAPHY SYSTEM            == */
+  /* ============================================= */
+  --font-size-xs: 0.75em;
+  --font-size-sm: 0.85em;
+  --font-size-base: 1em;
+  --font-size-lg: 1.1em;
+  --font-size-xl: 1.2em;
+  --font-size-2xl: 1.4em;
+  --font-size-3xl: 1.8em;
+  
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  
+  --line-height-tight: 1.2;
+  --line-height-normal: 1.4;
+  --line-height-relaxed: 1.6;
+  
+  /* ============================================= */
+  /* ==              Z-INDEX SYSTEM             == */
+  /* ============================================= */
+  --z-dropdown: 10;
+  --z-sticky: 20;
+  --z-fixed: 30;
+  --z-modal-backdrop: 40;
+  --z-modal: 50;
+  --z-popover: 60;
+  --z-tooltip: 70;
+  --z-toast: 1000;
+  
+  /* ============================================= */
+  /* ==            RESPONSIVE BREAKPOINTS       == */
+  /* ============================================= */
+  --breakpoint-sm: 480px;
+  --breakpoint-md: 640px;
+  --breakpoint-lg: 768px;
+  --breakpoint-xl: 1024px;
+  --breakpoint-2xl: 1280px;
+}
+
+/* ============================================= */
+/* ==          DARK MODE VARIABLES             == */
+/* ============================================= */
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Text Colors */
+    --text-primary: #f7fafc;
+    --text-secondary: #cbd5e0;
+    --text-muted: #a0aec0;
+    --text-light: #e2e8f0;
+    
+    /* Background Colors */
+    --bg-primary: #1a1a1a;
+    --bg-secondary: rgba(45, 55, 72, 0.9);
+    --bg-tertiary: rgba(45, 55, 72, 0.6);
+    --bg-accent: rgba(26, 188, 156, 0.1);
+    --bg-muted: rgba(255, 255, 255, 0.05);
+    
+    /* Border Colors */
+    --border-light: rgba(255, 255, 255, 0.05);
+    --border-medium: rgba(255, 255, 255, 0.1);
+    --border-dark: rgba(255, 255, 255, 0.15);
+    
+    /* Enhanced shadows for dark mode */
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.4);
+    --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.5);
+    
+    /* Status backgrounds for dark mode */
+    --status-success-bg: rgba(39, 174, 96, 0.15);
+    --status-warning-bg: rgba(243, 156, 18, 0.15);
+    --status-error-bg: rgba(231, 76, 60, 0.15);
+    --status-info-bg: rgba(52, 152, 219, 0.15);
+    
+    /* Status borders for dark mode */
+    --status-success-border: rgba(39, 174, 96, 0.3);
+    --status-warning-border: rgba(243, 156, 18, 0.3);
+    --status-error-border: rgba(231, 76, 60, 0.3);
+    --status-info-border: rgba(52, 152, 219, 0.3);
+    
+    /* Primary green adjustments */
+    --primary-green-bg: rgba(26, 188, 156, 0.1);
+    --primary-green-border: rgba(26, 188, 156, 0.3);
+  }
+}
+
+/* ============================================= */
+/* ==              BASE RESET                  == */
+/* ============================================= */
+
+/* Modern CSS Reset */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  line-height: var(--line-height-normal);
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 
+               'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 
+               'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 
+               'Noto Color Emoji';
+  line-height: var(--line-height-normal);
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+  transition: background-color var(--transition-slow), color var(--transition-slow);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Remove default margins from headings */
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
+  color: var(--text-primary);
+}
+
+/* Remove default margins from paragraphs */
+p {
+  margin: 0;
+  line-height: var(--line-height-normal);
+}
+
+/* Remove default list styles */
+ul, ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Remove default button styles */
+button {
+  background: none;
+  border: none;
+  font: inherit;
+  cursor: pointer;
+  outline: none;
+}
+
+/* Remove default link styles */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Remove default input styles */
+input, textarea, select {
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: none;
+  outline: none;
+}
+
+/* Remove default table styles */
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+/* Make images responsive by default */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Remove default fieldset styles */
+fieldset {
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Remove default legend styles */
+legend {
+  padding: 0;
+}
+
+/* ============================================= */
+/* ==            UTILITY CLASSES              == */
+/* ============================================= */
+
+/* Screen Reader Only */
+.sr-only,
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* Text Utilities */
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+
+.text-xs { font-size: var(--font-size-xs); }
+.text-sm { font-size: var(--font-size-sm); }
+.text-base { font-size: var(--font-size-base); }
+.text-lg { font-size: var(--font-size-lg); }
+.text-xl { font-size: var(--font-size-xl); }
+
+.font-normal { font-weight: var(--font-weight-normal); }
+.font-medium { font-weight: var(--font-weight-medium); }
+.font-semibold { font-weight: var(--font-weight-semibold); }
+.font-bold { font-weight: var(--font-weight-bold); }
+
+.text-primary { color: var(--text-primary); }
+.text-secondary { color: var(--text-secondary); }
+.text-muted { color: var(--text-muted); }
+
+/* Display Utilities */
+.block { display: block; }
+.inline-block { display: inline-block; }
+.inline { display: inline; }
+.flex { display: flex; }
+.inline-flex { display: inline-flex; }
+.grid { display: grid; }
+.hidden { display: none; }
+
+/* Position Utilities */
+.relative { position: relative; }
+.absolute { position: absolute; }
+.fixed { position: fixed; }
+.sticky { position: sticky; }
+
+/* Overflow Utilities */
+.overflow-hidden { overflow: hidden; }
+.overflow-auto { overflow: auto; }
+.overflow-x-auto { overflow-x: auto; }
+.overflow-y-auto { overflow-y: auto; }
+
+/* Word Break Utilities */
+.break-words { word-wrap: break-word; word-break: break-word; }
+.break-all { word-break: break-all; }
+.truncate { 
+  overflow: hidden; 
+  text-overflow: ellipsis; 
+  white-space: nowrap; 
+}
+
+/* Transition Utilities */
+.transition-fast { transition: var(--transition-fast); }
+.transition-normal { transition: var(--transition-normal); }
+.transition-slow { transition: var(--transition-slow); }
+.transition-all { transition: var(--transition-all); }
+
+/* ============================================= */
+/* ==            FOCUS MANAGEMENT              == */
+/* ============================================= */
+
+/* Remove default focus outline */
+*:focus {
+  outline: none;
+}
+
+/* Add custom focus styles for keyboard users */
+*:focus-visible {
+  outline: 2px solid var(--primary-green);
+  outline-offset: 2px;
+  border-radius: var(--radius-xs);
+}
+
+/* ============================================= */
+/* ==            REDUCED MOTION               == */
+/* ============================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ============================================= */
+/* ==            HIGH CONTRAST                == */
+/* ============================================= */
+
+@media (prefers-contrast: high) {
+  :root {
+    --shadow-xs: none;
+    --shadow-sm: none;
+    --shadow-md: none;
+    --shadow-lg: none;
+    --shadow-xl: none;
+  }
+  
+  * {
+    border: 1px solid currentColor !important;
+  }
+}
+
+/* Add this to the END of your shared/base.css file */
+
+/* ============================================= */
+/* ==           Z-INDEX HIERARCHY             == */
+/* ============================================= */
+
+/* Base application layers */
+#root {
+  position: relative;
+  z-index: 0 !important;
+}
+
+.App,
+.main-content,
+.page-container,
+.container,
+.dashboard-container,
+.content-wrapper,
+main {
+  position: relative;
+  z-index: 1 !important;
+}
+
+/* Any sticky or fixed elements in main content */
+.sticky,
+.fixed,
+[style*="position: sticky"],
+[style*="position: fixed"]:not(.main-nav-bar):not(.profile-dropdown):not(.mobile-menu-overlay):not(.mobile-menu-container) {
+  z-index: 100 !important;
+}
+
+/* Tooltips and notifications */
+.tooltip,
+.notification,
+.toast {
+  z-index: 8000 !important;
+}
+
+/* Modals and overlays (lower than navigation) */
+.modal-backdrop {
+  z-index: 9000 !important;
+}
+
+.modal-content {
+  z-index: 9001 !important;
+}
+
+/* Navigation layers (highest priority) */
+.main-nav-bar {
+  z-index: 10000 !important;
+  position: sticky !important;
+  overflow: visible !important;
+}
+
+.nav-container {
+  z-index: 10001 !important;
+}
+
+.nav-left,
+.nav-right {
+  z-index: 10002 !important;
+}
+
+.desktop-nav-links,
+.desktop-session-links {
+  z-index: 10003 !important;
+}
+
+.nav-notification-item,
+.nav-profile-item {
+  z-index: 10004 !important;
+}
+
+/* Mobile menu */
+.mobile-menu-overlay {
+  z-index: 10005 !important;
+}
+
+.mobile-menu-container {
+  z-index: 10006 !important;
+}
+
+/* Profile dropdown (highest) */
+.profile-button-container {
+  z-index: 10010 !important;
+}
+
+.profile-dropdown {
+  z-index: 10011 !important;
+}
+
+/* Notifications dropdown */
+.notifications-dropdown {
+  z-index: 10009 !important;
+}
+
+/* Any other navigation dropdowns */
+.nav-tooltip,
+.nav-dropdown,
+.user-menu,
+.navigation-dropdown {
+  z-index: 10008 !important;
+}
+
+/* ============================================= */
+/* ==           STACKING CONTEXT FIXES       == */
+/* ============================================= */
+
+/* Ensure proper stacking context for common React patterns */
+.react-portal,
+.portal-container {
+  z-index: 9500 !important;
+}
+
+/* Fix for any third-party libraries */
+.react-datepicker-wrapper,
+.react-select__menu,
+.tippy-box {
+  z-index: 9800 !important;
+}
+
+/* Landing page specific fixes */
+.landing-page-wrapper {
+  z-index: 1 !important;
+}
+
+.landing-page-content {
+  z-index: 2 !important;
+}
+
+/* Dashboard specific fixes */
+.dashboard-grid,
+.dashboard-cards {
+  z-index: 1 !important;
+}
+
+/* ============================================= */
+/* ==           OVERFLOW FIXES                == */
+/* ============================================= */
+
+/* Ensure containers don't clip dropdowns */
+.nav-container,
+.nav-right,
+.desktop-session-links {
+  overflow: visible !important;
+}
+
+/* But keep main content areas contained */
+.main-content,
+.page-container,
+.container {
+  overflow: visible;
+  /* Allow dropdowns to show outside containers */
+}
+
+/* ============================================= */
+/* ==           MOBILE SPECIFIC FIXES         == */
+/* ============================================= */
+
+@media (max-width: 768px) {
+  .profile-dropdown {
+    z-index: 10012 !important;
+    position: fixed !important;
+  }
+  
+  .mobile-menu-overlay {
+    z-index: 10005 !important;
+  }
+  
+  .mobile-menu-container {
+    z-index: 10006 !important;
+  }
+}
+
+.mobile-menu-overlay {
+    z-index: 10004 !important;
+}
+
+.mobile-menu-container {
+    z-index: 10005 !important;
+}
+
+/* Fix for any sticky or fixed elements in main content */
+.sticky,
+.fixed,
+[style*="position: sticky"],
+[style*="position: fixed"] {
+    z-index: 100 !important; /* Much lower than navigation */
+}
+
+/* Notifications should be visible but not interfere with navigation */
+.notifications-dropdown {
+    z-index: 10009 !important;
+}

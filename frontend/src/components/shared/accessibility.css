@@ -1,0 +1,1024 @@
+/* shared/accessibility.css - Accessibility & Print Styles */
+
+/* ============================================= */
+/* ==            ACCESSIBILITY FEATURES       == */
+/* ============================================= */
+
+/* ============================================= */
+/* ==            REDUCED MOTION               == */
+/* ============================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+    transform: none !important;
+  }
+  
+  /* Disable specific animations */
+  .btn:hover,
+  .card:hover,
+  .icon-btn:hover,
+  .nav-tab:hover,
+  .status-indicator,
+  .status-badge,
+  .loading-spinner {
+    animation: none !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  
+  /* Keep essential focus indicators */
+  *:focus-visible {
+    transition: outline 0.1s ease !important;
+  }
+  
+  /* Disable complex hover effects */
+  .btn:not(:disabled):hover {
+    transform: none !important;
+    filter: none !important;
+  }
+  
+  .card:hover {
+    transform: none !important;
+    filter: none !important;
+  }
+}
+
+/* ============================================= */
+/* ==            HIGH CONTRAST MODE           == */
+/* ============================================= */
+
+@media (prefers-contrast: high) {
+  /* Remove subtle shadows and effects */
+  * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+  
+  /* Ensure all interactive elements have visible borders */
+  .btn,
+  .form-input,
+  .form-select,
+  .form-textarea,
+  .search-input,
+  .card,
+  .modal-content,
+  .table-container {
+    border: 2px solid currentColor !important;
+  }
+  
+  /* Status indicators need strong borders */
+  .status-indicator,
+  .status-badge {
+    border: 2px solid currentColor !important;
+    font-weight: var(--font-weight-bold) !important;
+  }
+  
+  /* Ensure sufficient contrast for text */
+  .text-secondary {
+    color: var(--text-primary) !important;
+  }
+  
+  .text-muted {
+    color: var(--text-secondary) !important;
+  }
+  
+  /* Remove gradient backgrounds for better contrast */
+  .btn,
+  .btn-primary,
+  .btn-secondary,
+  .btn-success,
+  .btn-warning,
+  .btn-danger,
+  .btn-purple {
+    background: var(--primary-green) !important;
+    color: white !important;
+  }
+  
+  .btn:disabled {
+    background: var(--text-muted) !important;
+    color: white !important;
+  }
+  
+  /* Table headers with solid colors */
+  .table thead th {
+    background: var(--text-primary) !important;
+    color: var(--bg-secondary) !important;
+  }
+  
+  /* Remove complex card styling */
+  .card::before,
+  .card-accent::before {
+    display: none !important;
+  }
+}
+
+/* ============================================= */
+/* ==            FOCUS MANAGEMENT              == */
+/* ============================================= */
+
+/* Enhanced focus indicators */
+*:focus-visible {
+  outline: 3px solid var(--primary-green) !important;
+  outline-offset: 2px !important;
+  border-radius: var(--radius-xs) !important;
+  box-shadow: 0 0 0 5px rgba(26, 188, 156, 0.2) !important;
+}
+
+/* Specific focus styles for different element types */
+.btn:focus-visible {
+  outline-color: var(--bg-secondary) !important;
+  outline-width: 2px !important;
+  box-shadow: 
+    0 0 0 4px var(--primary-green),
+    0 0 0 6px rgba(26, 188, 156, 0.3) !important;
+}
+
+.form-input:focus-visible,
+.form-select:focus-visible,
+.form-textarea:focus-visible,
+.search-input:focus-visible {
+  outline: 2px solid var(--primary-green) !important;
+  outline-offset: 1px !important;
+}
+
+.card:focus-visible {
+  outline: 2px solid var(--primary-green) !important;
+  outline-offset: 4px !important;
+}
+
+.icon-btn:focus-visible,
+.nav-tab:focus-visible {
+  outline: 2px solid var(--primary-green) !important;
+  outline-offset: 2px !important;
+  background-color: rgba(26, 188, 156, 0.1) !important;
+}
+
+/* Focus indicators for custom components */
+.status-indicator:focus-visible,
+.status-badge:focus-visible {
+  outline: 2px solid var(--text-primary) !important;
+  outline-offset: 2px !important;
+}
+
+/* ============================================= */
+/* ==            KEYBOARD NAVIGATION          == */
+/* ============================================= */
+
+/* Skip links for keyboard users */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: var(--primary-green);
+  color: white;
+  padding: 8px;
+  text-decoration: none;
+  border-radius: var(--radius-md);
+  font-weight: var(--font-weight-semibold);
+  z-index: var(--z-tooltip);
+  transition: top 0.2s ease;
+}
+
+.skip-link:focus {
+  top: 6px;
+}
+
+/* Ensure interactive elements are keyboard accessible */
+.card[tabindex],
+.status-indicator[tabindex],
+.status-badge[tabindex] {
+  cursor: pointer;
+}
+
+.card[tabindex]:focus,
+.status-indicator[tabindex]:focus,
+.status-badge[tabindex]:focus {
+  outline: 2px solid var(--primary-green);
+  outline-offset: 2px;
+}
+
+/* ============================================= */
+/* ==            SCREEN READER SUPPORT        == */
+/* ============================================= */
+
+/* Screen reader only content */
+.sr-only,
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* Screen reader only content that becomes visible on focus */
+.sr-only-focusable:focus,
+.visually-hidden-focusable:focus {
+  position: static !important;
+  width: auto !important;
+  height: auto !important;
+  padding: inherit !important;
+  margin: inherit !important;
+  overflow: visible !important;
+  clip: auto !important;
+  white-space: normal !important;
+}
+
+/* ARIA live regions */
+.live-region {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* ============================================= */
+/* ==            TOUCH ACCESSIBILITY          == */
+/* ============================================= */
+
+/* Ensure minimum touch targets (44x44px) */
+@media (hover: none) and (pointer: coarse) {
+  .btn,
+  .icon-btn,
+  .nav-tab,
+  button,
+  input[type="button"],
+  input[type="submit"],
+  input[type="reset"],
+  [role="button"],
+  [tabindex]:not([tabindex="-1"]) {
+    min-height: 44px !important;
+    min-width: 44px !important;
+  }
+  
+  /* Increase padding for touch targets */
+  .btn {
+    padding: var(--spacing-md) var(--spacing-lg) !important;
+  }
+  
+  .icon-btn {
+    padding: var(--spacing-md) !important;
+  }
+  
+  /* Remove hover effects on touch devices */
+  .btn:hover,
+  .card:hover,
+  .icon-btn:hover,
+  .nav-tab:hover,
+  .table tbody tr:hover td {
+    transform: none !important;
+    filter: none !important;
+    background-color: inherit !important;
+  }
+  
+  /* Enhanced tap feedback */
+  .btn:active,
+  .icon-btn:active,
+  .nav-tab:active {
+    transform: scale(0.98) !important;
+    opacity: 0.8 !important;
+  }
+}
+
+/* ============================================= */
+/* ==            COLOR ACCESSIBILITY          == */
+/* ============================================= */
+
+/* Ensure status indicators work without color alone */
+.status-indicator::before,
+.status-badge::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: var(--spacing-xs);
+}
+
+.status-indicator.status-due::before,
+.status-badge.status-due::before {
+  background: currentColor;
+  border: 1px solid currentColor;
+}
+
+.status-indicator.status-paid::before,
+.status-badge.status-paid::before {
+  background: currentColor;
+  border: 1px solid currentColor;
+}
+
+.status-indicator.status-pending::before,
+.status-badge.status-pending::before {
+  background: transparent;
+  border: 2px solid currentColor;
+}
+
+.status-indicator.status-scheduled::before,
+.status-badge.status-scheduled::before {
+  background: currentColor;
+  border: 1px solid currentColor;
+  border-radius: 2px;
+}
+
+/* Add text indicators for critical status */
+.status-indicator.status-due::after {
+  content: ' (Due)';
+  font-size: 0.8em;
+}
+
+.status-indicator.status-paid::after {
+  content: ' (Paid)';
+  font-size: 0.8em;
+}
+
+.status-indicator.status-pending::after {
+  content: ' (Pending)';
+  font-size: 0.8em;
+}
+
+/* ============================================= */
+/* ==            FORM ACCESSIBILITY           == */
+/* ============================================= */
+
+/* Required field indicators */
+.form-label[data-required="true"]::after,
+.form-label.required::after {
+  content: ' *';
+  color: var(--status-error);
+  font-weight: var(--font-weight-bold);
+}
+
+/* Error state indicators */
+.form-input[aria-invalid="true"],
+.form-select[aria-invalid="true"],
+.form-textarea[aria-invalid="true"] {
+  border-color: var(--status-error) !important;
+  box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.2) !important;
+}
+
+.form-input[aria-invalid="true"]:focus,
+.form-select[aria-invalid="true"]:focus,
+.form-textarea[aria-invalid="true"]:focus {
+  box-shadow: 
+    0 0 0 2px rgba(231, 76, 60, 0.2),
+    0 0 0 4px rgba(26, 188, 156, 0.3) !important;
+}
+
+/* Success state indicators */
+.form-input[aria-invalid="false"],
+.form-select[aria-invalid="false"],
+.form-textarea[aria-invalid="false"] {
+  border-color: var(--status-success) !important;
+}
+
+/* Fieldset and legend styling */
+fieldset {
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+}
+
+legend {
+  padding: 0 var(--spacing-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+}
+
+/* ============================================= */
+/* ==            TABLE ACCESSIBILITY          == */
+/* ============================================= */
+
+/* Enhanced table accessibility */
+.table caption {
+  caption-side: top;
+  padding: var(--spacing-lg);
+  font-weight: var(--font-weight-semibold);
+  text-align: left;
+  color: var(--text-primary);
+}
+
+.table th[scope="col"] {
+  text-align: left;
+}
+
+.table th[scope="row"] {
+  text-align: left;
+  font-weight: var(--font-weight-semibold);
+}
+
+/* Sortable table headers */
+.table th[aria-sort] {
+  cursor: pointer;
+  user-select: none;
+}
+
+.table th[aria-sort]:hover {
+  background-color: rgba(26, 188, 156, 0.1);
+}
+
+.table th[aria-sort="ascending"]::after {
+  content: ' ↑';
+  color: var(--primary-green);
+}
+
+.table th[aria-sort="descending"]::after {
+  content: ' ↓';
+  color: var(--primary-green);
+}
+
+.table th[aria-sort="none"]::after {
+  content: ' ↕';
+  color: var(--text-muted);
+  opacity: 0.5;
+}
+
+/* ============================================= */
+/* ==            MODAL ACCESSIBILITY          == */
+/* ============================================= */
+
+/* Modal focus management */
+.modal-backdrop {
+  /* Ensure modal backdrop doesn't interfere with screen readers */
+  aria-hidden: true;
+}
+
+.modal-content[role="dialog"] {
+  /* Ensure proper focus containment */
+  outline: none;
+}
+
+/* Focus trap helper */
+.focus-trap-start,
+.focus-trap-end {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* ============================================= */
+/* ==            LOADING ACCESSIBILITY        == */
+/* ============================================= */
+
+/* Screen reader announcements for loading states */
+.loading-spinner[aria-label] {
+  /* Ensure spinner has accessible label */
+}
+
+.loading-container[aria-live="polite"] {
+  /* Announce loading state changes */
+}
+
+/* Hide decorative loading elements from screen readers */
+.loading-spinner[aria-hidden="true"] {
+  /* Decorative only */
+}
+
+/* ============================================= */
+/* ==            PRINT STYLES                 == */
+/* ============================================= */
+
+@media print {
+  /* Reset page styling for print */
+  * {
+    background: white !important;
+    color: black !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    border-radius: 0 !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+  
+  .container {
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 15px !important;
+    border: none !important;
+  }
+  
+  /* Hide interactive elements */
+  .btn,
+  .icon-btn,
+  .modal-backdrop,
+  .modal-content,
+  .flash-message,
+  .nav-tabs,
+  .loading-spinner,
+  [role="button"],
+  button,
+  input[type="button"],
+  input[type="submit"],
+  input[type="reset"] {
+    display: none !important;
+  }
+  
+  /* Hide navigation and interactive controls */
+  .skip-link,
+  .focus-trap-start,
+  .focus-trap-end {
+    display: none !important;
+  }
+  
+  /* Header styling for print */
+  h1, h2, h3, h4, h5, h6 {
+    color: black !important;
+    font-weight: bold !important;
+    page-break-after: avoid !important;
+  }
+  
+  h1 { font-size: 18pt !important; }
+  h2 { font-size: 16pt !important; }
+  h3 { font-size: 14pt !important; }
+  h4, h5, h6 { font-size: 12pt !important; }
+  
+  /* Body text */
+  p, div, span {
+    font-size: 10pt !important;
+    line-height: 1.4 !important;
+    color: black !important;
+  }
+  
+  /* Card styling for print */
+  .card {
+    border: 1px solid #ccc !important;
+    margin: 0 0 15pt 0 !important;
+    padding: 10pt !important;
+    page-break-inside: avoid !important;
+  }
+  
+  /* Remove decorative elements */
+  .card::before,
+  .card-accent::before,
+  .divider-thick,
+  .avatar {
+    display: none !important;
+  }
+  
+  /* Table styling for print */
+  .table-container {
+    border: 1px solid #ccc !important;
+    overflow: visible !important;
+    page-break-inside: avoid !important;
+  }
+  
+  .table {
+    width: 100% !important;
+    min-width: auto !important;
+    font-size: 9pt !important;
+    border-collapse: collapse !important;
+  }
+  
+  .table thead {
+    display: table-header-group !important;
+  }
+  
+  .table thead th {
+    background: #f0f0f0 !important;
+    color: black !important;
+    border: 1px solid #ccc !important;
+    padding: 6pt 4pt !important;
+    font-size: 8pt !important;
+    font-weight: bold !important;
+    text-transform: uppercase !important;
+  }
+  
+  .table tbody td {
+    border: 1px solid #ccc !important;
+    padding: 4pt !important;
+    font-size: 8pt !important;
+    color: black !important;
+    background: white !important;
+    max-width: none !important;
+    word-wrap: break-word !important;
+    page-break-inside: avoid !important;
+  }
+  
+  .table tbody tr {
+    page-break-inside: avoid !important;
+  }
+  
+  /* Status indicators for print */
+  .status-indicator,
+  .status-badge {
+    background: white !important;
+    color: black !important;
+    border: 1px solid black !important;
+    padding: 2pt 4pt !important;
+    font-size: 7pt !important;
+    font-weight: bold !important;
+  }
+  
+  /* Specific status styling for print clarity */
+  .status-indicator.status-due,
+  .status-badge.status-due {
+    background: #f8f9fa !important;
+    border: 2px solid black !important;
+  }
+  
+  .status-indicator.status-paid,
+  .status-badge.status-paid {
+    background: #e8f5e8 !important;
+    border: 1px solid #333 !important;
+  }
+  
+  .status-indicator.status-pending,
+  .status-badge.status-pending {
+    background: #fff3cd !important;
+    border: 1px solid #666 !important;
+  }
+  
+  /* Form elements for print */
+  .form-input,
+  .form-select,
+  .form-textarea,
+  .search-input {
+    border: 1px solid black !important;
+    background: white !important;
+    color: black !important;
+    padding: 2pt !important;
+    font-size: 9pt !important;
+  }
+  
+  .form-label {
+    color: black !important;
+    font-weight: bold !important;
+    font-size: 8pt !important;
+  }
+  
+  /* Alert styling for print */
+  .alert {
+    border: 2px solid black !important;
+    background: #f8f9fa !important;
+    color: black !important;
+    padding: 8pt !important;
+    margin: 10pt 0 !important;
+  }
+  
+  .alert-success {
+    background: #e8f5e8 !important;
+    border-color: #333 !important;
+  }
+  
+  .alert-warning {
+    background: #fff3cd !important;
+    border-color: #666 !important;
+  }
+  
+  .alert-error {
+    background: #f8d7da !important;
+    border-color: #000 !important;
+  }
+  
+  .alert-info {
+    background: #e8f4f8 !important;
+    border-color: #333 !important;
+  }
+  
+  /* Navigation elements for print */
+  .nav-tab {
+    display: none !important;
+  }
+  
+  /* Badge styling for print */
+  .badge {
+    background: white !important;
+    color: black !important;
+    border: 1px solid black !important;
+    padding: 1pt 3pt !important;
+    font-size: 7pt !important;
+  }
+  
+  /* Grid adjustments for print */
+  .grid,
+  .grid-auto,
+  .grid-2,
+  .grid-3,
+  .grid-4,
+  .grid-5,
+  .grid-6 {
+    display: block !important;
+  }
+  
+  /* Flexbox adjustments for print */
+  .flex,
+  .inline-flex {
+    display: block !important;
+  }
+  
+  /* Spacing adjustments for print */
+  .gap-xs, .gap-sm, .gap-md, .gap-lg, .gap-xl,
+  .gap-x-xs, .gap-x-sm, .gap-x-md, .gap-x-lg, .gap-x-xl,
+  .gap-y-xs, .gap-y-sm, .gap-y-md, .gap-y-lg, .gap-y-xl {
+    gap: 5pt !important;
+  }
+  
+  /* Text styling for print */
+  .text-xs { font-size: 7pt !important; }
+  .text-sm { font-size: 8pt !important; }
+  .text-base { font-size: 9pt !important; }
+  .text-lg { font-size: 10pt !important; }
+  .text-xl { font-size: 12pt !important; }
+  
+  .font-bold { font-weight: bold !important; }
+  .font-semibold { font-weight: 600 !important; }
+  .font-medium { font-weight: 500 !important; }
+  .font-normal { font-weight: normal !important; }
+  
+  .text-primary,
+  .text-secondary,
+  .text-muted {
+    color: black !important;
+  }
+  
+  /* Amount displays for print */
+  .amount-cell {
+    color: black !important;
+    font-weight: bold !important;
+    text-decoration: underline !important;
+  }
+  
+  /* Page break controls */
+  .page-break-before {
+    page-break-before: always !important;
+  }
+  
+  .page-break-after {
+    page-break-after: always !important;
+  }
+  
+  .page-break-inside-avoid {
+    page-break-inside: avoid !important;
+  }
+  
+  /* Print-specific utilities */
+  .print-hidden {
+    display: none !important;
+  }
+  
+  .print-block {
+    display: block !important;
+  }
+  
+  .print-inline {
+    display: inline !important;
+  }
+  
+  .print-inline-block {
+    display: inline-block !important;
+  }
+  
+  /* Ensure proper page margins */
+  @page {
+    margin: 1in !important;
+    size: letter !important;
+  }
+  
+  /* Hide scrollbars in print */
+  ::-webkit-scrollbar {
+    display: none !important;
+  }
+  
+  /* Table of contents for print */
+  .print-toc {
+    page-break-after: always !important;
+    margin-bottom: 20pt !important;
+  }
+  
+  .print-toc h2 {
+    font-size: 16pt !important;
+    margin-bottom: 10pt !important;
+    border-bottom: 2px solid black !important;
+    padding-bottom: 5pt !important;
+  }
+  
+  .print-toc ul {
+    list-style: decimal !important;
+    margin-left: 20pt !important;
+  }
+  
+  .print-toc li {
+    margin-bottom: 5pt !important;
+    font-size: 10pt !important;
+  }
+  
+  /* Print headers and footers */
+  .print-header {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    height: 50pt !important;
+    background: white !important;
+    border-bottom: 1px solid black !important;
+    padding: 10pt !important;
+    font-size: 10pt !important;
+  }
+  
+  .print-footer {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    height: 30pt !important;
+    background: white !important;
+    border-top: 1px solid black !important;
+    padding: 5pt 10pt !important;
+    font-size: 8pt !important;
+    text-align: center !important;
+  }
+  
+  /* Orphans and widows control */
+  p, div, li {
+    orphans: 3 !important;
+    widows: 3 !important;
+  }
+  
+  /* Avoid breaking these elements */
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid !important;
+    orphans: 4 !important;
+    widows: 4 !important;
+  }
+  
+  .card,
+  .table-container,
+  .alert {
+    page-break-inside: avoid !important;
+  }
+  
+  /* Force page breaks before major sections */
+  .section-break {
+    page-break-before: always !important;
+  }
+}
+
+/* ============================================= */
+/* ==            ACCESSIBILITY UTILITIES      == */
+/* ============================================= */
+
+/* High contrast utilities */
+.a11y-high-contrast {
+  filter: contrast(150%) !important;
+}
+
+/* Large text utilities */
+.a11y-large-text {
+  font-size: 1.2em !important;
+  line-height: 1.5 !important;
+}
+
+.a11y-extra-large-text {
+  font-size: 1.5em !important;
+  line-height: 1.6 !important;
+}
+
+/* Focus enhancement utilities */
+.a11y-enhanced-focus *:focus-visible {
+  outline: 4px solid var(--primary-green) !important;
+  outline-offset: 4px !important;
+  box-shadow: 0 0 0 8px rgba(26, 188, 156, 0.3) !important;
+}
+
+/* Reading mode utilities */
+.a11y-reading-mode {
+  background: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+  font-family: Georgia, 'Times New Roman', serif !important;
+  line-height: 1.6 !important;
+  max-width: 65ch !important;
+  margin: 0 auto !important;
+  padding: var(--spacing-xl) !important;
+}
+
+.a11y-reading-mode * {
+  background: inherit !important;
+  color: inherit !important;
+}
+
+/* Dyslexia-friendly utilities */
+.a11y-dyslexia-friendly {
+  font-family: 'OpenDyslexic', 'Comic Sans MS', cursive !important;
+  letter-spacing: 0.1em !important;
+  word-spacing: 0.16em !important;
+  line-height: 1.8 !important;
+}
+
+/* ============================================= */
+/* ==            RESPONSIVE ACCESSIBILITY     == */
+/* ============================================= */
+
+/* Mobile accessibility enhancements */
+@media (max-width: 768px) {
+  /* Larger touch targets on mobile */
+  .btn,
+  .icon-btn,
+  .nav-tab,
+  button,
+  [role="button"] {
+    min-height: 48px !important;
+    min-width: 48px !important;
+    padding: var(--spacing-md) var(--spacing-lg) !important;
+  }
+  
+  /* Enhanced focus indicators on mobile */
+  *:focus-visible {
+    outline-width: 3px !important;
+    outline-offset: 3px !important;
+    box-shadow: 0 0 0 6px rgba(26, 188, 156, 0.3) !important;
+  }
+  
+  /* Larger text for better readability */
+  .text-xs { font-size: var(--font-size-sm) !important; }
+  .text-sm { font-size: var(--font-size-base) !important; }
+  
+  /* Enhanced status indicators */
+  .status-indicator,
+  .status-badge {
+    font-size: var(--font-size-sm) !important;
+    padding: var(--spacing-sm) var(--spacing-md) !important;
+    min-height: 32px !important;
+  }
+}
+
+/* ============================================= */
+/* ==            VENDOR ACCESSIBILITY         == */
+/* ============================================= */
+
+/* Windows High Contrast Mode */
+@media screen and (-ms-high-contrast: active) {
+  * {
+    background: transparent !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+  
+  .btn,
+  .card,
+  .form-input,
+  .form-select,
+  .table-container {
+    border: 2px solid !important;
+  }
+  
+  .status-indicator,
+  .status-badge {
+    border: 2px solid !important;
+    background: transparent !important;
+  }
+}
+
+/* macOS Reduce Transparency */
+@media (prefers-reduced-transparency: reduce) {
+  .card,
+  .modal-content,
+  .table-container {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background: var(--bg-secondary) !important;
+  }
+}
+
+/* Force Colors Mode (Windows) */
+@media (forced-colors: active) {
+  * {
+    background-color: Canvas !important;
+    color: CanvasText !important;
+    border-color: CanvasText !important;
+  }
+  
+  .btn {
+    background-color: ButtonFace !important;
+    color: ButtonText !important;
+    border: 2px solid ButtonText !important;
+  }
+  
+  .btn:hover,
+  .btn:focus {
+    background-color: Highlight !important;
+    color: HighlightText !important;
+    border-color: HighlightText !important;
+  }
+  
+  .status-indicator,
+  .status-badge {
+    background-color: Mark !important;
+    color: MarkText !important;
+    border: 2px solid MarkText !important;
+  }
+}

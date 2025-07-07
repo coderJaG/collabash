@@ -1,150 +1,125 @@
-/* BankerDashboardPage.css - Enhanced to match AdminDashboardPage styling */
+/* BankerDashboardPage.css */
+
+/* Import all shared styles */
+@import '../shared/base.css';
+@import '../shared/components.css';
+@import '../shared/layout.css';
+@import '../shared/responsive.css';
+@import '../shared/dark-mode.css';
+@import '../shared/accessibility.css';
 
 /* ============================================= */
-/* ==          BANKER SPECIFIC OVERRIDES     == */
+/* ==        BANKER-SPECIFIC OVERRIDES        == */
 /* ============================================= */
 
 /* Request button styling for joining pots */
 .request-btn {
-    background: linear-gradient(135deg, #1abc9c, #16a085);
-    color: white;
-    border: none;
-    padding: 10px 16px;
-    border-radius: 8px;
-    font-size: 0.85em;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    min-width: 140px;
-    white-space: nowrap;
+    background: linear-gradient(135deg, var(--primary-green), var(--primary-green-hover)) !important;
+    color: white !important;
+    border: none !important;
+    cursor: pointer !important;
+    transition: var(--transition-all) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: var(--spacing-sm) !important;
+    text-decoration: none !important;
+    white-space: nowrap !important;
 }
 
 .request-btn:hover:not(:disabled) {
-    background: linear-gradient(135deg, #16a085, #138d75);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(26, 188, 156, 0.3);
+    background: linear-gradient(135deg, var(--primary-green-hover), var(--primary-green-dark)) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: var(--shadow-primary) !important;
 }
 
 .request-btn:disabled {
-    background: #95a5a6;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
+    background: var(--text-muted) !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+    box-shadow: none !important;
+    opacity: 0.6 !important;
 }
 
 .request-btn.pending {
-    background: #f39c12;
-    cursor: not-allowed;
+    background: linear-gradient(135deg, var(--status-warning), var(--status-warning-hover)) !important;
+    cursor: not-allowed !important;
 }
 
 .request-btn.pending:hover {
-    background: #f39c12;
-    transform: none;
-    box-shadow: none;
-}
-
-/* Status indicators for available pots */
-.status-indicator.status-not-started {
-    background-color: #95a5a6;
-}
-
-.status-indicator.status-active {
-    background-color: #27ae60;
-}
-
-.status-indicator.status-paused {
-    background-color: #f39c12;
-}
-
-.status-indicator.status-ended {
-    background-color: #e74c3c;
-}
-
-.status-indicator.status-cancelled {
-    background-color: #c0392b;
-}
-
-.status-indicator.status-closed {
-    background-color: #34495e;
+    background: linear-gradient(135deg, var(--status-warning), var(--status-warning-hover)) !important;
+    transform: none !important;
+    box-shadow: none !important;
 }
 
 /* Fee note styling for banker cards */
 .fee-note {
     display: block;
-    font-size: 0.75em;
-    color: #7f8c8d;
-    font-weight: 400;
+    font-size: var(--font-size-xs);
+    color: var(--text-muted);
+    font-weight: var(--font-weight-normal);
     font-style: italic;
     margin-top: 2px;
-    transition: color 0.3s ease;
-}
-
-/* Enhanced member info styling for banker context */
-.banker-info {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.banker-name {
-    font-weight: 600;
-    color: #2c3e50;
-    transition: color 0.3s ease;
-}
-
-.banker-real-name {
-    font-size: 0.85em;
-    color: #7f8c8d;
-    transition: color 0.3s ease;
-}
-
-/* Enhanced action button for request approval */
-.action-btn.request-approval {
-    background-color: #3498db;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 0.85em;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    white-space: nowrap;
-    min-height: 36px;
-}
-
-.action-btn.request-approval:hover {
-    background-color: #2980b9;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+    transition: var(--transition-all);
 }
 
 /* ============================================= */
-/* ==           ENHANCED DARK MODE            == */
+/* ==           RESPONSIVE OVERRIDES          == */
+/* ============================================= */
+@media (max-width: 1024px) {
+    .request-btn {
+        min-width: 120px !important;
+        font-size: var(--font-size-sm) !important;
+        padding: var(--spacing-sm) var(--spacing-md) !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .request-btn {
+        width: 100% !important;
+        min-width: auto !important;
+        justify-content: center !important;
+        padding: var(--spacing-md) var(--spacing-lg) !important;
+        font-size: var(--font-size-base) !important;
+    }
+}
+
+@media (max-width: 640px) {
+    .request-btn {
+        width: 100% !important;
+        max-width: 200px !important;
+        margin: 0 auto !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .request-btn {
+        padding: var(--spacing-md) var(--spacing-lg) !important;
+        font-size: var(--font-size-sm) !important;
+        min-width: auto !important;
+        width: 100% !important;
+        max-width: 180px !important;
+    }
+}
+
+/* ============================================= */
+/* ==           DARK MODE OVERRIDES           == */
 /* ============================================= */
 @media (prefers-color-scheme: dark) {
-    /* Request button styling in dark mode */
     .request-btn {
-        background: linear-gradient(135deg, #1abc9c, #16a085) !important;
+        background: linear-gradient(135deg, var(--primary-green), var(--primary-green-hover)) !important;
         box-shadow: 0 4px 15px rgba(26, 188, 156, 0.2) !important;
     }
     
     .request-btn:hover:not(:disabled) {
-        background: linear-gradient(135deg, #16a085, #138d75) !important;
+        background: linear-gradient(135deg, var(--primary-green-hover), var(--primary-green-dark)) !important;
         box-shadow: 0 6px 20px rgba(26, 188, 156, 0.4) !important;
         transform: translateY(-1px) !important;
     }
     
     .request-btn:disabled {
         background: #4a5568 !important;
-        color: #a0aec0 !important;
+        color: var(--text-muted) !important;
         cursor: not-allowed !important;
         transform: none !important;
         box-shadow: none !important;
@@ -163,222 +138,44 @@
         box-shadow: 0 2px 10px rgba(243, 156, 18, 0.3) !important;
     }
     
-    /* Status indicators in dark mode */
-    .status-indicator.status-not-started {
-        background: linear-gradient(135deg, rgba(149, 165, 166, 0.8), rgba(127, 140, 141, 0.6)) !important;
-        color: #e2e8f0 !important;
-        border: 1px solid rgba(149, 165, 166, 0.3) !important;
-        box-shadow: 0 2px 10px rgba(149, 165, 166, 0.2) !important;
-    }
-    
-    .status-indicator.status-active {
-        background: linear-gradient(135deg, rgba(39, 174, 96, 0.8), rgba(34, 153, 84, 0.6)) !important;
-        color: #9ae6b4 !important;
-        border: 1px solid rgba(39, 174, 96, 0.3) !important;
-        box-shadow: 0 2px 10px rgba(39, 174, 96, 0.2) !important;
-    }
-    
-    .status-indicator.status-paused {
-        background: linear-gradient(135deg, rgba(243, 156, 18, 0.8), rgba(230, 126, 34, 0.6)) !important;
-        color: #f6e05e !important;
-        border: 1px solid rgba(243, 156, 18, 0.3) !important;
-        box-shadow: 0 2px 10px rgba(243, 156, 18, 0.2) !important;
-    }
-    
-    .status-indicator.status-ended,
-    .status-indicator.status-cancelled {
-        background: linear-gradient(135deg, rgba(231, 76, 60, 0.8), rgba(192, 57, 43, 0.6)) !important;
-        color: #fc8181 !important;
-        border: 1px solid rgba(231, 76, 60, 0.3) !important;
-        box-shadow: 0 2px 10px rgba(231, 76, 60, 0.2) !important;
-    }
-    
-    .status-indicator.status-closed {
-        background: linear-gradient(135deg, rgba(52, 73, 94, 0.8), rgba(44, 62, 80, 0.6)) !important;
-        color: #cbd5e0 !important;
-        border: 1px solid rgba(52, 73, 94, 0.3) !important;
-        box-shadow: 0 2px 10px rgba(52, 73, 94, 0.2) !important;
-    }
-    
-    /* Fee note styling in dark mode */
     .fee-note {
-        color: #a0aec0 !important;
-    }
-    
-    /* Banker info styling in dark mode */
-    .banker-info .banker-name {
-        color: #f7fafc !important;
-        font-weight: 600;
-    }
-    
-    .banker-info .banker-real-name {
-        color: #cbd5e0 !important;
-    }
-    
-    /* Action button styling in dark mode */
-    .action-btn.request-approval {
-        background: linear-gradient(135deg, #3498db, #2980b9) !important;
-        color: white !important;
-        box-shadow: 0 4px 15px rgba(52, 152, 219, 0.2) !important;
-    }
-    
-    .action-btn.request-approval:hover {
-        background: linear-gradient(135deg, #2980b9, #2471a3) !important;
-        box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4) !important;
-        transform: translateY(-1px) !important;
+        color: var(--text-muted) !important;
     }
 }
 
 /* ============================================= */
-/* ==           RESPONSIVE DESIGN             == */
-/* ============================================= */
-
-/* Large tablets and small desktops (1024px and below) */
-@media (max-width: 1024px) {
-    .request-btn {
-        min-width: 120px;
-        font-size: 0.8em;
-        padding: 8px 14px;
-    }
-}
-
-/* Tablets (768px and below) */
-@media (max-width: 768px) {
-    .request-btn {
-        width: 100%;
-        min-width: auto;
-        justify-content: center;
-        padding: 12px 16px;
-        font-size: 0.9em;
-    }
-}
-
-/* Small tablets and large phones (640px and below) */
-@media (max-width: 640px) {
-    .pot-card-footer > div {
-        width: 100%;
-        display: flex;
-        justify-content: center;
-    }
-    
-    .request-btn {
-        width: 100%;
-        max-width: 200px;
-        margin: 0 auto;
-    }
-}
-
-/* Mobile phones (480px and below) */
-@media (max-width: 480px) {
-    .request-btn {
-        padding: 10px 12px;
-        font-size: 0.85em;
-        min-width: auto;
-        width: 100%;
-        max-width: 180px;
-    }
-    
-    .banker-info {
-        text-align: left;
-    }
-    
-    .banker-name,
-    .banker-real-name {
-        word-wrap: break-word;
-        max-width: 150px;
-    }
-}
-
-/* Extra small phones (360px and below) */
-@media (max-width: 360px) {
-    .request-btn {
-        padding: 8px 10px;
-        font-size: 0.8em;
-        gap: 4px;
-    }
-    
-    .action-btn.request-approval {
-        padding: 6px 12px;
-        font-size: 0.8em;
-    }
-}
-
-/* ============================================= */
-/* ==           ACCESSIBILITY                 == */
+/* ==           ACCESSIBILITY OVERRIDES       == */
 /* ============================================= */
 @media (prefers-reduced-motion: reduce) {
-    .request-btn,
-    .action-btn.request-approval {
+    .request-btn {
         transition: none !important;
         transform: none !important;
         animation: none !important;
     }
 }
 
-/* High contrast mode support */
 @media (prefers-contrast: high) {
-    .request-btn,
-    .action-btn.request-approval {
-        border: 2px solid;
-    }
-    
-    .status-indicator.status-not-started,
-    .status-indicator.status-active,
-    .status-indicator.status-paused,
-    .status-indicator.status-ended,
-    .status-indicator.status-cancelled,
-    .status-indicator.status-closed {
-        border: 2px solid;
+    .request-btn {
+        border: 2px solid currentColor !important;
     }
 }
 
 /* ============================================= */
 /* ==           FOCUS STATES                  == */
 /* ============================================= */
-.request-btn:focus-visible,
-.action-btn.request-approval:focus-visible {
-    outline: 2px solid #1abc9c;
-    outline-offset: 2px;
+.request-btn:focus-visible {
+    outline: 2px solid var(--primary-green) !important;
+    outline-offset: 2px !important;
 }
 
 /* ============================================= */
-/* ==           PRINT STYLES                  == */
+/* ==           PRINT OVERRIDES               == */
 /* ============================================= */
 @media print {
-    /* Hide interactive elements specific to banker dashboard */
-    .request-btn,
-    .action-btn.request-approval {
+    .request-btn {
         display: none !important;
     }
     
-    /* Status indicators for print */
-    .status-indicator.status-not-started,
-    .status-indicator.status-active,
-    .status-indicator.status-paused,
-    .status-indicator.status-ended,
-    .status-indicator.status-cancelled,
-    .status-indicator.status-closed {
-        background: white !important;
-        color: black !important;
-        border: 1px solid black !important;
-        box-shadow: none !important;
-        padding: 2pt 4pt !important;
-        font-size: 7pt !important;
-    }
-    
-    /* Banker info for print */
-    .banker-info .banker-name {
-        color: black !important;
-        font-weight: bold !important;
-        text-shadow: none !important;
-    }
-    
-    .banker-info .banker-real-name {
-        color: #666 !important;
-        font-size: 7pt !important;
-    }
-    
-    /* Fee note for print */
     .fee-note {
         color: #666 !important;
         font-size: 6pt !important;
@@ -389,12 +186,9 @@
 /* ============================================= */
 /* ==           UTILITY CLASSES               == */
 /* ============================================= */
-
-/* Ensure banker-specific buttons have minimum touch targets for accessibility */
 @media (max-width: 768px) {
-    .request-btn,
-    .action-btn.request-approval {
-        min-height: 44px;
-        min-width: 44px;
+    .request-btn {
+        min-height: 44px !important;
+        min-width: 44px !important;
     }
 }

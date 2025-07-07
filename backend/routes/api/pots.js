@@ -343,13 +343,22 @@ router.delete('/:potId', requireAuth, requirePermission(PERMISSIONS.DELETE_POT),
 router.post('/:potId/addusers', requireAuth, requirePermission(PERMISSIONS.MANAGE_POT_MEMBERS), async (req, res) => {
     const currUser = req.user;
     const { potId } = req.params;
-    const { userId } = req.body;
+    const { userId, userIds } = req.body; // Support both single and multiple
     const numPotId = parseInt(potId);
-    const numUserId = parseInt(userId);
 
+    // Handle both single user (userId) and multiple users (userIds)
+    let usersToAdd = [];
+    if (userIds && Array.isArray(userIds)) {
+        usersToAdd = userIds.map(id => parseInt(id)).filter(id => !isNaN(id));
+    } else if (userId) {
+        const numUserId = parseInt(userId);
+        if (!isNaN(numUserId)) {
+            usersToAdd = [numUserId];
+        }
+    }
 
-    if (isNaN(numPotId) || isNaN(numUserId)) {
-        return res.status(400).json({ 'message': 'Invalid Pot ID or User ID.' });
+    if (isNaN(numPotId) || usersToAdd.length === 0) {
+        return res.status(400).json({ 'message': 'Invalid Pot ID or User ID(s).' });
     }
 
     const t = await sequelize.transaction();
@@ -366,45 +375,126 @@ router.post('/:potId/addusers', requireAuth, requirePermission(PERMISSIONS.MANAG
             await t.rollback();
             return res.status(400).json({ message: 'Users can only be added to a pot that has not started or is paused.' });
         }
-        const userToAdd = await User.findByPk(numUserId, { attributes: ['id', 'firstName', 'lastName', 'username'], transaction: t });
-        if (!userToAdd) {
-            await t.rollback();
-            return res.status(404).json({ 'message': 'User to add not found.' });
-        }
-        const existingPotsUser = await PotsUser.findOne({ where: { potId: numPotId, userId: numUserId }, transaction: t });
-        if (existingPotsUser) {
-            await t.rollback();
-            return res.status(400).json({ 'message': 'User already exists in this pot.' });
-        }
 
+        // Get current max order
         const maxOrderResult = await PotsUser.max('displayOrder', { where: { potId: numPotId }, transaction: t });
-        const nextOrder = (typeof maxOrderResult === 'number' ? maxOrderResult : 0) + 1;
+        let nextOrder = (typeof maxOrderResult === 'number' ? maxOrderResult : 0) + 1;
 
-        await PotsUser.create({ potId: numPotId, userId: numUserId, displayOrder: nextOrder }, { transaction: t });
-        const potAfterScheduleUpdate = await updatePotScheduleAndDetails(numPotId, t);
+        const addedUsers = [];
+        const skippedUsers = [];
+        const notFoundUsers = [];
 
-        await logHistory({
-            userId: currUser.id,
-            actionType: 'ADD_USER_TO_POT',
-            entityType: 'PotsUser',
-            entityId: numUserId,
-            potIdContext: numPotId,
-            changes: { userId: numUserId, username: userToAdd.username, potId: numPotId, displayOrder: nextOrder, newPotAmount: potAfterScheduleUpdate.amount, newPotEndDate: potAfterScheduleUpdate.endDate },
-            description: `User ${currUser.username} (ID: ${currUser.id}) added user ${userToAdd.username} (ID: ${numUserId}) to pot "${pot.name}" (ID: ${numPotId}).`,
-            transaction: t
-        });
+        for (const numUserId of usersToAdd) {
+            // Check if user exists
+            const userToAdd = await User.findByPk(numUserId, { 
+                attributes: ['id', 'firstName', 'lastName', 'username'], 
+                transaction: t 
+            });
+            
+            if (!userToAdd) {
+                notFoundUsers.push(numUserId);
+                continue;
+            }
+
+            // Check if user already in pot
+            const existingPotsUser = await PotsUser.findOne({ 
+                where: { potId: numPotId, userId: numUserId }, 
+                transaction: t 
+            });
+            
+            if (existingPotsUser) {
+                skippedUsers.push({
+                    id: numUserId,
+                    name: `${userToAdd.firstName} ${userToAdd.lastName}`,
+                    reason: 'Already in pot'
+                });
+                continue;
+            }
+
+            // Add user to pot
+            await PotsUser.create({ 
+                potId: numPotId, 
+                userId: numUserId, 
+                displayOrder: nextOrder 
+            }, { transaction: t });
+
+            addedUsers.push({
+                id: numUserId,
+                name: `${userToAdd.firstName} ${userToAdd.lastName}`,
+                username: userToAdd.username,
+                displayOrder: nextOrder
+            });
+
+            nextOrder++;
+        }
+
+        // Update pot schedule if users were added
+        let potAfterScheduleUpdate = pot;
+        if (addedUsers.length > 0) {
+            potAfterScheduleUpdate = await updatePotScheduleAndDetails(numPotId, t);
+
+            await logHistory({
+                userId: currUser.id,
+                actionType: addedUsers.length === 1 ? 'ADD_USER_TO_POT' : 'ADD_USERS_TO_POT_BULK',
+                entityType: 'PotsUser',
+                entityId: addedUsers.length === 1 ? addedUsers[0].id : null,
+                potIdContext: numPotId,
+                changes: { 
+                    addedUsers: addedUsers,
+                    newPotAmount: potAfterScheduleUpdate.amount, 
+                    newPotEndDate: potAfterScheduleUpdate.endDate 
+                },
+                description: `User ${currUser.username} (ID: ${currUser.id}) added ${addedUsers.length} user(s) to pot "${pot.name}" (ID: ${numPotId}).`,
+                transaction: t
+            });
+        }
 
         await t.commit();
+
+        // Get updated pot data
         const updatedPotResult = await Pot.findByPk(numPotId, {
-            include: [{ model: User, as: 'Users', through: { model: PotsUser, as: 'potMemberDetails', attributes: ['drawDate', 'displayOrder'] } }],
+            include: [{ 
+                model: User, 
+                as: 'Users', 
+                through: { 
+                    model: PotsUser, 
+                    as: 'potMemberDetails', 
+                    attributes: ['drawDate', 'displayOrder'] 
+                } 
+            }],
             order: [
                 [sequelize.literal('"Users->potMemberDetails"."displayOrder"'), 'ASC']
             ]
         });
-        return res.status(201).json(updatedPotResult);
+
+        // Create response message
+        let message = '';
+        if (addedUsers.length > 0) {
+            message += `Successfully added ${addedUsers.length} user(s) to the pot.`;
+        }
+        if (skippedUsers.length > 0) {
+            message += ` ${skippedUsers.length} user(s) were already in the pot.`;
+        }
+        if (notFoundUsers.length > 0) {
+            message += ` ${notFoundUsers.length} user(s) were not found.`;
+        }
+
+        return res.status(201).json({
+            ...updatedPotResult.toJSON(),
+            summary: {
+                added: addedUsers.length,
+                skipped: skippedUsers.length,
+                notFound: notFoundUsers.length,
+                addedUsers,
+                skippedUsers,
+                notFoundUsers
+            },
+            message
+        });
+
     } catch (error) {
         await t.rollback();
-        console.error(`Error adding user ${userId} to pot ${potId}:`, error);
+        console.error(`Error adding users to pot ${potId}:`, error);
         return res.status(500).json({ message: error.message || "Internal server error." });
     }
 });

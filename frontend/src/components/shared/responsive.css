@@ -1,0 +1,1066 @@
+/* shared/responsive.css - Responsive Breakpoints & Media Queries */
+
+/* ============================================= */
+/* ==            RESPONSIVE BREAKPOINTS       == */
+/* ============================================= */
+
+/*
+  Breakpoint System:
+  - xs: 0-479px (extra small phones)
+  - sm: 480-639px (small phones) 
+  - md: 640-767px (large phones/small tablets)
+  - lg: 768-1023px (tablets)
+  - xl: 1024-1279px (small desktops)
+  - 2xl: 1280px+ (large desktops)
+*/
+
+/* ============================================= */
+/* ==          LARGE TABLETS/SMALL DESKTOPS   == */
+/* ============================================= */
+
+@media (max-width: 1024px) {
+
+  /* Container adjustments */
+  .container {
+    padding: clamp(12px, 3vw, 25px);
+    margin: clamp(10px, 2vw, 20px) auto;
+  }
+
+  /* Button adjustments */
+  .btn {
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-xs);
+    min-height: 40px;
+  }
+
+  .btn-lg {
+    padding: var(--spacing-md) var(--spacing-lg);
+    font-size: var(--font-size-sm);
+    min-height: 44px;
+  }
+
+  /* Card adjustments */
+  .card-header,
+  .card-body,
+  .card-footer {
+    padding: var(--spacing-lg);
+  }
+
+  /* Table adjustments */
+  .table {
+    min-width: 700px;
+    font-size: var(--font-size-sm);
+  }
+
+  .table thead th,
+  .table tbody td {
+    padding: var(--spacing-md) var(--spacing-lg);
+  }
+
+  /* Grid adjustments */
+  .grid-auto {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--spacing-xl);
+  }
+
+  .grid-3,
+  .grid-4,
+  .grid-5,
+  .grid-6 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Modal adjustments */
+  .modal-close {
+    min-width: 32px;
+    min-height: 32px;
+    font-size: var(--font-size-base);
+  }
+
+  /* Status indicators */
+  .status-indicator,
+  .status-badge {
+    padding: 2px var(--spacing-xs);
+    font-size: 0.65em;
+  }
+
+  /* Icon buttons */
+  .icon-btn {
+    min-width: 32px;
+    min-height: 32px;
+    padding: var(--spacing-xs);
+  }
+
+  /* Flash messages */
+  .flash-message {
+    top: var(--spacing-xs);
+    right: var(--spacing-xs);
+    left: var(--spacing-xs);
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-xs);
+  }
+
+  /* Navigation */
+  .nav-tabs {
+    gap: 2px;
+  }
+
+  .nav-tab {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: 0.75em;
+    min-width: 70px;
+    flex: 1;
+  }
+
+  /* Loading spinner */
+  .loading-spinner {
+    width: 20px;
+    height: 20px;
+    border-width: 2px;
+  }
+
+  /* Avatar */
+  .avatar {
+    width: 32px;
+    height: 32px;
+    font-size: var(--font-size-xs);
+  }
+
+  /* Badges */
+  .badge {
+    padding: 2px var(--spacing-xs);
+    font-size: 0.65em;
+  }
+
+  /* Extra small utilities */
+  .xs\:flex-col {
+    flex-direction: column;
+  }
+
+  .xs\:text-center {
+    text-align: center;
+  }
+
+  .xs\:w-full {
+    width: 100%;
+  }
+
+  .xs\:hidden {
+    display: none;
+  }
+
+  .xs\:block {
+    display: block;
+  }
+
+  .xs\:p-xs {
+    padding: var(--spacing-xs);
+  }
+
+  .xs\:gap-xs {
+    gap: var(--spacing-xs);
+  }
+}
+
+/* ============================================= */
+/* ==           EXTRA SMALL PHONES            == */
+/* ============================================= */
+
+@media (max-width: 360px) {
+
+  /* Container adjustments */
+  .container {
+    padding: 3px;
+    margin: 3px auto;
+    min-width: 280px;
+  }
+
+  /* Typography adjustments */
+  h1 {
+    font-size: clamp(1em, 2.5vw, 1.4em);
+  }
+
+  h2 {
+    font-size: clamp(0.95em, 2vw, 1.2em);
+  }
+
+  h3 {
+    font-size: clamp(0.9em, 1.8vw, 1.1em);
+  }
+
+  /* Button adjustments */
+  .btn {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: 0.75em;
+    min-height: 36px;
+  }
+
+  .btn-sm {
+    padding: 4px var(--spacing-xs);
+    font-size: 0.7em;
+    min-height: 32px;
+  }
+
+  /* Card adjustments */
+  .card {
+    padding: var(--spacing-xs);
+    margin: 2px;
+  }
+
+  .card-header,
+  .card-body,
+  .card-footer {
+    padding: var(--spacing-xs);
+  }
+
+  /* Table adjustments */
+  .table {
+    min-width: 320px;
+    font-size: 0.7em;
+  }
+
+  .table thead th,
+  .table tbody td {
+    padding: 4px 2px;
+    font-size: 0.65em;
+    max-width: 80px;
+  }
+
+  /* Form adjustments */
+  .form-input,
+  .form-select,
+  .form-textarea {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: var(--font-size-xs);
+  }
+
+  /* Modal adjustments */
+  .modal-content {
+    max-width: 98vw;
+    margin: 2px;
+  }
+
+  .modal-header,
+  .modal-body,
+  .modal-footer {
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
+
+  .modal-header h1,
+  .modal-header h2,
+  .modal-header h3 {
+    font-size: var(--font-size-base);
+  }
+
+  /* Status indicators */
+  .status-indicator,
+  .status-badge {
+    padding: 1px 4px;
+    font-size: 0.6em;
+  }
+
+  /* Icon buttons */
+  .icon-btn {
+    min-width: 28px;
+    min-height: 28px;
+    padding: 4px;
+  }
+
+  /* Flash messages */
+  .flash-message {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: 0.75em;
+  }
+
+  /* Navigation */
+  .nav-tab {
+    padding: 4px var(--spacing-xs);
+    font-size: 0.7em;
+    min-width: 60px;
+  }
+
+  /* Loading spinner */
+  .loading-spinner {
+    width: 16px;
+    height: 16px;
+    border-width: 1px;
+  }
+
+  /* Avatar */
+  .avatar {
+    width: 28px;
+    height: 28px;
+    font-size: 0.7em;
+  }
+}
+
+/* ============================================= */
+/* ==            LANDSCAPE ORIENTATION        == */
+/* ============================================= */
+
+@media (max-height: 600px) and (orientation: landscape) {
+
+  /* Adjust modal height for landscape mobile */
+  .modal-content {
+    max-height: 85vh;
+    overflow-y: auto;
+  }
+
+  .modal-body {
+    max-height: 50vh;
+    overflow-y: auto;
+  }
+
+  /* Reduce vertical spacing in landscape */
+  .container {
+    margin: var(--spacing-sm) auto;
+  }
+
+  .card {
+    margin: var(--spacing-xs) 0;
+  }
+
+  /* Compact flash messages */
+  .flash-message {
+    top: var(--spacing-xs);
+    padding: var(--spacing-xs) var(--spacing-md);
+  }
+}
+
+/* ============================================= */
+/* ==            TOUCH DEVICE ADJUSTMENTS     == */
+/* ============================================= */
+
+@media (hover: none) and (pointer: coarse) {
+
+  /* Ensure minimum touch targets */
+  .btn,
+  .icon-btn,
+  .nav-tab,
+  button,
+  input[type="button"],
+  input[type="submit"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Remove hover effects on touch devices */
+  .btn:hover,
+  .card:hover,
+  .icon-btn:hover,
+  .nav-tab:hover {
+    transform: none;
+  }
+
+  /* Adjust focus states for touch */
+  .btn:focus,
+  .form-input:focus,
+  .form-select:focus {
+    outline: 3px solid var(--primary-green);
+    outline-offset: 2px;
+  }
+}
+
+/* ============================================= */
+/* ==            HIGH DPI DISPLAYS            == */
+/* ============================================= */
+
+@media (-webkit-min-device-pixel-ratio: 2),
+(min-resolution: 192dpi) {
+
+  /* Adjust borders for high DPI */
+  .card,
+  .form-input,
+  .form-select,
+  .table-container {
+    border-width: 0.5px;
+  }
+
+  /* Sharper shadows on high DPI */
+  .card {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  }
+
+  .btn {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* ============================================= */
+/* ==            RESPONSIVE UTILITIES          == */
+/* ============================================= */
+
+/* Large screens only */
+@media (min-width: 1025px) {
+  .lg\:grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .lg\:grid-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .lg\:grid-4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .lg\:flex-row {
+    flex-direction: row;
+  }
+
+  .lg\:justify-between {
+    justify-content: space-between;
+  }
+
+  .lg\:w-auto {
+    width: auto;
+  }
+
+  .lg\:block {
+    display: block;
+  }
+
+  .lg\:hidden {
+    display: none;
+  }
+}
+
+/* Medium screens and up */
+@media (min-width: 769px) {
+  .md\:grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .md\:flex-row {
+    flex-direction: row;
+  }
+
+  .md\:justify-start {
+    justify-content: flex-start;
+  }
+
+  .md\:w-auto {
+    width: auto;
+  }
+
+  .md\:block {
+    display: block;
+  }
+
+  .md\:flex {
+    display: flex;
+  }
+}
+
+/* Small screens and up */
+@media (min-width: 481px) {
+  .sm\:grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .sm\:flex-row {
+    flex-direction: row;
+  }
+
+  .sm\:w-auto {
+    width: auto;
+  }
+
+  .sm\:block {
+    display: block;
+  }
+}
+
+/* ============================================= */
+/* ==            CONTAINER QUERIES             == */
+/* ============================================= */
+
+/* Modern container queries for components that support it */
+@supports (container-type: inline-size) {
+  .card-container {
+    container-type: inline-size;
+  }
+
+  @container (max-width: 300px) {
+    .card {
+      padding: var(--spacing-sm);
+    }
+
+    .card-header,
+    .card-body,
+    .card-footer {
+      padding: var(--spacing-sm);
+    }
+
+    .btn {
+      width: 100%;
+      font-size: var(--font-size-xs);
+    }
+  }
+}
+
+/* ============================================= */
+/* ==            RESPONSIVE GRID AREAS        == */
+/* ============================================= */
+
+/* Responsive grid template areas */
+.grid-layout {
+  display: grid;
+  grid-template-areas:
+    "header header"
+    "sidebar main"
+    "footer footer";
+  grid-template-columns: 250px 1fr;
+  grid-template-rows: auto 1fr auto;
+  gap: var(--spacing-xl);
+  min-height: 100vh;
+}
+
+@media (max-width: 768px) {
+  .grid-layout {
+    grid-template-areas:
+      "header"
+      "main"
+      "sidebar"
+      "footer";
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr auto auto;
+    gap: var(--spacing-lg);
+  }
+}
+
+.grid-header {
+  grid-area: header;
+}
+
+.grid-sidebar {
+  grid-area: sidebar;
+}
+
+.grid-main {
+  grid-area: main;
+}
+
+.grid-footer {
+  grid-area: footer;
+}
+
+/* ============================================= */
+/* ==            RESPONSIVE TYPOGRAPHY        == */
+/* ============================================= */
+
+/* Fluid typography scale */
+.text-responsive {
+  font-size: clamp(0.875rem, 0.75rem + 0.5vw, 1.125rem);
+}
+
+.heading-responsive {
+  font-size: clamp(1.5rem, 1rem + 2vw, 3rem);
+  line-height: 1.2;
+}
+
+.subheading-responsive {
+  font-size: clamp(1.125rem, 0.875rem + 1vw, 1.5rem);
+  line-height: 1.3;
+}
+
+/* ============================================= */
+/* ==            RESPONSIVE IMAGES            == */
+/* ============================================= */
+
+/* Responsive image utilities */
+.img-responsive {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.img-cover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.img-contain {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* ============================================= */
+/* ==            RESPONSIVE SCROLLBARS        == */
+/* ============================================= */
+
+/* Mobile-friendly scrollbars */
+@media (max-width: 768px) {
+  .table-container::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  .table-container::-webkit-scrollbar-thumb {
+    background: var(--primary-green);
+    border-radius: 3px;
+  }
+
+  .table-container::-webkit-scrollbar-track {
+    background: var(--bg-muted);
+    border-radius: 3px;
+  }
+}
+
+/* ============================================= */
+/* ==            RESPONSIVE ANIMATIONS        == */
+/* ============================================= */
+
+/* Disable complex animations on smaller screens for performance */
+@media (max-width: 480px) {
+  .card:hover {
+    transform: none;
+  }
+
+  .btn:hover {
+    transform: translateY(-1px);
+  }
+
+  /* Reduce animation duration on mobile */
+  * {
+    animation-duration: 0.2s !important;
+    transition-duration: 0.2s !important;
+  }
+
+  .content {
+    max-width: 90vw;
+    margin: var(--spacing-lg);
+  }
+
+  /* Flash message adjustments */
+  .flash-message {
+    max-width: 350px;
+  }
+}
+
+/* ============================================= */
+/* ==               TABLETS                   == */
+/* ============================================= */
+
+@media (max-width: 768px) {
+
+  /* Container adjustments */
+  .container {
+    padding: var(--spacing-md);
+    margin: var(--spacing-md) auto;
+    border-radius: var(--radius-md);
+  }
+
+  /* Typography adjustments */
+  h1 {
+    font-size: clamp(1.5em, 4vw, 2em);
+  }
+
+  h2 {
+    font-size: clamp(1.3em, 3.5vw, 1.7em);
+  }
+
+  h3 {
+    font-size: clamp(1.1em, 3vw, 1.4em);
+  }
+
+  /* Button adjustments */
+  .btn {
+    width: 100%;
+    padding: var(--spacing-md) var(--spacing-lg);
+    min-height: 44px;
+  }
+
+  .btn-group {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
+
+  .btn-group .btn {
+    width: 100%;
+  }
+
+  /* Card adjustments */
+  .card {
+    margin: var(--spacing-sm);
+  }
+
+  .card-header,
+  .card-body,
+  .card-footer {
+    padding: var(--spacing-lg);
+  }
+
+  /* Grid adjustments */
+  .grid-auto,
+  .grid-2,
+  .grid-3,
+  .grid-4,
+  .grid-5,
+  .grid-6 {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-lg);
+  }
+
+  .grid-sidebar,
+  .grid-sidebar-right {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-xl);
+  }
+
+  /* Table adjustments */
+  .table-container {
+    border-radius: var(--radius-md);
+  }
+
+  .table {
+    min-width: 600px;
+    font-size: var(--font-size-xs);
+  }
+
+  .table thead th,
+  .table tbody td {
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-xs);
+    max-width: 150px;
+  }
+
+  /* Form adjustments */
+  .form-input,
+  .form-select,
+  .form-textarea {
+    padding: var(--spacing-md);
+    font-size: var(--font-size-sm);
+  }
+
+  .search-input {
+    max-width: 100%;
+    margin: 0;
+  }
+
+  /* Modal adjustments */
+  .modal-content {
+    max-width: 95vw;
+    max-height: 90vh;
+    margin: var(--spacing-sm);
+  }
+
+  .modal-header,
+  .modal-body,
+  .modal-footer {
+    padding: var(--spacing-lg);
+  }
+
+  .modal-footer {
+    flex-direction: column-reverse;
+    gap: var(--spacing-sm);
+  }
+
+  .modal-footer .btn {
+    width: 100%;
+  }
+
+  /* Flash message adjustments */
+  .flash-message {
+    top: var(--spacing-sm);
+    right: var(--spacing-sm);
+    left: var(--spacing-sm);
+    max-width: none;
+    min-width: auto;
+  }
+
+  /* Navigation adjustments */
+  .nav-tabs {
+    flex-wrap: wrap;
+    gap: var(--spacing-xs);
+  }
+
+  .nav-tab {
+    flex: 1;
+    min-width: 100px;
+    text-align: center;
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-xs);
+  }
+
+  /* Flexbox responsive utilities */
+  .md\:flex-col {
+    flex-direction: column;
+  }
+
+  .md\:flex-wrap {
+    flex-wrap: wrap;
+  }
+
+  .md\:justify-center {
+    justify-content: center;
+  }
+
+  .md\:items-stretch {
+    align-items: stretch;
+  }
+
+  .md\:gap-sm {
+    gap: var(--spacing-sm);
+  }
+
+  /* Width utilities */
+  .md\:w-full {
+    width: 100%;
+  }
+
+  .md\:max-w-none {
+    max-width: none;
+  }
+
+  /* Display utilities */
+  .md\:hidden {
+    display: none;
+  }
+
+  .md\:block {
+    display: block;
+  }
+
+  .md\:flex {
+    display: flex;
+  }
+}
+
+/* ============================================= */
+/* ==          SMALL TABLETS/LARGE PHONES     == */
+/* ============================================= */
+
+@media (max-width: 640px) {
+
+  /* Container adjustments */
+  .container {
+    padding: var(--spacing-sm);
+    margin: var(--spacing-sm) auto;
+  }
+
+  /* Typography adjustments */
+  h1 {
+    font-size: clamp(1.3em, 3.5vw, 1.8em);
+  }
+
+  h2 {
+    font-size: clamp(1.2em, 3vw, 1.5em);
+  }
+
+  h3 {
+    font-size: clamp(1.1em, 2.5vw, 1.3em);
+  }
+
+  /* Button adjustments */
+  .btn {
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-xs);
+    min-height: 42px;
+  }
+
+  /* Card adjustments */
+  .card {
+    padding: var(--spacing-md);
+    border-radius: var(--radius-md);
+  }
+
+  .card-header,
+  .card-body,
+  .card-footer {
+    padding: var(--spacing-md);
+  }
+
+  /* Table adjustments */
+  .table {
+    min-width: 500px;
+    font-size: var(--font-size-xs);
+  }
+
+  .table thead th,
+  .table tbody td {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: var(--font-size-xs);
+    max-width: 120px;
+  }
+
+  /* Form adjustments */
+  .form-input,
+  .form-select,
+  .form-textarea {
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-sm);
+  }
+
+  /* Modal adjustments */
+  .modal-content {
+    max-width: 98vw;
+    margin: var(--spacing-xs);
+    border-radius: var(--radius-md);
+  }
+
+  .modal-header,
+  .modal-body,
+  .modal-footer {
+    padding: var(--spacing-md);
+  }
+
+  /* Status indicators */
+  .status-indicator,
+  .status-badge {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: 0.7em;
+  }
+
+  /* Icon buttons */
+  .icon-btn {
+    min-width: 36px;
+    min-height: 36px;
+    padding: var(--spacing-xs);
+  }
+
+  /* Navigation adjustments */
+  .nav-tab {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: 0.8em;
+    min-width: 80px;
+  }
+
+  /* Small mobile utilities */
+  .sm\:flex-col {
+    flex-direction: column;
+  }
+
+  .sm\:justify-center {
+    justify-content: center;
+  }
+
+  .sm\:items-stretch {
+    align-items: stretch;
+  }
+
+  .sm\:w-full {
+    width: 100%;
+  }
+
+  .sm\:max-w-none {
+    max-width: none;
+  }
+
+  .sm\:text-center {
+    text-align: center;
+  }
+
+  .sm\:hidden {
+    display: none;
+  }
+
+  .sm\:block {
+    display: block;
+  }
+
+  .sm\:flex {
+    display: flex;
+  }
+}
+
+/* ============================================= */
+/* ==             MOBILE PHONES               == */
+/* ============================================= */
+
+@media (max-width: 480px) {
+
+  /* Container adjustments */
+  .container {
+    padding: var(--spacing-xs);
+    margin: var(--spacing-xs) auto;
+    min-width: 300px;
+  }
+
+  /* Typography adjustments */
+  h1 {
+    font-size: clamp(1.2em, 3vw, 1.6em);
+  }
+
+  h2 {
+    font-size: clamp(1.1em, 2.5vw, 1.4em);
+  }
+
+  h3 {
+    font-size: clamp(1em, 2vw, 1.2em);
+  }
+
+  /* Button adjustments */
+  .btn {
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-xs);
+    min-height: 40px;
+  }
+
+  .btn-sm {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: 0.75em;
+    min-height: 36px;
+  }
+
+  /* Card adjustments */
+  .card {
+    padding: var(--spacing-sm);
+    margin: var(--spacing-xs);
+  }
+
+  .card-header,
+  .card-body,
+  .card-footer {
+    padding: var(--spacing-sm);
+  }
+
+  /* Table adjustments */
+  .table {
+    min-width: 400px;
+    font-size: 0.75em;
+  }
+
+  .table thead th,
+  .table tbody td {
+    padding: var(--spacing-xs);
+    font-size: 0.7em;
+    max-width: 100px;
+  }
+
+  /* Form adjustments */
+  .form-input,
+  .form-select,
+  .form-textarea {
+    padding: var(--spacing-sm);
+    font-size: var(--font-size-sm);
+  }
+
+  .search-input {
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-sm);
+  }
+
+  /* Modal adjustments */
+  .modal-content {
+    max-width: 95vw;
+    margin: var(--spacing-xs);
+  }
+
+  .modal-header {
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+
+  .modal-header h1,
+  .modal-header h2,
+  .modal-header h3 {
+    font-size: var(--font-size-lg);
+  }
+
+  .modal-body,
+  .modal-footer {
+    padding: var(--spacing-md);
+  }
+
+}
