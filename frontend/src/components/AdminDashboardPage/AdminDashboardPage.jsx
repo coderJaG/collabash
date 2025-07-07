@@ -10,7 +10,7 @@ import * as sessionActions from '../../store/session';
 import { ClipLoader } from 'react-spinners';
 import { FaCubesStacked } from "react-icons/fa6";
 import { SiQuicklook } from "react-icons/si";
-import { MdArrowBack, MdPayment, MdWarning, MdCheckCircle, MdEdit, MdSave, MdCancel, MdHourglassTop, MdSchedule, MdBlock, MdAdd, MdSettings, MdPerson, MdDashboard } from 'react-icons/md';
+import { MdArrowBack, MdPayment, MdWarning, MdCheckCircle, MdEdit, MdSave, MdCancel, MdHourglassTop, MdSchedule, MdBlock, MdAdd, MdSettings, MdPerson} from 'react-icons/md';
 import { formatDate } from '../../utils/formatDate';
 import OpenModalButton from '../../components/OpenModalButton';
 import SuspendConfirmationModal from '../../components/SuspendConfirmationModal/SuspendConfirmationModal';
@@ -660,7 +660,6 @@ const PotCard = ({
     pot,
     handlePotSelect,
     handleViewPayments,
-    handleManagePot,
     editingFees,
     feeInputs,
     feeUpdateSuccess,

@@ -474,7 +474,7 @@ const SignUpFormModal = ({createdByBanker = false}) => {
                         <div className="info-content">
                             <span className="info-title">Account Type</span>
                             <span className="info-description">
-                                You'll start as a Standard User. To become a banker and create pots, 
+                                You will start as a Standard User. To become a banker and create pots, 
                                 contact an administrator after registration.
                             </span>
                         </div>

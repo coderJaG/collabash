@@ -676,7 +676,7 @@ const StandardUserDashboard = () => {
 
 // --- Child Components ---
 
-const UserPotCard = ({ pot, handlePotSelect, handleManagePot, calculatePotStats, currUser }) => {
+const UserPotCard = ({ pot, handlePotSelect, handleManagePot, calculatePotStats }) => {
     const stats = calculatePotStats(pot);
 
     return (

@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { MdDelete, MdPersonAdd, MdSearch } from 'react-icons/md';
+import { MdDelete, MdPersonAdd } from 'react-icons/md';
 import * as usersActions from '../../store/users';
 import * as sessionActions from '../../store/session';
 import LoadingSpinner from '../LoadingSpinner';

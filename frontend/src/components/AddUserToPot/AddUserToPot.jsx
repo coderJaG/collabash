@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useModal } from '../context/Modal';
-import { MdSearch, MdClose, MdCheckBox, MdCheckBoxOutlineBlank, MdFilterList, MdSort } from 'react-icons/md';
+import { MdSearch, MdClose, MdCheckBox, MdCheckBoxOutlineBlank, MdSort } from 'react-icons/md';
 import './AddUserToPot.css'
 
 const AddUsersToPot = ({

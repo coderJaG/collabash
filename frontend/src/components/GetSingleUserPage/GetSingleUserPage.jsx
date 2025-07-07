@@ -266,7 +266,7 @@ const GetSingleUserPage = () => {
                     </button>
                     <div>
                         <h1 className="admin-header">
-                            {selectedUser.firstName}'s Profile
+                            {`${selectedUser.firstName}'s Profile`}
                             {isOwner && <span className="owner-indicator"> (You)</span>}
                         </h1>
                         <p className="admin-subtitle">View and manage user information</p>

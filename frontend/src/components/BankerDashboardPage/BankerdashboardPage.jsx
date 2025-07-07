@@ -816,7 +816,7 @@ const BankerDashboardPage = () => {
 
 // --- Child Components ---
 
-const BankerPotCard = ({ pot, handlePotSelect, handleViewPayments, handleManagePot }) => {
+const BankerPotCard = ({ pot, handlePotSelect, handleViewPayments }) => {
     const stats = {
         memberCount: pot.Users?.length || 0,
         dueCount: pot.paymentData?.dueCount || 0,
