@@ -1,4 +1,4 @@
-// backend/routes/api/history.js - Enhanced Working Version
+// backend/routes/api/history.js 
 const express = require('express');
 const router = express.Router();
 const { requireAuth, requirePermission } = require('../../utils/auth');
