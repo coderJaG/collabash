@@ -8,64 +8,34 @@ if (process.env.NODE_ENV === 'production') {
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('PasswordResetTokens', {
-      id: {
-        allowNull: false,
-        autoIncrement: true,
-        primaryKey: true,
-        type: Sequelize.INTEGER
-      },
-      userId: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-          model: 'Users',
-          key: 'id'
-        },
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE'
-      },
-      token: {
-        type: Sequelize.STRING,
-        allowNull: false,
-        unique: true
-      },
-      expiresAt: {
-        type: Sequelize.DATE,
-        allowNull: false
-      },
-      used: {
-        type: Sequelize.BOOLEAN,
-        allowNull: false,
-        defaultValue: false
-      },
-      createdAt: {
-        allowNull: false,
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
-      },
-      updatedAt: {
-        allowNull: false,
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
-      }
-    }, options);
+    const schema = options.schema ? `"${options.schema}".` : '';
+    
+    await queryInterface.sequelize.query(`
+      CREATE TABLE ${schema}"PasswordResetTokens" (
+        id SERIAL PRIMARY KEY,
+        "userId" INTEGER NOT NULL,
+        token VARCHAR UNIQUE NOT NULL,
+        "expiresAt" TIMESTAMP NOT NULL,
+        used BOOLEAN NOT NULL DEFAULT false,
+        "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "updatedAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        CONSTRAINT fk_user FOREIGN KEY ("userId") REFERENCES ${schema}"Users"(id) ON DELETE CASCADE ON UPDATE CASCADE
+      );
+    `);
 
-    // Add index for faster token lookups
-    await queryInterface.addIndex('PasswordResetTokens', ['token'], {
-      ...options,
+    // Add indexes for faster token lookups and cleanup
+    await queryInterface.addIndex({ tableName: 'PasswordResetTokens', schema: options.schema }, ['token'], {
       name: 'password_reset_tokens_token_idx'
     });
-
-    // Add index for cleanup of expired tokens
-    await queryInterface.addIndex('PasswordResetTokens', ['expiresAt'], {
-      ...options,
+    
+    await queryInterface.addIndex({ tableName: 'PasswordResetTokens', schema: options.schema }, ['expiresAt'], {
       name: 'password_reset_tokens_expires_at_idx'
     });
+    
+    await queryInterface.addIndex({ tableName: 'PasswordResetTokens', schema: options.schema }, ['userId']);
   },
 
   async down(queryInterface, Sequelize) {
-    options.tableName = "PasswordResetTokens";
-    await queryInterface.dropTable(options);
+    await queryInterface.dropTable({ tableName: 'PasswordResetTokens', schema: options.schema });
   }
 };
