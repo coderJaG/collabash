@@ -28,6 +28,7 @@ module.exports = (sequelize, DataTypes) => {
       User.hasMany(models.WeeklyPayment, { foreignKey: 'userId' });
       User.hasMany(models.TransactionHistory, { foreignKey: 'userId', as: 'actionHistory' });
       User.hasMany(models.JoinRequest, { foreignKey: 'userId', as: 'sentRequests' });
+      User.hasMany(models.PasswordResetToken, { foreignKey: 'userId', onDelete: 'CASCADE' });
     }
   }
   User.init({

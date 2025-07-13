@@ -11,6 +11,7 @@ import GetAllUsersPage from "./components/GetAllUsersPage";
 import GetSingleUserPage from "./components/GetSingleUserPage";
 import TransactionHistoryPage from "./components/TransactionHistoryPage";
 import UnifiedDashboardPage from "./components/UnifiedDashboardPage";
+import PasswordResetPage from './components/PasswordResetPage';
 import * as sessionActions from './store/session'
 
 
@@ -81,6 +82,10 @@ const router = createBrowserRouter([
       {
         path: '/banker-dashboard', // banker dashboard
         element: <UnifiedDashboardPage />
+      },
+      {
+        path: '/reset-password',
+        element: <PasswordResetPage />
       }
     ]
   }
