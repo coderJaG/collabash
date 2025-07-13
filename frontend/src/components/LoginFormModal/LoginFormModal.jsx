@@ -1,15 +1,17 @@
-// LoginFormModal.jsx - Updated to match SignUp structure
+// LoginFormModal.jsx - Updated to include Forgot Password link with shared CSS
 import { useState, useRef } from "react";
 import * as sessionActions from "../../store/session";
 import { useDispatch } from "react-redux";
 import { useModal } from "../context/Modal";
 import SignUpFormModal from "../SignUpFormModal";
+import ForgotPasswordModal from "../ForgotPasswordModal";
 import { 
     MdLogin, 
     MdPerson, 
     MdLock,
     MdAccountCircle,
-    MdWarning
+    MdWarning,
+    MdHelp
 } from 'react-icons/md';
 import './LoginFormModal.css';
 
@@ -44,6 +46,16 @@ function LoginFormModal() {
         }
         setTimeout(() => {
             setModalContent(<SignUpFormModal />);
+        }, 150);
+    };
+
+    const switchToForgotPassword = () => {
+        setIsTransitioning(true);
+        if (modalRef.current) {
+            modalRef.current.classList.add('switching');
+        }
+        setTimeout(() => {
+            setModalContent(<ForgotPasswordModal />);
         }, 150);
     };
 
@@ -143,6 +155,41 @@ function LoginFormModal() {
                         />
                     </div>
 
+                    {/* Forgot Password Link */}
+                    <div className="text-center my-md">
+                        <button 
+                            type="button"
+                            className="btn-link text-primary-green text-sm font-medium flex items-center justify-center gap-xs hover:text-primary-green-hover transition-all"
+                            onClick={switchToForgotPassword}
+                            disabled={isTransitioning}
+                            style={{
+                                background: 'none',
+                                border: 'none',
+                                padding: 'var(--spacing-sm) var(--spacing-md)',
+                                borderRadius: 'var(--radius-sm)',
+                                textDecoration: 'none',
+                                cursor: 'pointer',
+                                color: 'var(--primary-green)',
+                                fontSize: 'var(--font-size-sm)',
+                                fontWeight: 'var(--font-weight-medium)',
+                                transition: 'var(--transition-all)'
+                            }}
+                            onMouseEnter={(e) => {
+                                e.target.style.color = 'var(--primary-green-hover)';
+                                e.target.style.background = 'rgba(26, 188, 156, 0.05)';
+                                e.target.style.transform = 'translateY(-1px)';
+                            }}
+                            onMouseLeave={(e) => {
+                                e.target.style.color = 'var(--primary-green)';
+                                e.target.style.background = 'none';
+                                e.target.style.transform = 'translateY(0)';
+                            }}
+                        >
+                            <MdHelp className="text-base" />
+                            Forgot password or username?
+                        </button>
+                    </div>
+
                     <button
                         type="submit"
                         className="login-submit-button"
@@ -155,7 +202,7 @@ function LoginFormModal() {
             </div>
             
             <div className="form-switch-link">
-                <span>{`Don\n't have an account?`}</span>
+                <span>{`Don't have an account?`}</span>
                 <button 
                     className="signup-button" 
                     onClick={switchToSignup}

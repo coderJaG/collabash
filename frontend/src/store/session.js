@@ -1,4 +1,4 @@
-//store/session.js
+// store/session.js
 
 import { csrfFetch } from './csrf';
 
@@ -13,7 +13,6 @@ const addUserSession = (user) => ({
 const removeUserSession = () => ({
     type: REMOVE_USER_SESSSION
 });
-
 
 export const login = (user) => async (dispatch) => {
     const { credential, password } = user;
@@ -81,6 +80,69 @@ export const logOutCurrUser = () => async (dispatch) => {
     } catch (error) {
         const errorData = await error.json();
         console.error("Logout failed:", errorData);
+    }
+};
+
+// NEW AUTH RECOVERY FUNCTIONS
+
+export const requestPasswordReset = (email) => async () => {
+    console.log('requestPasswordReset called with email:', email);
+    try {
+        const res = await csrfFetch('/api/auth/forgot-password', {
+            method: 'POST',
+            body: JSON.stringify({ email })
+        });
+        
+        const data = await res.json();
+        return data;
+
+    } catch (error) {
+        const errorData = await error.json();
+        throw errorData;
+    }
+};
+
+export const requestUsernameRecovery = (mobile) => async () => {
+    try {
+        const res = await csrfFetch('/api/auth/forgot-username', {
+            method: 'POST',
+            body: JSON.stringify({ mobile })
+        });
+        
+        const data = await res.json();
+        return data;
+
+    } catch (error) {
+        const errorData = await error.json();
+        throw errorData;
+    }
+};
+
+export const resetPassword = (token, password) => async () => {
+    try {
+        const res = await csrfFetch('/api/auth/reset-password', {
+            method: 'POST',
+            body: JSON.stringify({ token, password })
+        });
+        
+        const data = await res.json();
+        return data;
+
+    } catch (error) {
+        const errorData = await error.json();
+        throw errorData;
+    }
+};
+
+export const verifyResetToken = (token) => async () => {
+    try {
+        const res = await csrfFetch(`/api/auth/verify-reset-token/${token}`);
+        const data = await res.json();
+        return data;
+
+    } catch (error) {
+        const errorData = await error.json();
+        throw errorData;
     }
 };
 

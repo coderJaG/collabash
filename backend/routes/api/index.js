@@ -5,9 +5,9 @@ const usersRouter = require('./users.js');
 const potsRouter = require('./pots.js');
 const transactionsRouter = require('./transactions.js');
 const historyRouter = require('./history.js');
-const requestrouter = require('./requests.js');
+const requestRouter = require('./requests.js');
 const adminRouter = require('./admin.js');
-
+const authRouter = require('./auth.js');
 
 const { restoreUser } = require('../../utils/auth.js');
 
@@ -26,9 +26,11 @@ router.use('/transactions', transactionsRouter);
 
 router.use('/history', historyRouter);
 
-router.use('/requests', requestrouter);
+router.use('/requests', requestRouter);
 
 router.use('/admin', adminRouter);
+
+router.use('/auth', authRouter);
 
   
 module.exports = router;
